@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: CodeFellows | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/codefellows/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-19T18:47:14-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Backgrounders]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/17/Backgrounders/"/>
+    <updated>2014-10-17T20:00:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/17/Backgrounders</id>
+    <content type="html"><![CDATA[<p>Me and my fellow students at Code Fellows have made public a set of templates under the name of “<a href="https://github.com/Backgrounders">Backgrounders</a>” that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. And is publicly available in GitHub.</p>
+
+<p>We hope this small public source contribution help others as a reference when dealing with background workers.</p>
+
+<p>Following is Scott Hale’s and my contribution to the common effort:</p>
+
+<hr />
+
+<h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
+
+<p>This is a template for how to set up Rails 4.2 with background jobs from Sidekiq using Redis.</p>
+
+<p>In a nutshell, when we create a background jobs we pass an object with the data to use to the worker. In most cases, we pass a Model object (i.e. ActiveRecord), so make things simpler we just pass the id of the object to the worker, and Rails and Sidekiq take care of everything for us (finding it in the database, serializing and de-serializing it).</p>
+
+<p>In this template we have taken a different route. Instead of passing an existing Model object we pass an ad-hoc one, created in the spot and stored in a hash that we pass to the worked in json format. Then, it is up to us to tell the worker how to  de-serialize it, reconstituting the original hash from the json string, to be able to operate on the data passed.</p>
+
+<p>All this will become more clear with an example.</p>
+
+<p>Our app has a simple contact page with a custom form that the user fills with some request of information. Upon submission of the form, our app will create a background job to send an email and defer its responsibilities to Sidequik.</p>
+
+<h3 id="prep-work">1. Prep Work</h3>
+
+<h4 id="add-letteropener-and-launchy-gem"><em>Add letter_opener and launchy gem</em></h4>
+
+<p><code>ruby
+gem "letter_opener"
+gem "launchy"
+</code></p>
+
+<p>Letter_Oppener allows us, in development, to simulate the process of sending the email by creating it as a temporary file. That way we avoid sending the actual email over the network, which is messy and brittle to test.</p>
+
+<p>The Launchy gem automatically opens the created temp file in a browser window so the sending process becomes automatic and we have real time confirmation that the email was sent correctly.</p>
+
+<p>We need to modify the ‘config/environments/development.rb’.</p>
+
+<p><code>
+# to be appraised of mailing errors
+config.action_mailer.raise_delivery_errors = true
+# to deliver to the browser instead of email
+config.action_mailer.delivery_method = :letter_opener
+</code></p>
+
+<h3 id="mailer">2. Mailer</h3>
+
+<h4 id="generate-mailer"><em>Generate Mailer</em></h4>
+
+<p>We start with a basic new Rails application without controllers, models or views, and we generate a mailer.</p>
+
+<p><code>
+$ rails g mailer VisitorMailer
+</code></p>
+
+<h4 id="create-mailer-action"><em>Create Mailer Action</em></h4>
+
+<p>We pass to the Mailer action the information we need to build the email: name, email address and body of email. We make all of them available to the corresponding view (the email template) through instance variables.</p>
+
+<p>Keep in mind that this action, ‘contact_email’, will be the one that the worker (background process) will execute.</p>
+
+<p><code>
+class VisitorMailer &lt; ActionMailer::Base
+  def contact_email(name, email, message)
+    @name = name
+    @email = email
+    @message = message
+    mail(from: @email,
+         to: 'javier@badaboom.com',
+         subject: 'New Visitor\'s Email')
+  end
+end
+</code></p>
+
+<h4 id="create-email-template"><em>Create EMail Template</em></h4>
+
+<p>The view associated with the controller action is the actual template for the email to be sent. We make two versions, in html and text format, with the information passed through instance variables.</p>
+
+<p>```
+&lt;!DOCTYPE html&gt;</p>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  </head>
+  <body>
+    <h1>&lt;%= @name %&gt; (&lt;%= @email %&gt;)</h1>
+    <p>
+      &lt;%= @message %&gt;
+    </p>
+  </body>
+</html>
+<p>```</p>
+
+<h3 id="the-resource">3. The Resource</h3>
+
+<h4 id="generate-controller"><em>Generate Controller</em></h4>
+
+<p>Now that the Mailer is set and done we generate the VisitorsController.</p>
+
+<p><code>
+$ rails g controller visitors
+</code></p>
+
+<p>We add two actions. The index actions displays the basic contact form. Once submitted, it reaches the contact action where we extract the form parameters.</p>
+
+<p>The form information is packaged into a hash and subsequently JSONified so we can pass it as an argument to the worker (a Sidekiq requirement).</p>
+
+<p>```
+class VisitorsController &lt; ApplicationController
+  def index
+  end</p>
+
+<p>def contact
+    h = JSON.generate({ ‘name’ =&gt; params[:name],
+                        ‘email’ =&gt; params[:email],
+                        ‘message’ =&gt; params[:message] })</p>
+
+<pre><code>PostmanWorker.perform_async(h, 5)
+
+# if instead of sidekiq I was just sending email from rails
+# VisitorMailer.contact_email(@name, @email, @message).deliver
+
+redirect_to :root   end end ```
+</code></pre>
+
+<h4 id="make-a-small-form-for-the-view"><em>Make a small form for the View</em></h4>
+
+<p>Just a simple form.</p>
+
+<h4 id="update-the-routes"><em>Update the routes</em></h4>
+
+<p>We haven’t done it yet and we cannot defer anymore, we need to establish our routes and root.</p>
+
+<p><code>
+Rails.application.routes.draw do
+  post 'visitors/contact', to: 'visitors#contact'
+  root 'visitors#index'
+end
+</code></p>
+
+<h4 id="the-model"><em>The Model?</em></h4>
+
+<p>Nope, no model. The controller just passes the information received from the form directly to the worker.</p>
+
+<h3 id="the-background-worker">4. The background worker</h3>
+
+<h4 id="install-sidekiq"><em>Install Sidekiq</em></h4>
+
+<p>Add to your Gemfile and don’t forget to bundle up.</p>
+
+<p><code>
+gem 'sidekiq'
+</code></p>
+
+<h4 id="create-a-worker"><em>Create a Worker</em></h4>
+
+<p>We essentially follow the instructions from the Sidekiq’s readme and docs, and we create a worker responsible for delivering emails, a Postman worker.</p>
+
+<p>The key here is that the worker needs a json object as simple as possible. Usually this would be the id from a Model object, in which case Sidekiq would serialize and de-serialize the object referenced by it.</p>
+
+<p>In our case, the information is not stored in the database so we create a json hash, that we passed to the worker for queuing in Redis. Now, the key is that we also need to de-serialize this json object upon arrival to re-create the hash. Once re-constituted, the hash gives us access to the data we need to call the ActionMailer and deliver the email.</p>
+
+<p>```
+class PostmanWorker
+  include Sidekiq::Worker</p>
+
+<p>def perform(h, count)
+    h = JSON.load(h)
+    VisitorMailer.contact_email(h[‘name’], h[‘email’], h[‘message’]).deliver
+  end
+end
+```</p>
+
+<p>The results show up in the browser when the email is sent.</p>
+
+<h4 id="add-dashboard"><em>Add Dashboard</em></h4>
+
+<p>This nifty tool, the Sidekiq Dashboard, runs on Sinatra, which we have to add to the Gemfile.</p>
+
+<p><code>
+gem 'sinatra', '&gt;= 1.3.0', :require =&gt; nil
+</code></p>
+
+<p>And we simply add it to our routes…</p>
+
+<p><code>
+require 'sidekiq/web'
+mount Sidekiq::Web =&gt; '/sidekiq'
+</code></p>
+
+<p>…so it becomes available in (depending on your setup) http://localhost:3000/sidekiq</p>
+
+<p>Beware that anybody can access this dashboard once in production, so check for ways to secure its access.</p>
+
+<h3 id="final-setup">5. Final Setup</h3>
+
+<p>The final touches involve making sure you have bundle installed, and installing Redis if not already in place (for which I recommend to use brew on Mac OS X whenever possible to avoid headaches)</p>
+
+<p>Then all that is left is to start each service in its own tab like this:</p>
+
+<p><code>
+$ rails s
+$ redis-server
+$ bundle exec sidekiq
+</code></p>
+
+<p>You can also user <a href="https://github.com/ddollar/foreman">Foreman</a> and save yourself opening tabs and running things separately.</p>
+
+<p>We haven’t included tests in this template, which is a necessary best practice to follow. I leave it up to you to BDD this template with the necessary tests.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Back to School]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/09/15/Back-to-School/"/>
+    <updated>2014-09-15T08:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/09/15/Back-to-School</id>
+    <content type="html"><![CDATA[<p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
+
+<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
+
+<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
+
+<p><a href="http://www.codefellows.com"><img class="center" src="/images/logos/codefellows.png" width="200" title="Code Fellows logo" ></a></p>
+
+]]></content>
+  </entry>
+  
+</feed>
