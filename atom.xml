@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-19T12:13:03-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Back to School]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/09/15/CF-Starts/"/>
+    
+    <updated>2014-09-15T08:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/09/15/CF-Starts</id>
+    
+    <content type="html"><![CDATA[<p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
+
+<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
+
+<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
+
+<p><a href="http://www.codefellows.com"><img class="center" src="http://sotoseattle.github.io/images/logos/codefellows.png" width="200" title="Code Fellows logo" /></a></p>
+
+]]></content>
+    
+  </entry>
+  
+</feed>
