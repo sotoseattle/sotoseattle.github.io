@@ -1,10 +1,14 @@
 ---
 layout: post
 title: "Installing Octopress at github.io"
-date: 2014-09-01 11:00
+date: 2014-10-20 11:00
 comments: true
 categories: GitHub, Octopress
 ---
+
+I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.
+
+I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.
 
 The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.
 
