@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octopress | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/octopress/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-20T10:24:49-07:00</updated>
+  <updated>2014-10-20T10:31:28-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,10 +15,14 @@
   
   <entry>
     <title type="html"><![CDATA[Installing Octopress at github.io]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/09/01/Octopress-GH/"/>
-    <updated>2014-09-01T11:00:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/09/01/Octopress-GH</id>
-    <content type="html"><![CDATA[<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
+    <link href="http://sotoseattle.github.io/blog/2014/10/20/Octopress-GH/"/>
+    <updated>2014-10-20T11:00:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/20/Octopress-GH</id>
+    <content type="html"><![CDATA[<p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
+
+<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
+
+<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
 
 <p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
 
