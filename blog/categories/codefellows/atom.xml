@@ -4,7 +4,7 @@
   <title><![CDATA[Category: CodeFellows | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/codefellows/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-19T19:13:24-07:00</updated>
+  <updated>2014-10-19T19:37:12-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -25,6 +25,8 @@
 <p>Following is Scott Hale’s and my contribution to the common effort:</p>
 
 <hr />
+
+<p><br /></p>
 
 <h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
 
