@@ -6,13 +6,14 @@ comments: true
 categories: CodeFellows
 ---
 
-Me and my fellow students at Code Fellows have made public a set of templates under the name of "[Backgrounders](https://github.com/Backgrounders)" that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. And is publicly available in GitHub.
+My fellow students at Code Fellows and I have made public a set of templates under the name of "[Backgrounders](https://github.com/Backgrounders)" that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. And is publicly available in GitHub.
 
 We hope this small public source contribution help others as a reference when dealing with background workers.
 
 Following is Scott Hale's and my contribution to the common effort:
 
 <hr>
+<br>
 
 # Rails 4.2 Mailer with Sidekiq ![kick ass with rails 4.2!](/images/Oct14/nonsense.png)
 
