@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>SotoSeattle</title>
+  <title>JavaScript OO Review - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
@@ -22,7 +22,7 @@ var newObject &hellip;">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.io">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/10/20/JS-review">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -112,18 +112,15 @@ var newObject &hellip;">
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a></h1>
-      
-      
+      <h1 class="entry-title">JavaScript OO Review</h1>
+    
+  
     
       <p class="meta">
         
@@ -145,7 +142,7 @@ var newObject &hellip;">
   </header>
 
 
-  <div class="entry-content"><p>Interestingly enough JS is class-less yet everything is an object. There are 3 ways to instantiate an object:</p>
+<div class="entry-content"><p>Interestingly enough JS is class-less yet everything is an object. There are 3 ways to instantiate an object:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -258,24 +255,16 @@ var newObject &hellip;">
 <p>Inside the module we have some internal private stuff shielded from the outside, and the module returns an object with the public API and public variables. This returned object is assigned to the myNamespace variable so we access its innards as properties of the object.</p>
 
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
   
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a></h1>
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
       
-      
-    
-      <p class="meta">
-        
 
 
 
@@ -287,117 +276,44 @@ var newObject &hellip;">
   
 
 
-<time datetime="2014-10-20T11:00:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
-        
-      </p>
+<time datetime="2014-10-20T14:30:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/js/'>JS,</a>, <a class='category' href='/blog/categories/oo/'>OO</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
-
-
-  <div class="entry-content"><p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
-
-<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
-
-<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
-
-<p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
-
-<p>In essence you’ll end up using two different git repos inside both your Octopress code base. And the fun part is that both point to the same github repo!</p>
-
-<p>1.- the first can be found inside the folder _deploy:</p>
-
-<ul>
-  <li><code>rake generate</code> compiles the site from all the files in the source directory (and other resources) and places everything inside the _deploy folder.</li>
-  <li><code>rake deploy</code> pushes it (the files inside _deploy) up to GitHub, actually to the to origin/master branch.</li>
-</ul>
-
-<p>So, for example, if we have a custom domain and we want it to point to our github.io site, we need a CNAME file that we place inside the source folder. After rake generate and rake deploy, it will show up in the root of origin/master (and inside our _deploy folder)</p>
-
-<p>2.- The second git repo, you create it on the root:</p>
-
-<p>For this one we create a single branch, “source”, that holds everything (all files, source and _deploy) and we push only to origin/source. Aha!, this repo goes to the ‘source’ branch in github, the generated one goes to ‘master’. So we don’t have a master branch in this local git repo, only source, and in this way we avoid pushing it to master in origin (which already tracks the first repo!).</p>
-
-<p>Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.</p>
-
-<p>Now, I may be off base in this explanation, if so, please set me straight in the comments.</p>
-
-<p>Good luck with the Octos!</p>
-
-<p><img class="center" src="/images/Oct14/octocat_octopress.png" width="400" title="Code Fellows logo" /></p>
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/10/20/JS-review/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/10/20/JS-review/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
     
-      <h1 class="entry-title"><a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a></h1>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/20/Octopress-GH/" title="Previous Post: Installing Octopress at github.io">&laquo; Installing Octopress at github.io</a>
       
       
-    
-      <p class="meta">
-        
+    </p>
+  </footer>
+</article>
 
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-17T20:00:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My fellow students at Code Fellows and I have made public a set of templates under the name of “<a href="https://github.com/Backgrounders">Backgrounders</a>” that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. It is publicly available in GitHub.</p>
-
-<p>We hope this small public source contribution help others as a reference when dealing with background workers. Following is my contribution to the common effort:</p>
-
-<hr />
-
-<p><br /></p>
-
-<h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
-
-<p>This is a template for how to set up Rails 4.2 with background jobs from Sidekiq using Redis.</p>
-
-<p>In a nutshell, when we create a background jobs we pass an object with the data to use to the worker. In most cases, we pass a Model object (i.e. ActiveRecord), so make things simpler we just pass the id of the object to the worker, and Rails and Sidekiq take care of everything for us (finding it in the database, serializing and de-serializing it).</p>
-
-<p>In this template we have taken a different route. Instead of passing an existing Model object we pass an ad-hoc one, created in the spot and stored in a hash that we pass to the worked in json format. Then, it is up to us to tell the worker how to  de-serialize it, reconstituting the original hash from the json string, to be able to operate on the data passed.</p>
-
-<p>All this will become more clear with an example.</p>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/17/Backgrounders/">Read on &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  <div class="pagination">
-    
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -430,6 +346,7 @@ var newObject &hellip;">
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -446,7 +363,10 @@ var newObject &hellip;">
       var disqus_shortname = 'sotoseattle';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/10/20/JS-review/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/10/20/JS-review/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
