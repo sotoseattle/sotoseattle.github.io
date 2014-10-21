@@ -29,4 +29,8 @@ For this one we create a single branch, "source", that holds everything (all fil
 
 Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.
 
-Good luck!
+Now, I may be off base in this explanation, if so, please set me straight in the comments.
+
+Good luck with the Octos!
+
+{% img center /images/Oct14/octocat_octopress.png 400 Code Fellows logo %}

@@ -23,6 +23,8 @@ In this template we have taken a different route. Instead of passing an existing
 
 All this will become more clear with an example.
 
+<!--more-->
+
 Our app has a simple contact page with a custom form that the user fills with some request of information. Upon submission of the form, our app will create a background job to send an email and defer its responsibilities to Sidequik.
 
 
