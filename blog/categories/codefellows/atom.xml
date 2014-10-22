@@ -4,7 +4,7 @@
   <title><![CDATA[Category: CodeFellows, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/codefellows/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-22T08:40:04-07:00</updated>
+  <updated>2014-10-22T08:53:15-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -14,11 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Metaprogramming in Action]]></title>
+    <title type="html"><![CDATA[Ruby Metaprogramming in Action]]></title>
     <link href="http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming/"/>
     <updated>2014-10-05T08:01:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming</id>
-    <content type="html"><![CDATA[<p>The <a href="github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of metaprogramming.</p>
+    <content type="html"><![CDATA[<p>The <a href="github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of Ruby metaprogramming.</p>
 
 <p>It is a module that when added to your class helps define equality, equivalence and inspection methods.</p>
 
@@ -34,20 +34,12 @@ class GeoLocation
 end</p>
 
 <p>point_a = GeoLocation.new(1, 2)
-point_b = GeoLocation.new(1, 2)
-point_c = GeoLocation.new(2, 2)</p>
+point_b = GeoLocation.new(1, 2)</p>
 
 <p>point_a.inspect    # =&gt; “#&lt;GeoLocation latitude=1 longitude=2&gt;”</p>
 
 <p>point_a == point_b           # =&gt; true
 point_a.hash == point_b.hash # =&gt; true
-point_a.eql?(point_b)        # =&gt; true
-point_a.equal?(point_b)      # =&gt; false</p>
-
-<p>point_a == point_c           # =&gt; false
-point_a.hash == point_c.hash # =&gt; false
-point_a.eql?(point_c)        # =&gt; false
-point_a.equal?(point_c)      # =&gt; false
 ```</p>
 
 <p>Among other metaprogramming tricks it uses the define_method extensively. Although this is usually done to create a new named method at runtime, in this case, the method’s names are set from the start, what is created dynamically is the way the method operates.</p>

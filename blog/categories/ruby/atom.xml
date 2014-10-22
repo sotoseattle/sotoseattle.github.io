@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Metaprogramming | SotoSeattle]]></title>
-  <link href="http://sotoseattle.github.io/blog/categories/metaprogramming/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
   <updated>2014-10-22T08:53:15-07:00</updated>
   <id>http://sotoseattle.github.io/</id>

@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-22T08:40:04-07:00</updated>
+  <updated>2014-10-22T08:53:15-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -456,13 +456,13 @@
   
   <entry>
     
-    <title type="html"><![CDATA[Metaprogramming in Action]]></title>
+    <title type="html"><![CDATA[Ruby Metaprogramming in Action]]></title>
     <link href="http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming/"/>
     
     <updated>2014-10-05T08:01:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming</id>
     
-    <content type="html"><![CDATA[<p>The <a href="github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of metaprogramming.</p>
+    <content type="html"><![CDATA[<p>The <a href="github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of Ruby metaprogramming.</p>
 
 <p>It is a module that when added to your class helps define equality, equivalence and inspection methods.</p>
 
@@ -483,14 +483,6 @@
 <span class="line-number">15</span>
 <span class="line-number">16</span>
 <span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
 </pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
 </span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
 </span><span class="line">
@@ -503,19 +495,11 @@
 </span><span class="line">
 </span><span class="line"><span class="n">point_a</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </span><span class="line"><span class="n">point_b</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class="line"><span class="n">point_c</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 </span><span class="line">
 </span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">inspect</span>    <span class="c1"># =&gt; &quot;#&lt;GeoLocation latitude=1 longitude=2&gt;&quot;</span>
 </span><span class="line">
 </span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_b</span>           <span class="c1"># =&gt; true</span>
 </span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">point_b</span><span class="p">)</span>        <span class="c1"># =&gt; true</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">equal?</span><span class="p">(</span><span class="n">point_b</span><span class="p">)</span>      <span class="c1"># =&gt; false</span>
-</span><span class="line">
-</span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_c</span>           <span class="c1"># =&gt; false</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_c</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; false</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">eql?</span><span class="p">(</span><span class="n">point_c</span><span class="p">)</span>        <span class="c1"># =&gt; false</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">equal?</span><span class="p">(</span><span class="n">point_c</span><span class="p">)</span>      <span class="c1"># =&gt; false</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Among other metaprogramming tricks it uses the define_method extensively. Although this is usually done to create a new named method at runtime, in this case, the method’s names are set from the start, what is created dynamically is the way the method operates.</p>
