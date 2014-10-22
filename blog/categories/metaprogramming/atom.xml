@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Metaprogramming | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/metaprogramming/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-22T08:38:13-07:00</updated>
+  <updated>2014-10-22T08:40:04-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -54,15 +54,22 @@ point_a.equal?(point_c)      # =&gt; false
 
 <p>For example, the cmp? (comparable?) method has a set name (cmp?) and the blocks passed is also well defined (we check that all keys of both objects return the same values), but the fact that we won’t know which keys are available to compare until runtime makes this use an example of metaprogramming.</p>
 
-<p><code>ruby
+<p>```ruby
+# where we make attributes comparable
 def define_cmp_method
   keys = @keys
   define_method(:cmp?) do |comparator, other|
     keys.all? { |key| send(key).send(comparator, other.send(key)) }
   end
   private :cmp?
+end</p>
+
+<h1 id="the-comparisson-method">The comparisson method</h1>
+<p>def ==(other)
+  other = coerce(other) if respond_to?(:coerce, true)
+  other.is_a?(self.class) &amp;&amp; cmp?(<strong>method</strong>, other)
 end
-</code></p>
+```</p>
 
 <p>Two notes:</p>
 

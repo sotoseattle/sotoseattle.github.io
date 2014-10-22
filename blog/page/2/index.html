@@ -208,12 +208,26 @@
 <span class="line-number">5</span>
 <span class="line-number">6</span>
 <span class="line-number">7</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">def</span> <span class="nf">define_cmp_method</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># where we make attributes comparable</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">define_cmp_method</span>
 </span><span class="line">  <span class="n">keys</span> <span class="o">=</span> <span class="vi">@keys</span>
 </span><span class="line">  <span class="n">define_method</span><span class="p">(</span><span class="ss">:cmp?</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">comparator</span><span class="p">,</span> <span class="n">other</span><span class="o">|</span>
 </span><span class="line">    <span class="n">keys</span><span class="o">.</span><span class="n">all?</span> <span class="p">{</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span> <span class="nb">send</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">comparator</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="p">}</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line">  <span class="kp">private</span> <span class="ss">:cmp?</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="c1"># The comparisson method</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class="line">  <span class="n">other</span> <span class="o">=</span> <span class="n">coerce</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="k">if</span> <span class="nb">respond_to?</span><span class="p">(</span><span class="ss">:coerce</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class="line">  <span class="n">other</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">cmp?</span><span class="p">(</span><span class="n">__method__</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
