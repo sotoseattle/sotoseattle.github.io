@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-23T09:03:22-07:00</updated>
+  <updated>2014-10-23T15:45:25-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -546,6 +546,63 @@
     <p>Consider also that we include this Equalizer class as an instantiated object when defining the class, so when we instantiate a new object all Equalizer methods are available as instance methods already defined for the existing instance variables.</p>
   </li>
 </ol>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[ask before pushing]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/"/>
+    
+    <updated>2014-09-16T08:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm</id>
+    
+    <content type="html"><![CDATA[<p>During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally in git, besides, as they say, when in doubt reset –hard. But once your code is committed up to a publicly available and centralized repo, you become the butt of jokes in the office, people point at you behind your back and changing history becomes a nightmare.</p>
+
+<p>I have found a little trick that helps with this, git hooks!</p>
+
+<p>Inside your .git folder there is another one, ‘hooks’, and inside, there is a treasure trove of configurable callbacks to personalize your git work flow.</p>
+
+<p>There are many good sources in the Internet to check. Here is a good walk through: <a href="http://blog.ittybittyapps.com/blog/2013/09/03/git-pre-push/">link</a>. And this is the <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks">Chacon bible</a> chapter about it.</p>
+
+<p>I ended including the following file ‘.git/hooks/pre-push’, which forces a confirmation every time I intend to push to master. Many other variants are possible, like making sure that your tests have run before pushing, I recommend exploring them all.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c">#!/bin/bash</span>
+</span><span class="line">
+</span><span class="line"><span class="nv">protected_branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span>
+</span><span class="line"><span class="nv">current_branch</span><span class="o">=</span><span class="k">$(</span>git symbolic-ref HEAD | sed -e <span class="s1">&#39;s,.*/\(.*\),\1,&#39;</span><span class="k">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">if</span> <span class="o">[</span> <span class="nv">$protected_branch</span> <span class="o">=</span> <span class="nv">$current_branch</span> <span class="o">]</span>
+</span><span class="line"><span class="k">then</span>
+</span><span class="line"><span class="k">    </span><span class="nb">read</span> -p <span class="s2">&quot;You&#39;re about to push master, is that what you intended? [y|n] &quot;</span> -n 1 -r &lt; /dev/tty
+</span><span class="line">    <span class="nb">echo</span>
+</span><span class="line"><span class="nb">    </span><span class="k">if </span><span class="nb">echo</span> <span class="nv">$REPLY</span> | grep -E <span class="s1">&#39;^[Yy]$&#39;</span> &gt; /dev/null
+</span><span class="line">    <span class="k">then</span>
+</span><span class="line"><span class="k">        </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
+</span><span class="line">    <span class="k">fi</span>
+</span><span class="line"><span class="k">    </span><span class="nb">exit </span>1 <span class="c"># push will not execute</span>
+</span><span class="line"><span class="k">else</span>
+</span><span class="line"><span class="k">    </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
+</span><span class="line"><span class="k">fi</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 ]]></content>
     
   </entry>
