@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Git | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/git/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-23T15:45:25-07:00</updated>
+  <updated>2014-10-23T15:47:05-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[ask before pushing]]></title>
+    <title type="html"><![CDATA[Ask before pushing]]></title>
     <link href="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/"/>
     <updated>2014-09-16T08:01:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm</id>
