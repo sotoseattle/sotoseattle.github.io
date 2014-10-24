@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-24T13:38:37-07:00</updated>
+  <updated>2014-10-24T13:49:32-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Ruby Metaprogramming and Trees]]></title>
+    <title type="html"><![CDATA[Ruby Metaprogramming II]]></title>
     <link href="http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta/"/>
     <updated>2014-10-24T08:01:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta</id>
@@ -35,7 +35,7 @@ end
 
 <p>Now we instantiate the tree and wire it.</p>
 
-<p><img class="center" src="/images/Oct14/binary_tree.png" width="400"></p>
+<p><img class="center" src="/images/Oct14/binary_tree.png" width="300"></p>
 
 <!--more-->
 
@@ -80,7 +80,7 @@ end</p>
 end
 ```</p>
 
-<p>The code is clear and readable, yet suffers from some repetition. Also we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:</p>
+<p>The code is clear and readable, yet suffers from some repetition. Also, we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:</p>
 
 <ul>
   <li>pre =&gt; first call</li>
