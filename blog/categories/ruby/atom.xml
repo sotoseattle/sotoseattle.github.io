@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-24T13:30:57-07:00</updated>
+  <updated>2014-10-24T13:33:22-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -126,6 +126,26 @@ end
 
 <p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
 
+<p>This could work for testing purposes:</p>
+
+<p>```ruby
+require ‘spec_helper’</p>
+
+<p>describe BinaryTree do
+  describe ‘Search Methods’ do
+    let(:bt) { # tim as defined above }
+    it ‘BinaryTree#traverse_pre_order’ do
+      proc { bt.traverse_pre_order }.must_output “Tim\nJony\nDan\nKatie\nPeter\nAndrea\nPhil\nCraig\nEddie\n”
+    end</p>
+
+<pre><code>it 'BinaryTree#traverse_in_order' do
+  proc { bt.traverse_in_order }.must_output "Dan\nJony\nPeter\nKatie\nAndrea\nTim\nCraig\nPhil\nEddie\n"
+end
+
+it 'BinaryTree#traverse_post_order' do
+  proc { bt.traverse_post_order }.must_output "Dan\nPeter\nAndrea\nKatie\nJony\nCraig\nEddie\nPhil\nTim\n"
+end   end end ```
+</code></pre>
 ]]></content>
   </entry>
   

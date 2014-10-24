@@ -307,6 +307,45 @@
 
 <p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
 
+<p>This could work for testing purposes:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="nb">require</span> <span class="s1">&#39;spec_helper&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">describe</span> <span class="no">BinaryTree</span> <span class="k">do</span>
+</span><span class="line">  <span class="n">describe</span> <span class="s1">&#39;Search Methods&#39;</span> <span class="k">do</span>
+</span><span class="line">    <span class="n">let</span><span class="p">(</span><span class="ss">:bt</span><span class="p">)</span> <span class="p">{</span> <span class="c1"># tim as defined above }</span>
+</span><span class="line">    <span class="n">it</span> <span class="s1">&#39;BinaryTree#traverse_pre_order&#39;</span> <span class="k">do</span>
+</span><span class="line">      <span class="nb">proc</span> <span class="p">{</span> <span class="n">bt</span><span class="o">.</span><span class="n">traverse_pre_order</span> <span class="p">}</span><span class="o">.</span><span class="n">must_output</span> <span class="s2">&quot;Tim</span><span class="se">\n</span><span class="s2">Jony</span><span class="se">\n</span><span class="s2">Dan</span><span class="se">\n</span><span class="s2">Katie</span><span class="se">\n</span><span class="s2">Peter</span><span class="se">\n</span><span class="s2">Andrea</span><span class="se">\n</span><span class="s2">Phil</span><span class="se">\n</span><span class="s2">Craig</span><span class="se">\n</span><span class="s2">Eddie</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class="line">    <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">it</span> <span class="s1">&#39;BinaryTree#traverse_in_order&#39;</span> <span class="k">do</span>
+</span><span class="line">      <span class="nb">proc</span> <span class="p">{</span> <span class="n">bt</span><span class="o">.</span><span class="n">traverse_in_order</span> <span class="p">}</span><span class="o">.</span><span class="n">must_output</span> <span class="s2">&quot;Dan</span><span class="se">\n</span><span class="s2">Jony</span><span class="se">\n</span><span class="s2">Peter</span><span class="se">\n</span><span class="s2">Katie</span><span class="se">\n</span><span class="s2">Andrea</span><span class="se">\n</span><span class="s2">Tim</span><span class="se">\n</span><span class="s2">Craig</span><span class="se">\n</span><span class="s2">Phil</span><span class="se">\n</span><span class="s2">Eddie</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class="line">    <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">it</span> <span class="s1">&#39;BinaryTree#traverse_post_order&#39;</span> <span class="k">do</span>
+</span><span class="line">      <span class="nb">proc</span> <span class="p">{</span> <span class="n">bt</span><span class="o">.</span><span class="n">traverse_post_order</span> <span class="p">}</span><span class="o">.</span><span class="n">must_output</span> <span class="s2">&quot;Dan</span><span class="se">\n</span><span class="s2">Peter</span><span class="se">\n</span><span class="s2">Andrea</span><span class="se">\n</span><span class="s2">Katie</span><span class="se">\n</span><span class="s2">Jony</span><span class="se">\n</span><span class="s2">Craig</span><span class="se">\n</span><span class="s2">Eddie</span><span class="se">\n</span><span class="s2">Phil</span><span class="se">\n</span><span class="s2">Tim</span><span class="se">\n</span><span class="s2">&quot;</span>
+</span><span class="line">    <span class="k">end</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 </div>
 
 
