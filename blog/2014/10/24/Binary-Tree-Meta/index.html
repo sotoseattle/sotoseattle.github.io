@@ -1,0 +1,471 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Ruby Metaprogramming and Trees - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="Learning the ropes of Ruby Metaprogramming, here is small experiment I coded. I start with a basic BinaryTree that consists of basic nodes that hold &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+  <li><a href="images/Javier_Soto_resume.pdf">Resume</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Ruby Metaprogramming and Trees</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Learning the ropes of Ruby Metaprogramming, here is small experiment I coded.</p>
+
+<p>I start with a basic BinaryTree that consists of basic nodes that hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
+</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now we instantiate the tree and wire it.</p>
+
+<p><img class="center" src="/images/Oct14/binary_tree.png" width="400" /></p>
+
+<!--more-->
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">tim</span>    <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Tim&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">phil</span>   <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Phil&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">jony</span>   <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Jony&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">dan</span>    <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Dan&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">katie</span>  <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Katie&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">craig</span>  <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Craig&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">eddie</span>  <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Eddie&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">peter</span>  <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Peter&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">andrea</span> <span class="o">=</span> <span class="no">BinaryTree</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;Andrea&#39;</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">tim</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">tim</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">jony</span><span class="p">,</span> <span class="n">phil</span>
+</span><span class="line"><span class="n">jony</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">jony</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">dan</span><span class="p">,</span> <span class="n">katie</span>
+</span><span class="line"><span class="n">katie</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">katie</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">peter</span><span class="p">,</span> <span class="n">andrea</span>
+</span><span class="line"><span class="n">phil</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">phil</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">craig</span><span class="p">,</span> <span class="n">eddie</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>We are only interested in traversing the tree and outputting to stdout the names of each node. There are three different ways to perform this traversal in a depth-first fashion: pre-order, in-order and post-order. You can read more about them in this <a href="http://en.wikipedia.org/wiki/Tree_traversal">Wikipedia page</a>.</p>
+
+<p>A common sense way to implement it is the following:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">def</span> <span class="nf">traverse_pre_order</span>
+</span><span class="line">  <span class="nb">puts</span> <span class="n">val</span>
+</span><span class="line">  <span class="n">left</span><span class="o">.</span><span class="n">traverse_pre_order</span> <span class="k">if</span> <span class="n">left</span>
+</span><span class="line">  <span class="n">right</span><span class="o">.</span><span class="n">traverse_pre_order</span> <span class="k">if</span> <span class="n">right</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">traverse_in_order</span>
+</span><span class="line">  <span class="n">left</span><span class="o">.</span><span class="n">traverse_in_order</span> <span class="k">if</span> <span class="n">left</span>
+</span><span class="line">  <span class="nb">puts</span> <span class="n">val</span>
+</span><span class="line">  <span class="n">right</span><span class="o">.</span><span class="n">traverse_in_order</span> <span class="k">if</span> <span class="n">right</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">traverse_post_order</span>
+</span><span class="line">  <span class="n">left</span><span class="o">.</span><span class="n">traverse_post_order</span> <span class="k">if</span> <span class="n">left</span>
+</span><span class="line">  <span class="n">right</span><span class="o">.</span><span class="n">traverse_post_order</span> <span class="k">if</span> <span class="n">right</span>
+</span><span class="line">  <span class="nb">puts</span> <span class="n">val</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The code is clear and readable, yet suffers from some repetition. Also we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:</p>
+
+<ul>
+  <li>pre =&gt; first call</li>
+  <li>in  =&gt; between left and right</li>
+  <li>post =&gt; after both calls</li>
+</ul>
+
+<p>We can do better with metaprogramming by leveraging Ruby’s define_method:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="sx">%w[pre in post]</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">prefix</span><span class="o">|</span>
+</span><span class="line">  <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">do</span>
+</span><span class="line">    <span class="c1"># statements_to_execute = [traverse_left, traverse_right]</span>
+</span><span class="line">    <span class="c1"># insert the puts call in the right place depending on the prefix</span>
+</span><span class="line">    <span class="c1"># execute the array of orders one by one</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Since we need to manipulate the order of the statements to execute, we need to make them objects, so we wrapp them in blocks of functionality (stabby lambdas). Then, is only a question of changing the order of the array of statements to adapt it to each flavor of traversal, and at the end we call each statement to yield. Here is the final code of the complete class.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
+</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="sx">%w[pre in post]</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">prefix</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
+</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">do</span>
+</span><span class="line">      <span class="n">left_to_right</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class="line">        <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">left</span><span class="o">.</span><span class="n">public_send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">left</span> <span class="p">},</span>
+</span><span class="line">        <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">right</span><span class="o">.</span><span class="n">public_send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">right</span> <span class="p">}</span><span class="o">]</span>
+</span><span class="line">      <span class="n">do_stuff</span> <span class="o">=</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="nb">puts</span> <span class="n">val</span> <span class="p">}</span>
+</span><span class="line">      <span class="n">left_to_right</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span>
+</span><span class="line">      <span class="n">left_to_right</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="o">.</span><span class="n">yield</span> <span class="p">}</span>
+</span><span class="line">    <span class="k">end</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/metaprogramming/'>Metaprogramming</a>, <a class='category' href='/blog/categories/ruby/'>Ruby,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/20/JS-review/" title="Previous Post: JavaScript OO Review">&laquo; JavaScript OO Review</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming and Trees</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/05/Metaprogramming/">Ruby Metaprogramming in Action</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="The Equalizer gem provides a nifty example of Ruby metaprogramming. It is a module that when added to your class helps define equality, equivalence &hellip;">
+  <meta name="description" content="My fellow students at Code Fellows and I have made public a set of templates under the name of “Backgrounders” that show how to set up different &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,65 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-17T20:00:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>My fellow students at Code Fellows and I have made public a set of templates under the name of “<a href="https://github.com/Backgrounders">Backgrounders</a>” that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. It is publicly available in GitHub.</p>
+
+<p>We hope this small public source contribution help others as a reference when dealing with background workers. Following is my contribution to the common effort:</p>
+
+<hr />
+
+<p><br /></p>
+
+<h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
+
+<p>This is a template for how to set up Rails 4.2 with background jobs from Sidekiq using Redis.</p>
+
+<p>In a nutshell, when we create a background jobs we pass an object with the data to use to the worker. In most cases, we pass a Model object (i.e. ActiveRecord), so make things simpler we just pass the id of the object to the worker, and Rails and Sidekiq take care of everything for us (finding it in the database, serializing and de-serializing it).</p>
+
+<p>In this template we have taken a different route. Instead of passing an existing Model object we pass an ad-hoc one, created in the spot and stored in a hash that we pass to the worked in json format. Then, it is up to us to tell the worker how to  de-serialize it, reconstituting the original hash from the json string, to be able to operate on the data passed.</p>
+
+<p>All this will become more clear with an example.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/17/Backgrounders/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -274,52 +333,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/15/Back-to-School/">Back to School</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-15T08:01:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
-
-<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
-
-<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
-
-<p><a href="http://www.codefellows.com"><img class="center" src="/images/logos/codefellows.png" width="200" title="Code Fellows logo" /></a></p>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -332,6 +348,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming and Trees</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
@@ -347,10 +367,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/05/Metaprogramming/">Ruby Metaprogramming in Action</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/16/git-push-confirm/">Ask before pushing</a>
       </li>
     
   </ul>
