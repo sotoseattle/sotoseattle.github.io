@@ -254,7 +254,7 @@
 </span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitute and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
+<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitude and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
 
 <p>And there lies the rub, the double nature of Equalizer.</p>
 
@@ -268,6 +268,38 @@
 <p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the ‘keys’). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
 
 <p>Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
+
+<p>Let’s check it works:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">Insane</span> <span class="o">&lt;</span> <span class="no">Module</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;Oh My God!&quot;</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">Node</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Insane</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:val</span><span class="p">)</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="no">Node</span><span class="o">.</span><span class="n">new</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.val = [</span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">]&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="o">[</span><span class="no">Oh</span> <span class="no">My</span> <span class="no">God</span><span class="o">!]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Convoluted, pirouetticall, and yet it works. We can define an instance variable through an instantiated module included at runtime. Let’s continue before we finish the stock of Tylenol.</p>
 
 <h2 id="define-method">Define Method</h2>
 
