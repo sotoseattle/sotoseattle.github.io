@@ -4,7 +4,7 @@
   <title><![CDATA[Category: CodeFellows, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/codefellows/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-23T18:21:46-07:00</updated>
+  <updated>2014-10-23T19:17:43-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -40,9 +40,9 @@ point_b = GeoLocation.new(1, 2)</p>
 
 <p>point_a == point_b           # =&gt; true
 point_a.hash == point_b.hash # =&gt; true
-```</p>
-
-<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
+```
+<!--more-->
+## Include instance of a Module?</p>
 
 <p><code>ruby
 # example
@@ -51,9 +51,9 @@ class GeoLocation
 ...
 </code></p>
 
-<p>The first thing that kicks your gut when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, classes devoid of the perils and tribulations born out of fleshed-out Objects?</p>
+<p>The first thing that calls the attention when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, angelical and stateless, devoid of the tribulations of commoner fleshed-out Objects?</p>
 
-<p>In Ruby everything is an Object, as we wouldn’t deny the right to be objectified to anybody, so the following two ways of coding a module are equivalent:</p>
+<p>In Ruby everything is an Object, and the following two ways of coding a module are equivalent:</p>
 
 <p>```ruby
 module Insane
@@ -69,7 +69,7 @@ end</p>
 end
 ```</p>
 
-<p>Now that we see that everything is an object we inspect Equalizer’s code:</p>
+<p>Let’s inspect the Equalizer’s code:</p>
 
 <p>```ruby
 # equalizer.rb
@@ -85,43 +85,48 @@ end</p>
 <h1 id="example">example</h1>
 <p>class GeoLocation
   include Equalizer.new(:latitude, :longitude)
-…
+  …
 ```</p>
 
-<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitude and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
-
-<p>And there lies the rub, the double nature of Equalizer.</p>
+<p>In the last line lies the rub, the double nature of Equalizer.</p>
 
 <ol>
   <li>Equalizer is a Module and by ‘including’ it, GeoLocation makes all methods from Equalizer available to his objects.</li>
   <li>Yet Equalizer is defined as a class that can be instantiated.</li>
 </ol>
 
-<p>But we have seen that everything is an object, so the instantiation must serve a different purpose.</p>
+<p>But we have seen that everything is an object and there is no need to make it a class object, so the instantiation must serve a different purpose.</p>
 
 <p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the ‘keys’). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
 
-<p>Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
+<p>Although stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
 
 <p>Let’s check it works:</p>
 
 <p>```ruby
 class Insane &lt; Module
   def initialize(key)
-    define_method(key) { “Oh My God!” }
+    define_method(“#{key}?”) { ‘God!’ }
   end
 end</p>
 
-<p>class Node
-  include Insane.new(:val)
+<p>class Person
+  attr_reader :who_am_i
+  include Insane.new(:who_am_i)</p>
+
+<p>def initialize(name)
+    @who_am_i = name
+  end
 end</p>
 
-<p>a = Node.new
-puts “a.val = #{a.val}”
-=&gt; a.val = Oh My God!
+<p>a = Person.new(‘javier’)
+puts “a.who_am_i = #{a.who_am_i}”
+=&gt; a.who_am_i = javier
+puts “a.who_am_i? = #{a.who_am_i?}”
+=&gt; a.who_am_i? = God!
 ```</p>
 
-<p>Convoluted, pirouetticall, and yet it works. We can define an instance variable through an instantiated module included at runtime. Let’s continue before we finish the stock of Tylenol.</p>
+<p>Convoluted, pirouetticall, and yet it works.</p>
 
 <h2 id="define-method">Define Method</h2>
 

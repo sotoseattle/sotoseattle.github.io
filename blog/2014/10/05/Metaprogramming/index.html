@@ -178,8 +178,8 @@
 </span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_b</span>           <span class="c1"># =&gt; true</span>
 </span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
+<!--more-->
+<p>## Include instance of a Module?</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -191,9 +191,9 @@
 </span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>The first thing that kicks your gut when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, classes devoid of the perils and tribulations born out of fleshed-out Objects?</p>
+<p>The first thing that calls the attention when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, angelical and stateless, devoid of the tribulations of commoner fleshed-out Objects?</p>
 
-<p>In Ruby everything is an Object, as we wouldn’t deny the right to be objectified to anybody, so the following two ways of coding a module are equivalent:</p>
+<p>In Ruby everything is an Object, and the following two ways of coding a module are equivalent:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -219,7 +219,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Now that we see that everything is an object we inspect Equalizer’s code:</p>
+<p>Let’s inspect the Equalizer’s code:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -248,23 +248,21 @@
 </span><span class="line"><span class="c1"># example</span>
 </span><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
 </span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
-</span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class="line">  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitude and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
-
-<p>And there lies the rub, the double nature of Equalizer.</p>
+<p>In the last line lies the rub, the double nature of Equalizer.</p>
 
 <ol>
   <li>Equalizer is a Module and by ‘including’ it, GeoLocation makes all methods from Equalizer available to his objects.</li>
   <li>Yet Equalizer is defined as a class that can be instantiated.</li>
 </ol>
 
-<p>But we have seen that everything is an object, so the instantiation must serve a different purpose.</p>
+<p>But we have seen that everything is an object and there is no need to make it a class object, so the instantiation must serve a different purpose.</p>
 
 <p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the ‘keys’). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
 
-<p>Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
+<p>Although stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
 
 <p>Let’s check it works:</p>
 
@@ -281,22 +279,36 @@
 <span class="line-number">11</span>
 <span class="line-number">12</span>
 <span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
 </pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">Insane</span> <span class="o">&lt;</span> <span class="no">Module</span>
 </span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">{</span> <span class="s2">&quot;Oh My God!&quot;</span> <span class="p">}</span>
+</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2">?&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;God!&#39;</span> <span class="p">}</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line"><span class="k">end</span>
 </span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">Node</span>
-</span><span class="line">  <span class="kp">include</span> <span class="no">Insane</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:val</span><span class="p">)</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">Person</span>
+</span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:who_am_i</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Insane</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:who_am_i</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@who_am_i</span> <span class="o">=</span> <span class="nb">name</span>
+</span><span class="line">  <span class="k">end</span>
 </span><span class="line"><span class="k">end</span>
 </span><span class="line">
-</span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="no">Node</span><span class="o">.</span><span class="n">new</span>
-</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.val = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="no">Oh</span> <span class="no">My</span> <span class="no">God</span><span class="o">!</span>
+</span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="no">Person</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;javier&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.who_am_i = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">who_am_i</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">who_am_i</span> <span class="o">=</span> <span class="n">javier</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.who_am_i? = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">who_am_i?</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">who_am_i?</span> <span class="o">=</span> <span class="no">God</span><span class="o">!</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Convoluted, pirouetticall, and yet it works. We can define an instance variable through an instantiated module included at runtime. Let’s continue before we finish the stock of Tylenol.</p>
+<p>Convoluted, pirouetticall, and yet it works.</p>
 
 <h2 id="define-method">Define Method</h2>
 
