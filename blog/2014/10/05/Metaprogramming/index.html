@@ -219,14 +219,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Now that we see that everything is an object we look at the two ways to inject the module methods into an object:</p>
-
-<ol>
-  <li>include the module in the class, and every object instantiated from that class will also have available all the methods defined in the module.</li>
-  <li>extend the module in an object, and that particular object will have extended his methods to include those defined in the module. The same happens when we extend into a class object, making the module methods available to the class object, as class methods.</li>
-</ol>
-
-<p>Inspecting Equalizer’s we see:</p>
+<p>Now that we see that everything is an object we inspect Equalizer’s code:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
