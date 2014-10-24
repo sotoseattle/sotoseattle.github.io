@@ -6,7 +6,7 @@ comments: true
 categories: Ruby, CodeFellows, Metaprogramming
 ---
 
-The [Equalizer gem](github.com/dkubb/equalizer) provides a nifty example of Ruby metaprogramming.
+The [Equalizer gem](https://github.com/dkubb/equalizer) provides a nifty example of Ruby metaprogramming.
 
 It is a module that when added to your class helps define equality, equivalence and inspection methods.
 
@@ -29,7 +29,7 @@ point_a.inspect    # => "#<GeoLocation latitude=1 longitude=2>"
 point_a == point_b           # => true
 point_a.hash == point_b.hash # => true
 ```
-
+<!--more-->
 ## Include instance of a Module?
 
 ```ruby
@@ -39,9 +39,9 @@ class GeoLocation
 ...
 ```
 
-The first thing that kicks your gut when reading the code is the instantiation of the module. What? Weren't modules used to be abstract, nice little packages of functionality, classes devoid of the perils and tribulations born out of fleshed-out Objects?
+The first thing that calls the attention when reading the code is the instantiation of the module. What? Weren't modules used to be abstract, nice little packages of functionality, angelical and stateless, devoid of the tribulations of commoner fleshed-out Objects?
 
-In Ruby everything is an Object, as we wouldn't deny the right to be objectified to anybody, so the following two ways of coding a module are equivalent:
+In Ruby everything is an Object, and the following two ways of coding a module are equivalent:
 
 ```ruby
 module Insane
@@ -57,7 +57,7 @@ Insane = Module.new do
 end
 ```
 
-Now that we see that everything is an object we inspect Equalizer's code:
+Let's inspect the Equalizer's code:
 
 ```ruby
 # equalizer.rb
@@ -73,41 +73,46 @@ end
 # example
 class GeoLocation
   include Equalizer.new(:latitude, :longitude)
-...
+  ...
 ```
 
-Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitude and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).
-
-And there lies the rub, the double nature of Equalizer.
+In the last line lies the rub, the double nature of Equalizer.
 
 1. Equalizer is a Module and by 'including' it, GeoLocation makes all methods from Equalizer available to his objects.
 2. Yet Equalizer is defined as a class that can be instantiated.
 
-But we have seen that everything is an object, so the instantiation must serve a different purpose.
+But we have seen that everything is an object and there is no need to make it a class object, so the instantiation must serve a different purpose.
 
-Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the 'keys'). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module's methods on the fly.
+Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables in an instant (sorry!) to customize those methods based on the keys passed (latitude and longitude). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module's methods on the fly.
 
-Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation's latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.
+Although stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation's latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.
 
 Let's check it works:
 
 ```ruby
 class Insane < Module
   def initialize(key)
-    define_method(key) { "Oh My God!" }
+    define_method("#{key}?") { 'God!' }
   end
 end
 
-class Node
-  include Insane.new(:val)
+class Person
+  attr_reader :who_am_i
+  include Insane.new(:who_am_i)
+
+  def initialize(name)
+    @who_am_i = name
+  end
 end
 
-a = Node.new
-puts "a.val = #{a.val}"
-=> a.val = Oh My God!
+a = Person.new('javier')
+puts "a.who_am_i = #{a.who_am_i}"
+=> a.who_am_i = javier
+puts "a.who_am_i? = #{a.who_am_i?}"
+=> a.who_am_i? = God!
 ```
 
-Convoluted, pirouetticall, and yet it works. We can define an instance variable through an instantiated module included at runtime. Let's continue before we finish the stock of Tylenol.
+Convoluted, pirouetticall, and yet it works.
 
 ## Define Method
 
