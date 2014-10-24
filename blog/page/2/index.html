@@ -182,6 +182,100 @@
 </span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
+<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># example</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The first thing that kicks your gut when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, classes devoid of the perils and tribulations born out of fleshed-out Objects?</p>
+
+<p>In Ruby everything is an Object, as we wouldn’t deny the right to be objectified to anybody, so the following two ways of coding a module are equivalent:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">module</span> <span class="nn">Insane</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">hello</span>
+</span><span class="line">    <span class="s1">&#39;hola&#39;</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Insane</span> <span class="o">=</span> <span class="no">Module</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">hello</span>
+</span><span class="line">    <span class="s1">&#39;hola&#39;</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now that we see that everything is an object we look at the two ways to inject the module methods into an object:</p>
+
+<ol>
+  <li>include the module in the class, and every object instantiated from that class will also have available all the methods defined in the module.</li>
+  <li>extend the module in an object, and that particular object will have extended his methods to include those defined in the module. The same happens when we extend into a class object, making the module methods available to the class object, as class methods.</li>
+</ol>
+
+<p>Inspecting Equalizer’s we see:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># equalizer.rb</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">Equalizer</span> <span class="o">&lt;</span> <span class="no">Module</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">keys</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@keys</span> <span class="o">=</span> <span class="n">keys</span>
+</span><span class="line">    <span class="n">define_methods</span>
+</span><span class="line">    <span class="nb">freeze</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="c1"># example</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitute and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
+
+<p>And there lies the rub, the double nature of Equalizer, (a matter better left out of reach from theologians).</p>
+
+<ol>
+  <li>Equalizer is a Module and by ‘including’ it, GeoLocation makes all methods from Equalizer available to his objects.</li>
+  <li>Yet Equalizer can be instantiated like a class. But we have seen that everything is an object, so the instantiation must serve a different purpose.</li>
+</ol>
+
+<p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the ‘keys’). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
+
+<p>Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability be comparable.</p>
+
+<h2 id="define-method">Define Method</h2>
+
 <p>Among other metaprogramming tricks it uses the define_method extensively. Although this is usually done to create a new named method at runtime, in this case, the method’s names are set from the start, what is created dynamically is the way the method operates.</p>
 
 <p>For example, the cmp? (comparable?) method has a set name (cmp?) and the blocks passed is also well defined (we check that all keys of both objects return the same values), but the fact that we won’t know which keys are available to compare until runtime makes this use an example of metaprogramming.</p>

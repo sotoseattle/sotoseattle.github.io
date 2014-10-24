@@ -4,7 +4,7 @@
   <title><![CDATA[Category: CodeFellows, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/codefellows/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-23T15:47:05-07:00</updated>
+  <updated>2014-10-23T17:37:27-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -41,6 +41,74 @@ point_b = GeoLocation.new(1, 2)</p>
 <p>point_a == point_b           # =&gt; true
 point_a.hash == point_b.hash # =&gt; true
 ```</p>
+
+<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
+
+<p><code>ruby
+# example
+class GeoLocation
+  include Equalizer.new(:latitude, :longitude)
+...
+</code></p>
+
+<p>The first thing that kicks your gut when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, classes devoid of the perils and tribulations born out of fleshed-out Objects?</p>
+
+<p>In Ruby everything is an Object, as we wouldn’t deny the right to be objectified to anybody, so the following two ways of coding a module are equivalent:</p>
+
+<p>```ruby
+module Insane
+  def hello
+    ‘hola’
+  end
+end</p>
+
+<p>Insane = Module.new do
+  def hello
+    ‘hola’
+  end
+end
+```</p>
+
+<p>Now that we see that everything is an object we look at the two ways to inject the module methods into an object:</p>
+
+<ol>
+  <li>include the module in the class, and every object instantiated from that class will also have available all the methods defined in the module.</li>
+  <li>extend the module in an object, and that particular object will have extended his methods to include those defined in the module. The same happens when we extend into a class object, making the module methods available to the class object, as class methods.</li>
+</ol>
+
+<p>Inspecting Equalizer’s we see:</p>
+
+<p>```ruby
+# equalizer.rb
+class Equalizer &lt; Module
+  def initialize(*keys)
+    @keys = keys
+    define_methods
+    freeze
+  end
+  …
+end</p>
+
+<h1 id="example">example</h1>
+<p>class GeoLocation
+  include Equalizer.new(:latitude, :longitude)
+…
+```</p>
+
+<p>Aha! It passes certain attributes of the GeoLocation class (passed as keys: latitute and longitude) to make them comparable. For this we need to customize the methods inside the module (because different objects will have different attributes, and we want something reusable).</p>
+
+<p>And there lies the rub, the double nature of Equalizer, (a matter better left out of reach from theologians).</p>
+
+<ol>
+  <li>Equalizer is a Module and by ‘including’ it, GeoLocation makes all methods from Equalizer available to his objects.</li>
+  <li>Yet Equalizer can be instantiated like a class. But we have seen that everything is an object, so the instantiation must serve a different purpose.</li>
+</ol>
+
+<p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables to customize those methods (the ‘keys’). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
+
+<p>Although a stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability be comparable.</p>
+
+<h2 id="define-method">Define Method</h2>
 
 <p>Among other metaprogramming tricks it uses the define_method extensively. Although this is usually done to create a new named method at runtime, in this case, the method’s names are set from the start, what is created dynamically is the way the method operates.</p>
 
