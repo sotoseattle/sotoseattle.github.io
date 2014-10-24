@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-23T18:20:39-07:00</updated>
+  <updated>2014-10-23T18:21:46-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -615,8 +615,8 @@
 </span><span class="line"><span class="k">end</span>
 </span><span class="line">
 </span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="no">Node</span><span class="o">.</span><span class="n">new</span>
-</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.val = [</span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">]&quot;</span>
-</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="o">[</span><span class="no">Oh</span> <span class="no">My</span> <span class="no">God</span><span class="o">!]</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.val = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="no">Oh</span> <span class="no">My</span> <span class="no">God</span><span class="o">!</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <p>Convoluted, pirouetticall, and yet it works. We can define an instance variable through an instantiated module included at runtime. Let’s continue before we finish the stock of Tylenol.</p>
