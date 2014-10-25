@@ -307,7 +307,57 @@
 
 <p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
 
-<p>This could work for testing purposes:</p>
+<p>Here is the final version, refactored, plus some tests.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
+</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="sx">%w[pre in post]</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">prefix</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
+</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">do</span>
+</span><span class="line">      <span class="n">left_to_right</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="o">.</span><span class="n">yield</span> <span class="p">}</span>
+</span><span class="line">    <span class="k">end</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="kp">private</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">do_stuff</span>
+</span><span class="line">    <span class="o">-&gt;</span> <span class="p">{</span> <span class="nb">puts</span> <span class="n">val</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">left_to_right</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+</span><span class="line">    <span class="o">[</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">].</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">e</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="p">}</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>

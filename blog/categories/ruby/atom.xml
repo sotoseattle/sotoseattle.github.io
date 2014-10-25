@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-24T13:49:32-07:00</updated>
+  <updated>2014-10-25T07:28:20-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -126,7 +126,34 @@ end
 
 <p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
 
-<p>This could work for testing purposes:</p>
+<p>Here is the final version, refactored, plus some tests.</p>
+
+<p>```ruby
+class BinaryTree
+  attr_accessor :val, :left, :right</p>
+
+<p>def initialize(val)
+    @val = val
+    @left = @right = nil
+  end</p>
+
+<p>%w[pre in post].each_with_index do |prefix, index|
+    define_method(“traverse_#{prefix}_order”) do
+      left_to_right(prefix).insert(index, do_stuff).each { |x| x.yield }
+    end
+  end</p>
+
+<p>private</p>
+
+<p>def do_stuff
+    -&gt; { puts val }
+  end</p>
+
+<p>def left_to_right(prefix)
+    [left, right].map { |e| -&gt; { e.send(“traverse_#{prefix}_order”) if e } }
+  end
+end
+```</p>
 
 <p>```ruby
 require ‘spec_helper’</p>
