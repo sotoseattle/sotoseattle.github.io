@@ -263,7 +263,11 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Since we need to manipulate the order of the statements to execute, we need to make them objects, so we wrapp them in blocks of functionality (stabby lambdas). Then, is only a question of changing the order of the array of statements to adapt it to each flavor of traversal, and at the end we call each statement to yield. Here is the final code of the complete class.</p>
+<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.</p>
+
+<p>To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).</p>
+
+<p>Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Finally, once the array is reshuffled to our taste, we iterate over it and call each proc to yield. Here is the final code of the complete class.</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>

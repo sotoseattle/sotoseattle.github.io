@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Metaprogramming | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/metaprogramming/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-25T07:28:20-07:00</updated>
+  <updated>2014-10-25T08:27:01-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -100,7 +100,11 @@ end
 end
 </code></p>
 
-<p>Since we need to manipulate the order of the statements to execute, we need to make them objects, so we wrapp them in blocks of functionality (stabby lambdas). Then, is only a question of changing the order of the array of statements to adapt it to each flavor of traversal, and at the end we call each statement to yield. Here is the final code of the complete class.</p>
+<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.</p>
+
+<p>To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).</p>
+
+<p>Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Finally, once the array is reshuffled to our taste, we iterate over it and call each proc to yield. Here is the final code of the complete class.</p>
 
 <p>```ruby
 class BinaryTree
