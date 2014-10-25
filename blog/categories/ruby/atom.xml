@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-25T08:31:10-07:00</updated>
+  <updated>2014-10-25T08:36:12-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -100,7 +100,7 @@ end
 end
 </code></p>
 
-<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.</p>
+<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array. The array becomes something like an instructions book, an ordered set of steps to perform.</p>
 
 <p>To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).</p>
 
@@ -117,12 +117,12 @@ class BinaryTree
 
 <p>%w[pre in post].each_with_index do |prefix, index|
     define_method(“traverse<em>#{prefix}_order”) do
-      left_to_right = [
+      instructions = [
         -&gt; { left.public_send(“traverse</em>#{prefix}<em>order”) if left },
         -&gt; { right.public_send(“traverse</em>#{prefix}_order”) if right }]
       do_stuff = -&gt; { puts val }
-      left_to_right.insert(index, do_stuff)
-      left_to_right.each { |x| x.yield }
+      instructions.insert(index, do_stuff)
+      instructions.each { |x| x.yield }
     end
   end
 end
@@ -143,7 +143,7 @@ class BinaryTree
 
 <p>%w[pre in post].each_with_index do |prefix, index|
     define_method(“traverse_#{prefix}_order”) do
-      left_to_right(prefix).insert(index, do_stuff).each(&amp;:yield)
+      instructions(prefix).insert(index, do_stuff).each(&amp;:yield)
     end
   end</p>
 
@@ -153,7 +153,7 @@ class BinaryTree
     -&gt; { puts val }
   end</p>
 
-<p>def left_to_right(prefix)
+<p>def instructions(prefix)
     [left, right].map { |e| -&gt; { e.send(“traverse_#{prefix}_order”) if e } }
   end
 end

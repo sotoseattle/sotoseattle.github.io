@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-25T08:31:10-07:00</updated>
+  <updated>2014-10-25T08:36:12-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -145,7 +145,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.</p>
+<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array. The array becomes something like an instructions book, an ordered set of steps to perform.</p>
 
 <p>To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).</p>
 
@@ -180,12 +180,12 @@
 </span><span class="line">
 </span><span class="line">  <span class="sx">%w[pre in post]</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">prefix</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
 </span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">do</span>
-</span><span class="line">      <span class="n">left_to_right</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class="line">      <span class="n">instructions</span> <span class="o">=</span> <span class="o">[</span>
 </span><span class="line">        <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">left</span><span class="o">.</span><span class="n">public_send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">left</span> <span class="p">},</span>
 </span><span class="line">        <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">right</span><span class="o">.</span><span class="n">public_send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">right</span> <span class="p">}</span><span class="o">]</span>
 </span><span class="line">      <span class="n">do_stuff</span> <span class="o">=</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="nb">puts</span> <span class="n">val</span> <span class="p">}</span>
-</span><span class="line">      <span class="n">left_to_right</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span>
-</span><span class="line">      <span class="n">left_to_right</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="o">.</span><span class="n">yield</span> <span class="p">}</span>
+</span><span class="line">      <span class="n">instructions</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span>
+</span><span class="line">      <span class="n">instructions</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">x</span><span class="o">.</span><span class="n">yield</span> <span class="p">}</span>
 </span><span class="line">    <span class="k">end</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line"><span class="k">end</span>
@@ -229,7 +229,7 @@
 </span><span class="line">
 </span><span class="line">  <span class="sx">%w[pre in post]</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">prefix</span><span class="p">,</span> <span class="n">index</span><span class="o">|</span>
 </span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">do</span>
-</span><span class="line">      <span class="n">left_to_right</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:yield</span><span class="p">)</span>
+</span><span class="line">      <span class="n">instructions</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">do_stuff</span><span class="p">)</span><span class="o">.</span><span class="n">each</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:yield</span><span class="p">)</span>
 </span><span class="line">    <span class="k">end</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line">
@@ -239,7 +239,7 @@
 </span><span class="line">    <span class="o">-&gt;</span> <span class="p">{</span> <span class="nb">puts</span> <span class="n">val</span> <span class="p">}</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">left_to_right</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">instructions</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
 </span><span class="line">    <span class="o">[</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">].</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">e</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;traverse_</span><span class="si">#{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_order&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">e</span> <span class="p">}</span> <span class="p">}</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line"><span class="k">end</span>
