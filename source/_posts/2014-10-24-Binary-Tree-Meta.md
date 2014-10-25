@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ruby Metaprogramming and Trees"
+title: "Ruby Metaprogramming II"
 date: 2014-10-24 8:01
 comments: true
 categories: Ruby, Metaprogramming
@@ -23,7 +23,7 @@ end
 
 Now we instantiate the tree and wire it.
 
-{% img center /images/Oct14/binary_tree.png 400 %}
+{% img center /images/Oct14/binary_tree.png 300 %}
 
 <!--more-->
 
@@ -68,7 +68,7 @@ def traverse_post_order
 end
 ```
 
-The code is clear and readable, yet suffers from some repetition. Also we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:
+The code is clear and readable, yet suffers from some repetition. Also, we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:
 
 - pre => first call
 - in  => between left and right
@@ -86,7 +86,11 @@ We can do better with metaprogramming by leveraging Ruby's define_method:
 end
 ```
 
-Since we need to manipulate the order of the statements to execute, we need to make them objects, so we wrapp them in blocks of functionality (stabby lambdas). Then, is only a question of changing the order of the array of statements to adapt it to each flavor of traversal, and at the end we call each statement to yield. Here is the final code of the complete class.
+The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.
+
+To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).
+
+Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Finally, once the array is reshuffled to our taste, we iterate over it and call each proc to yield. Here is the final code of the complete class.
 
 ```ruby
 class BinaryTree
@@ -112,7 +116,34 @@ end
 
 Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!
 
-This could work for testing purposes:
+Here is the final version, refactored, plus some tests.
+
+```ruby
+class BinaryTree
+  attr_accessor :val, :left, :right
+
+  def initialize(val)
+    @val = val
+    @left = @right = nil
+  end
+
+  %w[pre in post].each_with_index do |prefix, index|
+    define_method("traverse_#{prefix}_order") do
+      left_to_right(prefix).insert(index, do_stuff).each { |x| x.yield }
+    end
+  end
+
+  private
+
+  def do_stuff
+    -> { puts val }
+  end
+
+  def left_to_right(prefix)
+    [left, right].map { |e| -> { e.send("traverse_#{prefix}_order") if e } }
+  end
+end
+```
 
 ```ruby
 require 'spec_helper'
