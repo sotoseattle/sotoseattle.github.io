@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-25T08:36:12-07:00</updated>
+  <updated>2014-10-26T18:59:20-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -21,9 +21,9 @@
     <updated>2014-10-24T08:01:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta</id>
     
-    <content type="html"><![CDATA[<p>Learning the ropes of Ruby Metaprogramming, here is small experiment I coded.</p>
+    <content type="html"><![CDATA[<p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
 
-<p>I start with a basic BinaryTree that consists of basic nodes that hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
+<p>For this exercise we are going to start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -43,7 +43,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Now we instantiate the tree and wire it.</p>
+<p>For our example we are going to create an ad-hoc tree that we wire in the following manner.</p>
 
 <p><img class="center" src="http://sotoseattle.github.io/images/Oct14/binary_tree.png" width="300" /></p>
 
@@ -79,9 +79,9 @@
 </span><span class="line"><span class="n">phil</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">phil</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">craig</span><span class="p">,</span> <span class="n">eddie</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>We are only interested in traversing the tree and outputting to stdout the names of each node. There are three different ways to perform this traversal in a depth-first fashion: pre-order, in-order and post-order. You can read more about them in this <a href="http://en.wikipedia.org/wiki/Tree_traversal">Wikipedia page</a>.</p>
+<p>For this exercsie we are only interested in traversing the tree and outputting to stdout the names of each node. There are three different ways to perform this traversal in a depth-first fashion: pre-order, in-order and post-order. You can read the details about each one in this <a href="http://en.wikipedia.org/wiki/Tree_traversal">Wikipedia page</a>.</p>
 
-<p>A common sense way to implement it is the following:</p>
+<p>After a bit of reflection and sandboxing, a good and common-sense way to implement becomes clear:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -119,7 +119,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>The code is clear and readable, yet suffers from some repetition. Also, we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:</p>
+<p>The code is clear and readable, yet suffers from some repetition. We also see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:</p>
 
 <ul>
   <li>pre =&gt; first call</li>
@@ -127,7 +127,7 @@
   <li>post =&gt; after both calls</li>
 </ul>
 
-<p>We can do better with metaprogramming by leveraging Ruby’s define_method:</p>
+<p>This is a great opportunity to tinker with metaprogramming to see if we can do better. I focus on leveraging Ruby’s define_method, which allows us to create multiple methods with a single definition.</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -145,11 +145,23 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array. The array becomes something like an instructions book, an ordered set of steps to perform.</p>
+<p>The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by re-ordering the array. The array becomes something like an instructions book, an ordered set of steps to perform.</p>
 
-<p>To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).</p>
+<p>To insert the chunks of code in the array, we need to package them into objects. A solution is to wrap them as blocks of functionality as Proc objects (I have used stabby lambdas). To execute one of these object we just call it to yield.</p>
 
-<p>Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Finally, once the array is reshuffled to our taste, we iterate over it and call each proc to yield. Here is the final code of the complete class.</p>
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">instructions</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class="line">  <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">left</span><span class="o">.</span><span class="n">traverse_pre_order</span> <span class="k">if</span> <span class="n">left</span> <span class="p">},</span>
+</span><span class="line">  <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">right</span><span class="o">.</span><span class="n">traverse_pre_order</span> <span class="k">if</span> <span class="n">right</span> <span class="p">}</span>
+</span><span class="line"><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Once the array is reshuffled to our taste, we iterate over each cell, anc execute the proc.</p>
+
+<p>Here is the final code of the complete class unrefactored. I have taken advantage of the yet to be defined method inside, it cannot get more dynamic than that!</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -191,7 +203,7 @@
 </span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p>Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!</p>
+<p>Specially interesting is how the scoping works, which I’ll leave for a future post. Stay tunned!</p>
 
 <p>Here is the final version, refactored, plus some tests.</p>
 
