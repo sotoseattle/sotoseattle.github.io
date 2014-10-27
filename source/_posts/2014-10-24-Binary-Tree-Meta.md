@@ -6,9 +6,9 @@ comments: true
 categories: Ruby, Metaprogramming
 ---
 
-Learning the ropes of Ruby Metaprogramming, here is small experiment I coded.
+This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the [Equalizer gem](/blog/2014/10/05/Metaprogramming/).
 
-I start with a basic BinaryTree that consists of basic nodes that hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.
+For this exercise we are going to start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.
 
 ```ruby
 class BinaryTree
@@ -21,7 +21,7 @@ class BinaryTree
 end
 ```
 
-Now we instantiate the tree and wire it.
+For our example we are going to create an ad-hoc tree that we wire in the following manner.
 
 {% img center /images/Oct14/binary_tree.png 300 %}
 
@@ -44,9 +44,9 @@ katie.left, katie.right = peter, andrea
 phil.left, phil.right = craig, eddie
 ```
 
-We are only interested in traversing the tree and outputting to stdout the names of each node. There are three different ways to perform this traversal in a depth-first fashion: pre-order, in-order and post-order. You can read more about them in this [Wikipedia page](http://en.wikipedia.org/wiki/Tree_traversal).
+For this exercsie we are only interested in traversing the tree and outputting to stdout the names of each node. There are three different ways to perform this traversal in a depth-first fashion: pre-order, in-order and post-order. You can read the details about each one in this [Wikipedia page](http://en.wikipedia.org/wiki/Tree_traversal).
 
-A common sense way to implement it is the following:
+After a bit of reflection and sandboxing, a good and common-sense way to implement becomes clear:
 
 ```ruby
 def traverse_pre_order
@@ -68,13 +68,13 @@ def traverse_post_order
 end
 ```
 
-The code is clear and readable, yet suffers from some repetition. Also, we can see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:
+The code is clear and readable, yet suffers from some repetition. We also see a pattern emerging: in all cases we recursively call the traverse method first on the left and then on the right, and the position of the call to stdout depends on the specific flavor of traversal:
 
 - pre => first call
 - in  => between left and right
 - post => after both calls
 
-We can do better with metaprogramming by leveraging Ruby's define_method:
+This is a great opportunity to tinker with metaprogramming to see if we can do better. I focus on leveraging Ruby's define_method, which allows us to create multiple methods with a single definition.
 
 ```ruby
 %w[pre in post].each do |prefix|
@@ -86,11 +86,20 @@ We can do better with metaprogramming by leveraging Ruby's define_method:
 end
 ```
 
-The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by manipulating the array.
+The idea is to have an array made of little bunches of code to execute. Then we can manipulate the order in which those code snippets are executed by re-ordering the array. The array becomes something like an instructions book, an ordered set of steps to perform.
 
-To insert the chunks of code in the array, we need to package them into objects, so we wrap them as blocks of functionality (stabby lambdas).
+To insert the chunks of code in the array, we need to package them into objects. A solution is to wrap them as blocks of functionality as Proc objects (I have used stabby lambdas). To execute one of these object we just call it to yield.
 
-Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Finally, once the array is reshuffled to our taste, we iterate over it and call each proc to yield. Here is the final code of the complete class.
+```ruby
+instructions = [
+  -> { left.traverse_pre_order if left },
+  -> { right.traverse_pre_order if right }
+]
+```
+
+Now, is only a question of changing the order of the array of statements and adapt it to each flavor of traversal. Once the array is reshuffled to our taste, we iterate over each cell, anc execute the proc.
+
+Here is the final code of the complete class unrefactored. I have taken advantage of the yet to be defined method inside, it cannot get more dynamic than that!
 
 ```ruby
 class BinaryTree
@@ -103,18 +112,18 @@ class BinaryTree
 
   %w[pre in post].each_with_index do |prefix, index|
     define_method("traverse_#{prefix}_order") do
-      left_to_right = [
+      instructions = [
         -> { left.public_send("traverse_#{prefix}_order") if left },
         -> { right.public_send("traverse_#{prefix}_order") if right }]
       do_stuff = -> { puts val }
-      left_to_right.insert(index, do_stuff)
-      left_to_right.each { |x| x.yield }
+      instructions.insert(index, do_stuff)
+      instructions.each { |x| x.yield }
     end
   end
 end
 ```
 
-Specially interesting is how the scoping works. But I am going to leave it for a future post. Stay tunned!
+Specially interesting is how the scoping works, which I'll leave for a future post. Stay tunned!
 
 Here is the final version, refactored, plus some tests.
 
@@ -129,7 +138,7 @@ class BinaryTree
 
   %w[pre in post].each_with_index do |prefix, index|
     define_method("traverse_#{prefix}_order") do
-      left_to_right(prefix).insert(index, do_stuff).each { |x| x.yield }
+      instructions(prefix).insert(index, do_stuff).each(&:yield)
     end
   end
 
@@ -139,7 +148,7 @@ class BinaryTree
     -> { puts val }
   end
 
-  def left_to_right(prefix)
+  def instructions(prefix)
     [left, right].map { |e| -> { e.send("traverse_#{prefix}_order") if e } }
   end
 end
