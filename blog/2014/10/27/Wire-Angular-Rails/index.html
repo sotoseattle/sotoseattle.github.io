@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>SotoSeattle</title>
+  <title>Wiring Angular into Rails - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.io">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -109,18 +109,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular Into Rails</a></h1>
-      
-      
+      <h1 class="entry-title">Wiring Angular Into Rails</h1>
+    
+  
     
       <p class="meta">
         
@@ -142,7 +139,7 @@
   </header>
 
 
-  <div class="entry-content"><p>Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire it so it is served from inside a Rails application.</p>
+<div class="entry-content"><p>Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire it so it is served from inside a Rails application.</p>
 
 <p>The first step is to generate a new rails app (I used 4.2), for which we’ll create a controller that will coordinate the rendering of the angular app. We’ll start with a single action that points to a show template, where all the action will take place (it would substitute the index.html page of the Angular app). We call our controller StoreController.</p>
 
@@ -304,24 +301,16 @@
 
 <p>One final note of advice, in my case using CoffeeScript gave me quite a bit of trouble, and although I still have to investigate the exact causes of the it, I recommend to use it with caution.</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
   
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a></h1>
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
       
-      
-    
-      <p class="meta">
-        
 
 
 
@@ -333,207 +322,44 @@
   
 
 
-<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
-        
-      </p>
+<time datetime="2014-10-27T20:01:00-07:00" pubdate data-updated="true">Oct 27<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angular/'>Angular</a>, <a class='category' href='/blog/categories/rails/'>Rails,</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails/" >Tweet</a>
+  
+  
+  
+</div>
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/24/Binary-Tree-Meta/" title="Previous Post: Ruby Metaprogramming II">&laquo; Ruby Metaprogramming II</a>
+      
+      
+    </p>
+  </footer>
+</article>
 
-  <div class="entry-content"><p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
-
-<p>For this exercise we are going to start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
-</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
-</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>For our example we are going to create an ad-hoc tree that we wire in the following manner.</p>
-
-<p><img class="center" src="/images/Oct14/binary_tree.png" width="300" /></p>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/24/Binary-Tree-Meta/">Read on &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-20T14:30:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Interestingly enough JS is class-less yet everything is an object. There are 3 ways to instantiate an object:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="p">{};</span>
-</span><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span> <span class="p">);</span>
-</span><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h3 id="the-literal-object-pattern">The Literal Object Pattern</h3>
-<p>The first one is the object literal, a self contained wrapped object with all properties held inside in key / value pairs separated by commas. Check this <a href="http://rmurphey.com/blog/2009/10/15/using-objects-to-organize-your-code/">article</a>. It is a very neat to create objects in JS, clean and encapsulated that keep the code simple and clean.</p>
-
-<p>The last one uses the Object constructor, something similar to Ruby’s BasicObject class.</p>
-
-<h3 id="the-constructor-pattern">The Constructor Pattern</h3>
-<p>Constructors are special functions. Or seen another way, by prefixing the word <code>new</code> to a function we tell JS to instantiate an Object according to the specifications defined in the function.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">function</span> <span class="nx">Car</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
-</span><span class="line">  <span class="k">this</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">model</span><span class="p">;</span>
-</span><span class="line">  <span class="k">this</span><span class="p">.</span><span class="nx">to_s</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s2">&quot;model: &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">mode</span><span class="p">;</span> <span class="p">}</span>
-</span><span class="line"><span class="p">}</span>
-</span><span class="line">
-</span><span class="line"><span class="kd">var</span> <span class="nx">model_T</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Car</span><span class="p">(</span><span class="s1">&#39;Ford T&#39;</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>In this manner we can define what in ruby are instance variables and methods, but here they all are properties in key value pairs, independently of them being other object or functions.</p>
-
-<p>The main problem is that we are defining the ‘methods’ inside each object at instantiation time. In Ruby the behavior is held in the Class, a common repo for all instantiated objects derived from it.</p>
-
-<p>Enter the prototype, another object that is common to all JS objects. When we create an object with a constructor, everything defined in the constructor’s function is available to all instances created from it, analogous to a ruby class in terms of a common repo where all objects can go to find the methods they have.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">Car</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">to_s</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s2">&quot;model: &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">mode</span><span class="p">;</span> <span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h3 id="the-module-pattern">The Module Pattern</h3>
-
-<p>The idea behind it is to encapsulate and it resembles OO practices.</p>
-
-<blockquote><p>Variables can&#8217;t technically be declared as being public nor private and so we use function scope to simulate this concept. Within the Module pattern, variables or methods declared are only available inside the module itself thanks to closure.</p><footer><strong>Addy Osmani, Learning JavaScript Design Patterns</strong> <cite><a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript">addyosmani.com/resources/book/&hellip;</a></cite></footer></blockquote>
-
-<p>A module template that touches on private and public variables would like the following:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">var</span> <span class="nx">myNamespace</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
-</span><span class="line">
-</span><span class="line">  <span class="kd">var</span> <span class="nx">myPrivateVar</span><span class="p">,</span> <span class="nx">myPrivateMethod</span><span class="p">;</span>
-</span><span class="line">
-</span><span class="line">  <span class="c1">// A private counter variable</span>
-</span><span class="line">  <span class="nx">myPrivateVar</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span><span class="line">
-</span><span class="line">  <span class="c1">// A private function which logs any arguments</span>
-</span><span class="line">  <span class="nx">myPrivateMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">foo</span> <span class="p">)</span> <span class="p">{</span>
-</span><span class="line">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">foo</span> <span class="p">);</span>
-</span><span class="line">  <span class="p">};</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">return</span> <span class="p">{</span>
-</span><span class="line">
-</span><span class="line">    <span class="c1">// A public variable</span>
-</span><span class="line">    <span class="nx">myPublicVar</span><span class="o">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
-</span><span class="line">
-</span><span class="line">    <span class="c1">// A public function utilizing privates</span>
-</span><span class="line">    <span class="nx">myPublicFunction</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">bar</span> <span class="p">)</span> <span class="p">{</span>
-</span><span class="line">
-</span><span class="line">      <span class="c1">// Increment our private counter</span>
-</span><span class="line">      <span class="nx">myPrivateVar</span><span class="o">++</span><span class="p">;</span>
-</span><span class="line">
-</span><span class="line">      <span class="c1">// Call our private method using bar</span>
-</span><span class="line">      <span class="nx">myPrivateMethod</span><span class="p">(</span> <span class="nx">bar</span> <span class="p">);</span>
-</span><span class="line">
-</span><span class="line">    <span class="p">}</span>
-</span><span class="line">  <span class="p">};</span>
-</span><span class="line"><span class="p">})();</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Inside the module we have some internal private stuff shielded from the outside, and the module returns an object with the public API and public variables. This returned object is assigned to the myNamespace variable so we access its innards as properties of the object.</p>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  <div class="pagination">
-    
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -570,6 +396,7 @@
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -586,7 +413,10 @@
       var disqus_shortname = 'sotoseattle';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="My fellow students at Code Fellows and I have made public a set of templates under the name of “Backgrounders” that show how to set up different &hellip;">
+  <meta name="description" content="I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T11:00:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
+
+<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
+
+<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
+
+<p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
+
+<p>In essence you’ll end up using two different git repos inside both your Octopress code base. And the fun part is that both point to the same github repo!</p>
+
+<p>1.- the first can be found inside the folder _deploy:</p>
+
+<ul>
+  <li><code>rake generate</code> compiles the site from all the files in the source directory (and other resources) and places everything inside the _deploy folder.</li>
+  <li><code>rake deploy</code> pushes it (the files inside _deploy) up to GitHub, actually to the to origin/master branch.</li>
+</ul>
+
+<p>So, for example, if we have a custom domain and we want it to point to our github.io site, we need a CNAME file that we place inside the source folder. After rake generate and rake deploy, it will show up in the root of origin/master (and inside our _deploy folder)</p>
+
+<p>2.- The second git repo, you create it on the root:</p>
+
+<p>For this one we create a single branch, “source”, that holds everything (all files, source and _deploy) and we push only to origin/source. Aha!, this repo goes to the ‘source’ branch in github, the generated one goes to ‘master’. So we don’t have a master branch in this local git repo, only source, and in this way we avoid pushing it to master in origin (which already tracks the first repo!).</p>
+
+<p>Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.</p>
+
+<p>Now, I may be off base in this explanation, if so, please set me straight in the comments.</p>
+
+<p>Good luck with the Octos!</p>
+
+<p><img class="center" src="/images/Oct14/octocat_octopress.png" width="400" title="Code Fellows logo" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -251,88 +318,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/16/git-push-confirm/">Ask Before Pushing</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-16T08:01:00-07:00" pubdate data-updated="true">Sep 16<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally in git, besides, as they say, when in doubt reset –hard. But once your code is committed up to a publicly available and centralized repo, you become the butt of jokes in the office, people point at you behind your back and changing history becomes a nightmare.</p>
-
-<p>I have found a little trick that helps with this, git hooks!</p>
-
-<p>Inside your .git folder there is another one, ‘hooks’, and inside, there is a treasure trove of configurable callbacks to personalize your git work flow.</p>
-
-<p>There are many good sources in the Internet to check. Here is a good walk through: <a href="http://blog.ittybittyapps.com/blog/2013/09/03/git-pre-push/">link</a>. And this is the <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks">Chacon bible</a> chapter about it.</p>
-
-<p>I ended including the following file ‘.git/hooks/pre-push’, which forces a confirmation every time I intend to push to master. Many other variants are possible, like making sure that your tests have run before pushing, I recommend exploring them all.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c">#!/bin/bash</span>
-</span><span class="line">
-</span><span class="line"><span class="nv">protected_branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span>
-</span><span class="line"><span class="nv">current_branch</span><span class="o">=</span><span class="k">$(</span>git symbolic-ref HEAD | sed -e <span class="s1">&#39;s,.*/\(.*\),\1,&#39;</span><span class="k">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">if</span> <span class="o">[</span> <span class="nv">$protected_branch</span> <span class="o">=</span> <span class="nv">$current_branch</span> <span class="o">]</span>
-</span><span class="line"><span class="k">then</span>
-</span><span class="line"><span class="k">    </span><span class="nb">read</span> -p <span class="s2">&quot;You&#39;re about to push master, is that what you intended? [y|n] &quot;</span> -n 1 -r &lt; /dev/tty
-</span><span class="line">    <span class="nb">echo</span>
-</span><span class="line"><span class="nb">    </span><span class="k">if </span><span class="nb">echo</span> <span class="nv">$REPLY</span> | grep -E <span class="s1">&#39;^[Yy]$&#39;</span> &gt; /dev/null
-</span><span class="line">    <span class="k">then</span>
-</span><span class="line"><span class="k">        </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line">    <span class="k">fi</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>1 <span class="c"># push will not execute</span>
-</span><span class="line"><span class="k">else</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line"><span class="k">fi</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -350,6 +335,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
       </li>
     
@@ -363,10 +352,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/05/Metaprogramming/">Ruby Metaprogramming in Action</a>
       </li>
     
   </ul>

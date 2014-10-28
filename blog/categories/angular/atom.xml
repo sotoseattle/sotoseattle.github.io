@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Angular | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/angular/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-28T07:18:25-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Wiring Angular into Rails]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails/"/>
+    <updated>2014-10-27T20:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/27/Wire-Angular-Rails</id>
+    <content type="html"><![CDATA[<p>Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire it so it is served from inside a Rails application.</p>
+
+<p>The first step is to generate a new rails app (I used 4.2), for which we’ll create a controller that will coordinate the rendering of the angular app. We’ll start with a single action that points to a show template, where all the action will take place (it would substitute the index.html page of the Angular app). We call our controller StoreController.</p>
+
+<p>In app/assets/javascripts/application.js we are going to remove turbolinks, because it is repetitive functionality now that we’ll be relying on Angular and it tends to screw things up. Actually we could remove it from the Gemfile too.</p>
+
+<p><code>
+# app/assets/javascripts/application.js
+//= require jquery
+//= require jquery_ujs
+//= require angular.min
+//= require launch_store # &lt;-----------------
+//= require_tree .
+</code></p>
+
+<p>We also add a requirement for a custom js file that we’ll create, app/assets/javascripts/launch_store.js, and where we declare our Angular app as gemStore.</p>
+
+<p><code>
+# app/assets/javascripts/launch_store.js
+//= require_self
+//= require_tree ./angular_store_app  # &lt;-----------------
+var app = angular.module("gemStore", ["store-directives"]);
+</code></p>
+
+<p>In this newly loaded file we reference again another folder tree, ‘angular_store_app’, where we’ll store all the Angular functionality by resources. In our case we are using the resulting app from CodeSchool’s course “<a href="http://campus.codeschool.com/courses/shaping-up-with-angular-js/intro">Shaping up with Angular</a>”, a store-like app for displaying gems and jewels. Therefore we’ll create a subfolder called ‘gems’ and inside another two subfolders: controllers and directives.</p>
+
+<p><img class="center" src="/images/Oct14/folders.png" width="300"></p>
+
+<p>Now all it is left to do is to add the controllers and directives to its respectives files:</p>
+
+<p>```javascript
+// gems_controller.js
+app.controller(“StoreController”, [
+  …
+]);</p>
+
+<p>app.controller(“ReviewController”, function() {
+  …
+});</p>
+
+<p>// gems_directives.js
+var app = angular.module(“store-directives”, []);</p>
+
+<p>app.directive(“productDescription”, function() {
+  return {
+    restrict: “A”,
+    templateUrl: “templates/product-description.html”
+  };
+});
+…
+```</p>
+
+<p>For the rails views we need to, first of all, make sure our routes are well defined and pointing to ‘store#show’.</p>
+
+<p>Then in the application.html.erb we reference the angular app (check that we have taken out the turbolinks):</p>
+
+<p>```html
+&lt;!DOCTYPE html&gt;
+&lt;html data-ng-app="gemStore"&gt;</p>
+<head>
+  <title>Angurails</title>
+  &lt;%= stylesheet_link_tag    'application', media: 'all' %&gt;
+  &lt;%= javascript_include_tag 'application' %&gt;
+  &lt;%= csrf_meta_tags %&gt;
+</head>
+<body>
+
+&lt;%= yield %&gt;
+
+</body>
+<p>&lt;/html&gt;
+```</p>
+
+<p>And in the show.html.page of the store controller we can start coding our own angular references and expressions:</p>
+
+<p>```html
+&lt;div data-ng-controller="StoreController as store"&gt;</p>
+<header>
+    <h2 class="text-center">Soto's Magnificent Emporium</h2>
+    <h3 class="text-center"> an sinangular store </h3>
+  </header>
+
+<div class="list-group">
+    <div class="list-group-item" data-ng-repeat="product in store.products">
+      <h3> <em class="pull-right"></em></h3>
+      <div data-product-gallery=""></div>
+      <div data-product-tabs=""></div>
+    </div>
+  </div>
+<p>&lt;/div&gt;
+```</p>
+
+<p>One last details is to include in the rails public folder our angular html snippets referenced by directives, and make sure that the url in the gems_directives.js are correct.</p>
+
+<p>```html
+<!-- public/templates/product-description.html -->
+&lt;div data-ng-show="tab.isSet(1)"&gt;</p>
+<h4>Description</h4>
+<blockquote></blockquote>
+<p>&lt;/div&gt;
+```</p>
+
+<p>That’s it. Run it and check it works.</p>
+
+<p>One final note of advice, in my case using CoffeeScript gave me quite a bit of trouble, and although I still have to investigate the exact causes of the it, I recommend to use it with caution.</p>
+]]></content>
+  </entry>
+  
+</feed>
