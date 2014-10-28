@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/rails/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-28T07:25:31-07:00</updated>
+  <updated>2014-10-28T13:29:49-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -29,7 +29,7 @@
 //= require jquery
 //= require jquery_ujs
 //= require angular.min
-//= require launch_store # &lt;-----------------
+//= require launch_store
 //= require_tree .
 </code></p>
 
@@ -38,35 +38,45 @@
 <p><code>
 # app/assets/javascripts/launch_store.js
 //= require_self
-//= require_tree ./angular_store_app  # &lt;-----------------
-var app = angular.module("gemStore", ["store-directives"]);
+//= require_tree ./angular_store_app
+(function(){
+  var app = angular.module("GemStore", ["StoreDirectives"]);
+})();
 </code></p>
 
 <p>In this newly loaded file we reference again another folder tree, ‘angular_store_app’, where we’ll store all the Angular functionality by resources. In our case we are using the resulting app from CodeSchool’s course “<a href="http://campus.codeschool.com/courses/shaping-up-with-angular-js/intro">Shaping up with Angular</a>”, a store-like app for displaying gems and jewels. Therefore we’ll create a subfolder called ‘gems’ and inside another two subfolders: controllers and directives.</p>
 
 <p><img class="center" src="/images/Oct14/folders.png" width="300"></p>
 
+<p>Our convention is going to be to name directives in camelCase, and everything else in PascalCase.</p>
+
 <p>Now all it is left to do is to add the controllers and directives to its respectives files:</p>
 
 <p>```javascript
 // gems_controller.js
-app.controller(“StoreController”, [
-  …
-]);</p>
+(function(){
+  var app = angular.module(‘GemStore’);
+  app.controller(‘StoreController’, [‘$http’, ‘$scope’, function($http, $scope) {
+    …
+  ]);
+})();</p>
 
-<p>app.controller(“ReviewController”, function() {
+<p>(function(){
+  var app = angular.module(‘GemStore’);
+  app.controller(‘ReviewController’, [‘$scope’, function($scope) {
   …
-});</p>
+  });
+})();</p>
 
 <p>// gems_directives.js
-var app = angular.module(“store-directives”, []);</p>
-
-<p>app.directive(“productDescription”, function() {
-  return {
-    restrict: “A”,
-    templateUrl: “templates/product-description.html”
-  };
-});
+(function() {
+  var app = angular.module(“StoreDirectives”, []);
+  app.directive(“productDescription”, function() {
+    return {
+      restrict: “A”,
+      templateUrl: “&lt;%= asset_path(‘angular_store_app/gems/views/description.html’)%&gt;”
+    };
+  });
 …
 ```</p>
 
@@ -76,10 +86,10 @@ var app = angular.module(“store-directives”, []);</p>
 
 <p>```html
 &lt;!DOCTYPE html&gt;
-&lt;html data-ng-app="gemStore"&gt;</p>
+&lt;html data-ng-app="GemStore"&gt;</p>
 <head>
   <title>Angurails</title>
-  &lt;%= stylesheet_link_tag    'application', media: 'all' %&gt;
+  &lt;%= stylesheet_link_tag 'application', media: 'all' %&gt;
   &lt;%= javascript_include_tag 'application' %&gt;
   &lt;%= csrf_meta_tags %&gt;
 </head>
@@ -94,14 +104,14 @@ var app = angular.module(“store-directives”, []);</p>
 <p>And in the show.html.page of the store controller we can start coding our own angular references and expressions:</p>
 
 <p>```html
-&lt;div data-ng-controller="StoreController as store"&gt;</p>
+&lt;div data-ng-controller="StoreController"&gt;</p>
 <header>
     <h2 class="text-center">Soto's Magnificent Emporium</h2>
     <h3 class="text-center"> an sinangular store </h3>
   </header>
 
 <div class="list-group">
-    <div class="list-group-item" data-ng-repeat="product in store.products">
+    <div class="list-group-item" data-ng-repeat="product in products">
       <h3> <em class="pull-right"></em></h3>
       <div data-product-gallery=""></div>
       <div data-product-tabs=""></div>
@@ -113,7 +123,7 @@ var app = angular.module(“store-directives”, []);</p>
 <p>One last details is to include in the rails public folder our angular html snippets referenced by directives, and make sure that the url in the gems_directives.js are correct.</p>
 
 <p>```html
-<!-- public/templates/product-description.html -->
+<!-- app/assets/javascript/angular_store_app/gems/views/description.html -->
 &lt;div data-ng-show="tab.isSet(1)"&gt;</p>
 <h4>Description</h4>
 <blockquote></blockquote>
