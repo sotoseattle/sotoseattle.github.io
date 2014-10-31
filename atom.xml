@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-31T13:57:19-07:00</updated>
+  <updated>2014-10-31T14:08:24-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -113,7 +113,7 @@
 </span><span class="line">(function(){
 </span><span class="line">  var app = angular.module("GemStore", ["StoreDirectives"]);
 </span><span class="line">})();</span></code></pre></td></tr></table></div></figure></notextile></div>
-
+<!--more-->
 <p>In this newly loaded file we reference again another folder tree, ‘angular_store_app’, where we’ll store all the Angular functionality by resources. In our case we are using the resulting app from CodeSchool’s course “<a href="http://campus.codeschool.com/courses/shaping-up-with-angular-js/intro">Shaping up with Angular</a>”, a store-like app for displaying gems and jewels. Therefore we’ll create a subfolder called ‘gems’ and inside another three subfolders: controllers, directives, and views.</p>
 
 <p><img class="center" src="http://sotoseattle.github.io/images/Oct14/folders.png" width="300" /></p>
