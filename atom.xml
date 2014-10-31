@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-31T13:43:30-07:00</updated>
+  <updated>2014-10-31T13:44:28-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -34,6 +34,8 @@
 <p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
 
 <p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
+
+<!--more-->
 
 <p>Nevertheless, this is the approach I have generally used since it provides me with the most experience and learning.</p>
 
