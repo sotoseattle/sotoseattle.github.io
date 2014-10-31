@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Category: OO - SotoSeattle</title>
+  <title>Adding Devise to Angular inside Rails - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Category: OO">
+  <meta name="description" content="Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.ioblog/categories/oo">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -110,31 +110,137 @@
   <div id="main">
     <div id="content">
       <div>
-<article role="article">
+<article class="hentry" role="article">
   
   <header>
-    <h1 class="entry-title">Category: OO</h1>
+  
+    
+      <h1 class="entry-title">Adding Devise to Angular Inside Rails</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+        
+      </p>
     
   </header>
-  
-  <div id="blog-archives" class="category">
 
 
+<div class="entry-content"><p><img class="right" src="/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
 
-  
-  <h2>2014</h2>
+<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
 
-<article>
-  
-<h1><a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a></h1>
-<time datetime="2014-10-20T14:30:00-07:00" pubdate><span class='month'>October</span> <span class='day'>20</span> <span class='year'>2014</span></time>
+<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
 
-</article>
+<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
 
+<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
+
+<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
+
+<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
+
+<p>Nevertheless, this is the approach I have generally used since it provides me with the most experience and learning.</p>
+
+<p>You can actually have it both ways, pre-pending the api version and automating with a gem (up to a point) with the Versionist Gem, which provides three different ways to version your api out of the box:</p>
+
+<ul>
+  <li>Specifying version via an HTTP header</li>
+  <li>Specifying version by pre-pending paths with a version slug</li>
+  <li>Specifying version via a request parameter</li>
+</ul>
+
+<p>Pre-pending the path with a version slug is the same as the method discussed in RailsCast, visual, fast and intuitive. The problem is that the gem won’t move files for you so you’ll need to re-organize some files around and change some configuration details.</p>
+
+<h3 id="request-header">Request Header</h3>
+
+<p>The <a href="https://github.com/bploetz/versionist">Versionist</a> gem also allows us to include the version to use as a parameter in the header of the request call. Which has the benefits and disadvantages of hiding away this information in the header. It is less transparent and user friendly, but great for automated calls. Less opportunity to fudge at the cost of a higher initial cost of setting the system up.</p>
+
+<h3 id="url-parameter">Url Parameter</h3>
+
+<p>The third way Versionist can work is by appending the api version as a parameter at the end of the call, which although benefiting from being as somewhat visual, it fudges the url mixing resource parameters with unrelated information. This practice is frowned upon in the rails development community.</p>
+
+<h3 id="mime-type">MIME Type</h3>
+
+<p>You could register a MIME type for each api version and use the rails’ respond_to handle the response. Check Robbie Clutton <a href="http://pivotallabs.com/api-versioning/">post about it</a>.</p>
+
+<p>The registration happens in the config/initializers/mime_types.rb, and all you need is to reconfigure your controllers.</p>
+
+<h3 id="api-model">API Model</h3>
+
+<p>Gems like <a href="https://github.com/craigs/api_versioning">ApiVersioning</a> use a model-based approach. Where a controller renamed as a <code>presenter</code>, handles API responses. It allows to specified the version in the header or passed as a parameter.</p>
+
+<p>Thanks to Scot Hale who pointed me in the right direction in order to research this topic!</p>
 </div>
 
+
+  <footer>
+    <p class="meta">
+      
   
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/api/'>API</a>, <a class='category' href='/blog/categories/rails/'>Rails,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/27/Wire-Angular-Rails/" title="Previous Post: Wiring Angular into Rails">&laquo; Wiring Angular into Rails</a>
+      
+      
+    </p>
+  </footer>
 </article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
 
@@ -191,7 +297,10 @@
       var disqus_shortname = 'sotoseattle';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
