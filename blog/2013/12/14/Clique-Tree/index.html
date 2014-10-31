@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>PGN: Building Clique Trees - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="We define a Clique Tree (CT) as a structure with nodes (clusters of variables), edges (connections between them), and potentials (factors). To build &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2013/12/14/Clique-Tree">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">PGN: Building Clique Trees</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-14T08:01:00-08:00" pubdate data-updated="true">Dec 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We define a Clique Tree (CT) as a structure with nodes (clusters of variables), edges (connections between them), and potentials (factors).</p>
+
+<p>To build a CT we need a list of factors from which we start deriving the set of all random variables and the matrix of edges between them. Then we iteratively run variable elimination in the following way:</p>
+
+<ul>
+  <li>we choose as the variable (z) to remove the first one with the least edges (min neighbors)</li>
+  <li>we separate the factors given in two sets: one with factors that include z, and another with the rest.</li>
+  <li>from the set of factors that include z:
+    <ul>
+      <li>we multiply the factors to compute the $\lambda$, </li>
+      <li>create a node/cluster in the CT with all the variables of $\lambda$</li>
+      <li>run over all pre-existing CT nodes, and check if any of the associated $\tau$s is also a factor in the lambda product. If so, create an edge between the nodes.</li>
+      <li>marginalize $\lambda$ to produce $\tau$ and record it in the CT next to the cluster created.</li>
+      <li>add $\tau$ as a factor to the unused factor list (those that did not have z)</li>
+    </ul>
+  </li>
+  <li>Update the edges by connecting all variables inside the newly minted CT node, and removing all edges from/to the eliminated variable</li>
+  <li>return the new factor list, edge matrix, and clique tree for another iteration.</li>
+</ul>
+
+<p>Here is a first draft of the process:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Clique Tree from Factor List (unrefactored)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+<span class="line-number">60</span>
+<span class="line-number">61</span>
+<span class="line-number">62</span>
+<span class="line-number">63</span>
+<span class="line-number">64</span>
+<span class="line-number">65</span>
+<span class="line-number">66</span>
+<span class="line-number">67</span>
+<span class="line-number">68</span>
+<span class="line-number">69</span>
+<span class="line-number">70</span>
+<span class="line-number">71</span>
+<span class="line-number">72</span>
+<span class="line-number">73</span>
+<span class="line-number">74</span>
+<span class="line-number">75</span>
+<span class="line-number">76</span>
+<span class="line-number">77</span>
+<span class="line-number">78</span>
+<span class="line-number">79</span>
+<span class="line-number">80</span>
+<span class="line-number">81</span>
+<span class="line-number">82</span>
+<span class="line-number">83</span>
+<span class="line-number">84</span>
+<span class="line-number">85</span>
+<span class="line-number">86</span>
+<span class="line-number">87</span>
+<span class="line-number">88</span>
+<span class="line-number">89</span>
+<span class="line-number">90</span>
+<span class="line-number">91</span>
+<span class="line-number">92</span>
+<span class="line-number">93</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Factor</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Rvar</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">FactorOperations</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">FactorGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;graph of linked random variables derived from a list of factors&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># extract all variables. The index is the key for setting edges.</span>
+</span><span class="line">        <span class="n">cv</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="n">cv</span> <span class="o">+=</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cv</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># create the adjacency matrix of the initial factor list</span>
+</span><span class="line">        <span class="n">numVars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numVars</span><span class="p">,</span> <span class="n">numVars</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="n">connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span class="line">        <span class="n">minE</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;+inf&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">minE</span><span class="p">:</span>
+</span><span class="line">                <span class="n">minE</span> <span class="o">=</span> <span class="n">e</span>
+</span><span class="line">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">[</span><span class="n">connections</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minE</span><span class="p">)]</span>
+</span><span class="line">
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="n">F</span> <span class="o">=</span> <span class="n">FactorGraph</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># create nodes iteratively through var elim</span>
+</span><span class="line">        <span class="n">C</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nodes&#39;</span><span class="p">:[],</span> <span class="s">&#39;edges&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))}</span>
+</span><span class="line">        <span class="n">considered_cliques</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">        <span class="k">while</span> <span class="n">considered_cliques</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="p">):</span>
+</span><span class="line">            <span class="n">z</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">firstMinNeighborVar</span><span class="p">()</span>
+</span><span class="line">            <span class="p">[</span><span class="n">F</span><span class="p">,</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eliminateVar</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class="line">            <span class="n">considered_cliques</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">eliminateVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># separate factors into two lists, those that use z (F_Cluster) and the rest</span>
+</span><span class="line">        <span class="n">F_Cluster</span><span class="p">,</span> <span class="n">F_Rest</span><span class="p">,</span> <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                <span class="n">F_Cluster</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+</span><span class="line">                <span class="n">Cluster_vars</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="k">if</span> <span class="n">F_Cluster</span><span class="o">!=</span><span class="p">[]:</span>
+</span><span class="line">            <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Cluster_vars</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># when computing tau of new node, check if it uses other nodes&#39; taus</span>
+</span><span class="line">            <span class="n">rows</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">cols</span><span class="p">))])</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))])</span>
+</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cols</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]):</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s">&#39;tau&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+</span><span class="line">            <span class="c"># create a new array of connecting node edges based on taus in common</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">pos</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># multiply the factors in Cluster... (lambda) ...and marginalize by z (tau)</span>
+</span><span class="line">            <span class="n">tau</span> <span class="o">=</span> <span class="n">F_Cluster</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
+</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">tau</span><span class="o">.</span><span class="n">variables</span> <span class="o">!=</span> <span class="p">[</span><span class="n">z</span><span class="p">]:</span>
+</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># add to unused factor list the resulting tau ==&gt; new factor list with var eliminated</span>
+</span><span class="line">            <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tau</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># update the edges (connect all vars inside new cluster, &amp; disconnect the eliminated variable)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
+</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[:,</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s">&#39;vars&#39;</span><span class="p">:</span><span class="n">Cluster_vars</span><span class="p">,</span> <span class="s">&#39;tau&#39;</span><span class="p">:</span><span class="n">tau</span><span class="p">}]</span>
+</span><span class="line">
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">F_Rest</span>
+</span><span class="line">        <span class="k">return</span> <span class="p">[</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>But this is not all, we still need to prune the tree and initialize it’s potentials.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-14T08:01:00-08:00" pubdate data-updated="true">Dec 14<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/pgn/'>PGN,</a>, <a class='category' href='/blog/categories/theory/'>theory</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2013/12/14/Clique-Tree/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2013/12/14/Clique-Tree/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/13/Var-Elim/" title="Previous Post: PGN: Variable Elimination">&laquo; PGN: Variable Elimination</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/15/Pruning-Clique-Trees/" title="Next Post: PGN: Pruning Clique Trees">PGN: Pruning Clique Trees &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2013/12/14/Clique-Tree/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2013/12/14/Clique-Tree/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: softmax, | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/softmax/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-31T13:57:19-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Kaggle Digit OCR: 2 Step Regression]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/07/Kaggle-Digit-2-regress/"/>
+    <updated>2013-10-07T09:02:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/07/Kaggle-Digit-2-regress</id>
+    <content type="html"><![CDATA[<p>Based on the previous posts we are going to extend our softmax model so we classify the handwritten images by using logistic regressions in two steps:</p>
+
+<ol>
+  <li>
+    <p>First we run our Softmax (multivariate logistic regression) classifier as before.</p>
+  </li>
+  <li>
+    <p>When classifying a particular image, if the first choice has less than 99% probability and the second choice has more than 1%, then we run a logistic regression between those two top choices to make sure we pick the right one. These limits are completely arbitrary, pretty irrelevant and stated to make the concept clearer.</p>
+  </li>
+</ol>
+
+<p>This means computing the 784+1 parameters of the logystic regression 43 times, which is quite hair-raising but not heart-stopping (30 mins in my old mac).</p>
+
+<p>So if it is very clear we go softmax, but if there is a doubt we rely on a more accurate logistic regression between the top two softmax choices. </p>
+
+<p><blockquote><p>The new accuracy from Kaggle is 93.64%.</p></blockquote></p>
+
+<p>Here is the modified code:</p>
+
+<p>```python kaggle 2 step regression model
+import math
+import pandas as pd
+import numpy as np</p>
+
+<p>import sys
+sys.path.append( ‘../../.’ ) # regression modules address
+import Logysoft as soft
+import Logysterical as logit</p>
+
+<p>class KaggleTop2(object):
+    def <strong>init</strong>(self):
+        self.LABS = 10              # N. of possible values of Y (labels)
+        # load data files
+        training_data = pd.read_csv(‘./data/kaggle/train.csv’, header=0)
+        testing_data = pd.read_csv(‘./data/kaggle/test.csv’, header=0)
+        self.xt = np.array(training_data.ix[:, 1:]).astype(‘float64’)
+        self.yt = np.atleast_2d(training_data.ix[:, 0]).T</p>
+
+<pre><code>    # evaluation set
+    self.xe = self.xt[30000:, :]
+    self.ye = self.yt[30000:, :]
+    
+    # testing set
+    self.x_test = np.array(testing_data.ix[:,:]).astype('float64')
+
+def optimize_logit_for(self, pair):
+    # extract the right images from the set
+    [a,b] = [int(pair[0]), int(pair[1])]
+    
+    data = np.array(pd.read_csv('./data/kaggle/train.csv', header=0)).astype('float64')
+    data_t = data[0:, :]
+    
+    data_a = data_t[data_t[:,0]==a]
+    data_b = data_t[data_t[:,0]==b]
+    data_ab = np.vstack([data_a, data_b])
+    xt = data_ab[:, 1:]
+    yt = data_ab[:, 0].astype('int8')
+    yt = np.atleast_2d(yt).T
+
+    # Perform logistic regression
+    xt2 = np.column_stack([np.ones((xt.shape[0],1)), xt])
+    yt2 = yt.flatten()
+    count = 0
+    for i in range(yt2.size):
+        if yt2[i]==a:
+            yt2[i] = 1
+            count +=1
+        else:
+            yt2[i] = 0    
+    
+    ini_thetas = 0.005*np.random.rand(xt2.shape[1],1)
+    L = 1e+5
+    opt_thetas = logit.optimizeThetas(ini_thetas, xt2, yt2, L, visual=False)
+    return opt_thetas
+
+def test_model_submit(self):
+    logit_thetas = {}
+    
+    soft_thetas = np.array(pd.read_csv('./data/kaggle/submit_optimized_thetas.csv', header=None))
+    soft_thetas = soft_thetas.reshape(self.LABS, -1)
+
+    m, n = self.x_test.shape
+    h = soft.h(soft_thetas, self.x_test)
+    predictions = np.zeros((m,2))
+    for i in range(m):
+        [ml_1, ml_2] = h[i,:].argsort()[-2:][::-1] # 1st and 2nd model choices
+        p1,p2 = h[i,:][ml_1], h[i,:][ml_2]
+        right_order = True
+        if ml_1 &gt; ml_2:
+            right_order = False
+            s = `ml_2`+`ml_1`
+        else:
+            s = `ml_1`+`ml_2`
+        
+        if p1&lt;0.99 and p2&gt;0.01:
+            if s not in logit_thetas:
+                logit_thetas[s] = self.optimize_logit_for(s)
+
+            l_t = logit_thetas[s]
+            logix = np.hstack([1, self.x_test[i,:]])
+
+            p = logit.h(l_t, logix)
+            if (p&gt;0.5):
+                predictions[i,:] = ([i+1, ml_1] if right_order else [i+1, ml_2])
+            else:
+                predictions[i,:] = ([i+1, ml_2] if right_order else [i+1, ml_1])
+        else:
+            predictions[i,:]=[i+1, ml_1]
+
+    print 'To submitt add header: ImageId,Label'
+    print predictions[0:10,:]
+    np.savetxt('./data/kaggle/predictions_2steps.csv', predictions, fmt='%i,%i')
+    pass
+</code></pre>
+
+<p>k2t = KaggleTop2()
+k2t.test_model_submit()
+```</p>
+
+<h2 id="conclusion">conclusion</h2>
+
+<p>We have gained a small improvement of 1.6%. The right direction, yet far away from the results achieved with other models. This seems to suggest a limitation for this problem of a learning function that is linear. In future posts I’ll look for models that rely on non-linear functions.</p>
+
+<p>I also wonder what would be the result of using as model logistic regression one-vs-all for each label. And how it compares to plain softmax.</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Kaggle Digit OCR: Softmax Analysis]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/06/OCR-Analaysis/"/>
+    <updated>2013-10-06T09:03:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/06/OCR-Analaysis</id>
+    <content type="html"><![CDATA[<p>Reading this <a href="http://peekaboo-vision.blogspot.com/2012/12/another-look-at-mnist.html">post</a> I realized that we may be able to use a simple logistic regression on a 1-to-1 basis for those cases the softmax model gets wrong. </p>
+
+<p>We extract the 970 images that we misclassified (out of the 12.000 of our validation set). Then for each image we compute the hypothesis function of each image using the optimized parameters (previously stored). </p>
+
+<p>Let’s get as an example the 42<sup>nd</sup> image from the evaluation set:</p>
+
+<p><img class="center" src="/images/kaggle_ocr/xe_42.png" width="400" height="400" title="Seven" ></p>
+
+<p>The hypothesis function of the image outputs the following probabilities for each label (0 to 9) that we have multiplied by 100: <code>[43.79, 7.6e-09, 0.37, 0.0008, 0.12, 0.44, 55.11, 0.02, 0.09, 0.02]</code></p>
+
+<p>Our model mis classifies it as a 6 (highest probability of 55%) but it is really meant to be a 0. Now, realize that the second choice, the second maximum is for label 0 (with 43% probability), the right one!. Furthermore, the second choice is at a big distance from everyone else (less than 1%). So even if softmax failed, it was pretty close.</p>
+
+<p>If we could pick and choose the cases where first and second choice were close by, we could tell the model to disregard the softmax choice and instead, for that particular case, perform a logistic regression between the two choices. Generalized to all possible combinations of first and second choices we would need to compute $(n-1)n/2 = 45$ times the 784 parameters.</p>
+
+<p>We can derive from the data that, of the 970 misclassified images on the evaluation set, 608 (or 62%) happen to have as second choice the true class. For example, the most frequent misclassification in this later group happens differentiating between 7 and 9, (69 times out of 608).</p>
+
+<p>Let’s make a small experiment and see if it is true that logit works better than softmax when figuring 7s and 9s. We,</p>
+
+<ul>
+  <li>extract from the training and evaluation test all images whose true label is 7 or 9. </li>
+  <li>derive the opt thetas for a simple logistic regression from the extracted training set.</li>
+  <li>compare on the extracted evaluation set the accuracy of both, softmax and logistic regression.</li>
+</ul>
+
+<p>Softmax gets it right 90.8% and logit 95.8%. Lets repeat it for the most conflicting pairs previously identified:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">pairs</th>
+      <th style="text-align: center">count</th>
+      <th style="text-align: center">softmax_acc(%)</th>
+      <th style="text-align: center">logit_acc(%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">7 vs. 9</td>
+      <td style="text-align: center">69</td>
+      <td style="text-align: center">90.8</td>
+      <td style="text-align: center">95.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 9</td>
+      <td style="text-align: center">53</td>
+      <td style="text-align: center">91.3</td>
+      <td style="text-align: center">96.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 8</td>
+      <td style="text-align: center">46</td>
+      <td style="text-align: center">86.6</td>
+      <td style="text-align: center">96.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 5</td>
+      <td style="text-align: center">40</td>
+      <td style="text-align: center">87.6</td>
+      <td style="text-align: center">96.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1 vs. 8</td>
+      <td style="text-align: center">37</td>
+      <td style="text-align: center">93.5</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 8</td>
+      <td style="text-align: center">33</td>
+      <td style="text-align: center">89.4</td>
+      <td style="text-align: center">97.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 3</td>
+      <td style="text-align: center">32</td>
+      <td style="text-align: center">90.2</td>
+      <td style="text-align: center">97.3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 8</td>
+      <td style="text-align: center">29</td>
+      <td style="text-align: center">89.6</td>
+      <td style="text-align: center">97.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 7</td>
+      <td style="text-align: center">24</td>
+      <td style="text-align: center">91.0</td>
+      <td style="text-align: center">98.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 6</td>
+      <td style="text-align: center">21</td>
+      <td style="text-align: center">90.2</td>
+      <td style="text-align: center">97.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 6</td>
+      <td style="text-align: center">19</td>
+      <td style="text-align: center">95.8</td>
+      <td style="text-align: center">98.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 9</td>
+      <td style="text-align: center">19</td>
+      <td style="text-align: center">90.0</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 6</td>
+      <td style="text-align: center">18</td>
+      <td style="text-align: center">92.9</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 5</td>
+      <td style="text-align: center">15</td>
+      <td style="text-align: center">90.4</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 2</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">93.0</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 7</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">91.2</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 9</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">87.1</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 6</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">94.4</td>
+      <td style="text-align: center">99.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8 vs. 9</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">89.2</td>
+      <td style="text-align: center">98.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 5</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">88.8</td>
+      <td style="text-align: center">98.6</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>Here is the module for logistic regression:</p>
+
+<p>```python logit module
+import math
+import pandas as pd
+import numpy as np
+import scipy as sc
+from scipy.optimize import fmin_l_bfgs_b</p>
+
+<h1 id="module-for-logistic-regression">MODULE FOR LOGISTIC REGRESSION</h1>
+<p>def sigmoid(z):
+    return np.vectorize(lambda x: 1/(1+np.exp(-x) + 1E-11))(z)
+    #return np.vectorize(lambda x: 1/(1+np.exp(-x)))(z)</p>
+
+<p>def h(t, x):
+    ‘'’hypothesis function. probability of input x with params t’’’
+    return sigmoid(x.dot(t))</p>
+
+<p>def j(t, x, y, lam):
+    ‘'’cost function J(theta)’’’
+    prediction = sigmoid(np.dot(x, t))
+    m = x.shape[0]
+    J = (-y.T.dot(np.log(prediction)) -        \
+            (1-y).T.dot(np.log(1-prediction)) +    \
+            (lam/2.0) * np.sum(np.power(t[1::], 2)))/m
+    return J</p>
+
+<p>def v(t, x, y, lam):
+    ‘'’gradient function, first partial derivation of J(theta)’’’
+    prediction = sigmoid(np.dot(x, t))
+    regu = np.hstack([[0],t[1::,]*lam])
+    grad = ((prediction - y).dot(x) + regu)/x.shape[0]
+    return grad</p>
+
+<p>def optimizeThetas(tinit, x, y, lam, visual=True):
+    ‘'’derive thetas using l_bfgs algorithm’’’
+    def f(w):
+        return j(w, x, y, lam)
+    def fprime(w):
+        return v(w, x, y, lam)
+    [thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=400)
+    if visual:
+        print thetas[0:10]
+        print f
+        print d
+    return thetas</p>
+
+<p>def accuracy(t, x, y):
+    acc = 0.0
+    m= x.shape[0]
+    for i in range(m):
+        p = h(t, x[i,::])
+        if (p&gt;0.5 and y[i]==1) or (p&lt;=0.5 and y[i]==0):
+                acc += 1
+    return acc/m
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Kaggle Digit OCR: Softmax Model]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/06/Kaggle-Digit-OCR-Softmax/"/>
+    <updated>2013-10-06T09:02:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/06/Kaggle-Digit-OCR-Softmax</id>
+    <content type="html"><![CDATA[<p>Instead of using a Random Forest as suggested I am going to start with Softmax regression.</p>
+
+<h2 id="datasets">datasets</h2>
+
+<p>The original kaggle/mnist data is therefore divided into e sets:</p>
+
+<ul>
+  <li>a training set with the first 30.000 images (xt, yt) from train.csv.</li>
+  <li>an evaluation set of the remaining 12.000 examples (xe, ye) from train.csv.</li>
+  <li>the testing set with 28.000 images (x_test) to classify from test.csv.</li>
+</ul>
+
+<p>I also initialize some parameters that I may later optimize:</p>
+
+<ul>
+  <li>lambda, the regularization parameter (L).</li>
+  <li>number of labels (LABS = 10), digits 0 to 9.</li>
+  <li>number of features (N = 784).</li>
+  <li>thetas initialized to zeros as a matrix (10, 784)</li>
+</ul>
+
+<p>```python class KaggleTrain initialization
+import math
+import pandas as pd
+import numpy as np
+import scipy as sc
+from scipy.optimize import fmin_l_bfgs_b
+from sklearn import preprocessing
+import matplotlib.pyplot as plt</p>
+
+<p>import sys
+sys.path.append( ‘../../.’ ) # logysoft module address
+import Logysoft as softmax  # module with softmax utility functions</p>
+
+<p>class KaggleTrain(object):
+    def <strong>init</strong>(self):
+        # initialize general parameters
+        self.L = 7                  # lambda, regularization parameter
+        self.LABS = 10              # N. of possible values of Y (labels)
+        self.N = 784                # N. of features per image (28x28)</p>
+
+<pre><code>    # load data files
+    training_data = pd.read_csv('./data/kaggle/train.csv', header=0)
+    testing_data = pd.read_csv('./data/kaggle/test.csv', header=0)
+    x = np.array(training_data.ix[:, 1:]).astype('float64')
+    y = np.atleast_2d(training_data.ix[:, 0]).T
+
+    # training set
+    self.xt = x[0:30000, :]
+    self.yt = y[0:30000, :]
+    self.gt = soft.groundTruth(self.yt, self.LABS)
+    # evaluation set
+    self.xe = x[30000:, :]
+    self.ye = y[30000:, :]
+    self.ge = soft.groundTruth(self.ye, self.LABS)
+    # testing set
+    self.x_test = np.array(testing_data.ix[:,:]).astype('float64') ```
+</code></pre>
+
+<h2 id="choosing-lambda-">choosing lambda ($λ$)</h2>
+
+<p>To choose the regularization parameter first we choose the range of lambdas for which to test as [1e-3, 1e-2, 1e-1, 1, 10, 100] and then we zero in in a smaller range (with minor modifications to the code).</p>
+
+<p>For each lambda we find the optimum $θ<em>{opt}$ in the training set and then compute the cost $J(θ</em>{opt})$ in the evaluation set. We choose the lambda that works best and minimizes that cost/error measure.</p>
+
+<p>```python choosing lambda
+def choose_lambda(self):
+    ‘'’train with different regularization parameters and choose
+       the one that minimizes the cost in the evaluation set.’’’      <br />
+    tinit = 0.005* np.random.rand(self.LABS, self.N)</p>
+
+<pre><code># initialize some working vars
+rango = np.array([1e-3, 1e-2, 1e-1, 1, 10, 100])
+Jt, Je = np.array([]), np.array([])
+bestC, bestL = 1e+10, 0.0
+
+# cycle through lambdas and choose the one with lowest cost
+for chosen_lambda in rango:
+    t = soft.optimizeThetas(tinit, self.xt, self.gt, \
+        numLabels=self.LABS, l=chosen_lambda, visual=True)
+
+    cost_t = soft.j(t, self.xt, self.gt, self.LABS, chosen_lambda)
+    cost_e = soft.j(t, self.xe, self.ge, self.LABS, chosen_lambda)
+
+    Jt = np.append(Jt, cost_t)
+    Je = np.append(Je, cost_e)
+
+    if cost_e &lt; bestC:
+        bestC = cost_e
+        bestL = chosen_lambda
+print "\n\nthe best lambda is", bestL
+
+# plot
+line1 = plt.plot(np.log10(rango), Jt)
+line2 = plt.plot(np.log10(rango), Je)
+plt.setp(line1, linewidth=2.0, label='training', color='b', solid_joinstyle='round')
+plt.setp(line2, linewidth=2.0, label='training', color='r', solid_joinstyle='round')
+plt.xlabel('log10(Lambda)')
+plt.ylabel('J')
+plt.show()
+pass ```
+</code></pre>
+
+<p>The code not only informs us of the best lambda available but plots the cost curves for each lambda. The blue line represents the cost (error) for each lambda value in the training set. The red line is the cost in the evaluation set and from where we choose $λ$ that minimizes the cost/error. The first chart is log10 of lambda and the second is just lambdalone.</p>
+
+<div style="text-align:center">
+<img src="/images/kaggle_ocr/choosing_lambda_kaggle_softmax.png" width="400" height="500" title="Training Error (blue) &amp; Validation Error (red)" >
+<img src="/images/kaggle_ocr/choosing_lambda_kaggle_softmax_2.png" width="400" height="500" title="Training Error (blue) &amp; Validation Error (red)" >
+</div>
+
+<p>In our case, we choose a small lambda of 0.002. With input data that is not scaled, the same exercise leads to choosing a $λ$ of around 7.</p>
+
+<h2 id="optimizing-thetas">optimizing thetas</h2>
+
+<p>Once we have the regularization fixed we compute the optimized thetas on the training set and measure the accuracy on the evaluation set.</p>
+
+<p>```python optimize parameters and check accuracy
+def check_accuracy(self):
+        ‘'’computes thetas on training set, saves them, and checks
+           accuracy on evaluation set’’’
+        tinit = 0.005* np.random.rand(self.LABS, self.N)
+        thetas = soft.optimizeThetas(tinit, self.xt, self.gt, self.LABS, self.L)
+        thetas = thetas.reshape(self.LABS, -1)
+        np.savetxt(‘./data/kaggle/optimized_thetas.csv’, thetas, delimiter=’,’)</p>
+
+<pre><code>    h = soft.h(thetas, self.xe)
+    predictions = h.argmax(axis=1)
+    zeros_are_right = np.subtract(self.ye.T, predictions)
+    misses = 1.0 * np.count_nonzero(zeros_are_right)
+    acc = 1 - misses/len(predictions)
+    print 'accuracy:', acc
+    pass ```
+</code></pre>
+
+<p>We achieve an accuracy rate of accuracy: 0.919.</p>
+
+<h2 id="learning-curves">learning curves</h2>
+
+<p>Finally we plot and analyze the learning curves by repeating the exercise for different sample sizes.</p>
+
+<p>The cost (error) on the training set is represent in blue and the cost on the validation set in red. For small training sets the error is small because any curve can be made to fit few data points. The validation error is big because the simplistic model has little to do with reality. </p>
+
+<p>As we grow the sample size the training error grows (the pains of fitting all points in the curve) while the validation cost diminishes as more complex models generalize better to untrained points.</p>
+
+<p><img class="center" src="/images/kaggle_ocr/learning_kaggle_soft.png" width="600" height="500" title="Training Error (blue) &amp; Validation Error (red)" ></p>
+
+<p>A priori we see that our model does not suffer from a bout of bias. Nevertheless, since we still have room to improve in terms of accuracy we may be suffering from a bit of high variance (over fitting to the training data and lack of generalization). Ways to solve this are:</p>
+
+<ul>
+  <li>increase $λ$. Not really since we know it was optimized and from here we will only rise the error and bias our model.</li>
+  <li>gather more training examples. Not available either in kaggle, although we could create new examples by deforming, rotating, etc the existing ones.</li>
+  <li>reduce the number of features. I tried with PCA and the results were definitively poorer, maybe because we were indiscriminately removing parameters?</li>
+  <li>get creative (more later).</li>
+</ul>
+
+<p>```python learning curves
+def learning_curves(self):
+    tinit = 0.005* np.random.rand(self.LABS, self.N)
+    m, n = self.xt.shape
+    sample = np.array([3, 6, 9, 12, 15, 18, 21, 24, 27, 30])*1000
+    Jt, Je = np.array([]), np.array([])</p>
+
+<pre><code>for m in sample:
+    my_t = soft.optimizeThetas(tinit, self.xt[0:m,:], self.gt[0:m,:], \
+        numLabels=self.LABS, l=self.L, visual=False)
+    
+    Jt = np.append(Jt, soft.j(my_t, self.xt[0:m,:], self.gt[0:m,:], self.LABS, self.L))
+    Je = np.append(Je, soft.j(my_t, self.xe, self.ge, self.LABS, self.L))
+
+# plot (m, Jtr) and (m, Jcv)
+line1 = plt.plot(sample, Jt)
+line2 = plt.plot(sample, Je)
+
+plt.setp(line1, linewidth=2.0, label='training', color='b', solid_joinstyle='round')
+plt.setp(line2, linewidth=2.0, label='training', color='r', solid_joinstyle='round')
+plt.xlabel('Number of Examples')
+plt.ylabel('Cost / Error')
+plt.show()
+pass ```
+</code></pre>
+
+<h2 id="submission">Submission</h2>
+
+<p>For the submission I optimized parameters for the original set of 42.000 images (not just the 30.000 examples of the training set). </p>
+
+<p><blockquote><p>The accuracy achieved in the Kaggle competition is 92.086%.</p></blockquote></p>
+
+<p>I also tried a couple of small tweaks:</p>
+
+<ul>
+  <li>Re-scaling [to range (0,1), mean normalize and feature scale] and using an optimized $λ$ of 0.002 the kaggle accuracy was a tad smaller at 91.6% </li>
+  <li>Reducing dimensions with PCA while keeping 90 to 99% of variance. The accuracy went down to 90%, proving that PCA may have been removing valuable information. PCA is not always a good recipe for high variance problems.</li>
+</ul>
+
+<p>```python predicting on test set
+def test_model_submit(self):
+    # compute thetas on whole training set
+    tinit = 0.005* np.random.rand(self.LABS, self.N)
+    x = np.vstack([self.xt, self.xe])
+    y = np.vstack([self.yt, self.ye])
+    g = np.vstack([self.gt, self.ge])</p>
+
+<pre><code># find thetas and save them
+thetas = soft.optimizeThetas(tinit, x, g, self.LABS, self.L)
+thetas = thetas.reshape(self.LABS, -1)
+np.savetxt('./data/kaggle/submit_optimized_thetas.csv', thetas, delimiter=',')
+
+# compute predictions
+m, n = self.x_test.shape
+h = soft.h(thetas, self.x_test)
+predictions = np.zeros((m,2))
+for i in range(m):
+    a = h[i,:].argmax()
+    predictions[i,:]=[i+1, a]
+print 'To submitt add header: ImageId,Label'
+print predictions[0:10,:]
+np.savetxt('./data/kaggle/predictions.csv', predictions, fmt='%i,%i')
+pass ```
+</code></pre>
+
+<h2 id="conclusion">conclusion</h2>
+
+<p>I have read that for classification problems, in practice, different algorithms often yield similar accuracy measures. Most of the time algorithm doesn’t matter as much. You can easily reach 90% recognition rate with the simplest algorithm, but every next percent is very difficult to achieve. I seem to have to struck the softmax wall.</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Kaggle Digit OCR: The Data]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/05/Kaggle-Digit-OCR/"/>
+    <updated>2013-10-05T09:02:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/05/Kaggle-Digit-OCR</id>
+    <content type="html"><![CDATA[<p>My first ML program is going to be the <a href="http://www.kaggle.com/c/digit-recognizer">Kaggle OCR digit competition</a>. </p>
+
+<p>The original data comes in two files: train.csv and a test.csv. Each file contain gray-scale images of hand-drawn digits, from zero through nine.</p>
+
+<p>Each image is 28 pixels in height and 28 pixels in width, for a total of 784 pixels in total. Each pixel has a single pixel-value associated with it, indicating the lightness or darkness of that pixel, with higher numbers meaning darker. This pixel-value is an integer between 0 and 255, inclusive.</p>
+
+<p>The training data set, (train.csv), has 785 columns and 42.0001 rows. The first column, called “label”, is the digit that was drawn by the user. The rest of the columns contain the pixel-values of the associated image. The first row is a header and each subsequent row holds an image in vectorized form for a total of 42.000 images</p>
+
+<p>The test file is similar but without a label column, which is the goal of the competition.</p>
+
+<p>We can visualize each handwritten digit with the following code:</p>
+
+<p>```python visualize handwritten digit
+x = numpy.array(…)	# all the training images
+y = numpy.array(…)	# all the training labels</p>
+
+<p>def visualize(example_number):
+	print ‘should be a’, y[example_number]
+	matplotlib.pyplot.gray()
+	matplotlib.pyplot.imshow(x[example_number,:].reshape(28,28))
+	matplotlib.pyplot.show()
+```</p>
+
+<p>For example, from train.csv, the 6<sup>th</sup> row is: [7, 0, 0, …, 82, 152, 71, 51, 51, …, 0, 0, 0, 0, 0.]</p>
+
+<p>Where the first digit tells us that the “real” number is a “7” and the following 784 numbers can be reshaped into a grid to show the following image:</p>
+
+<p><img class="center" src="/images/kaggle_ocr/mnist_good_7.png" width="400" height="400" title="Seven" ></p>
+
+<p>Not everything is so clear cut. Two additional examples from the training set: a One and a Seven, which could be misclassified even by hand.</p>
+
+<div style="text-align:center">
+<img src="/images/kaggle_ocr/mnist_1.png" width="400" height="400" title="One" >
+<img src="/images/kaggle_ocr/mnist_7.png" width="400" height="400" title="Seven" >
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Softmax Theory: $θ$]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/04/Softmax-IV/"/>
+    <updated>2013-10-04T09:02:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/04/Softmax-IV</id>
+    <content type="html"><![CDATA[<p>To train the model and find the parameters we need some sort of gradient descent algorithm. In python <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">fmin_bfgs</a> takes way too long and hogs memory, while it’s sister <a href="http://en.wikipedia.org/wiki/Limited-memory_BFGS">fmin_l_bfgs_b</a> is much faster and lighter.</p>
+
+<p>To call it we need to consider the following issues:</p>
+
+<ul>
+  <li>we need to pass the cost and gradient function separately (unlike in Octave).</li>
+  <li>the first argument of the function and of its derivation has to be the parameter to be optimized.</li>
+  <li>tinit is an initial set of parameters from which to start the search, a good compromise is <code>0.005 * np.random.rand(labels, n)</code>.</li>
+  <li>for the l_bfgs to work the gradient format must be rolled out (not in matrix form).</li>
+  <li>the optimizing algorithm provides additional useful information [f, d] about the search performed.</li>
+  <li>other options, like the maximum number of iterations to perform or the convergence tolerance can be researched online.</li>
+</ul>
+
+<p>```python optimizing thetas
+import numpy as np
+from scipy.optimize import fmin_l_bfgs_b</p>
+
+<p>def optimizeThetas(tinit, X_train, GT, numLabels, l):
+    def f(w):
+        return j(w, X_train, GT, numLabels, l)
+    def fprime(w):
+        return v(w, X_train, GT, numLabels, l)</p>
+
+<pre><code>[thetas, f, d] = fmin_l_bfgs_b(func=f, x0=tinit, fprime=fprime, maxiter=400)
+return thetas ```
+</code></pre>
+]]></content>
+  </entry>
+  
+</feed>

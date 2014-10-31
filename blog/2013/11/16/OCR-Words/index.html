@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>OCR Words (I) - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="We are starting the PGN assignment for week 3, with the goal in mind of re-coding it in python. The Assignment is to construct a character &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2013/11/16/OCR-Words">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">OCR Words (I)</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-16T08:01:00-08:00" pubdate data-updated="true">Nov 16<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We are starting the PGN assignment for week 3, with the goal in mind of re-coding it in python.</p>
+
+<p>The Assignment is to construct a character recognition model based on a Markov network where certain variables are always ‘observed’ (the scanned images) and we work on hidden variables. In this manner we compute probabilities of a set of target hidden variables based on a different set of observed ones (characteristics or features). These markov nets are also called Conditional Random Fields and are an extremely powerful tool for all kinds of applications, from face recognition to Chinese parsers. We will build the model from the ground up and start with singleton factors.</p>
+
+<h2 id="singleton-factors">singleton factors</h2>
+
+<p><img class="center" src="/images/nov13/ocr_singleton.png" /></p>
+
+<p>The blue nodes are random variables that represent the scanned image of a handwritten single letter. These variables are always observed. The image is 16 by 8 pixels for a total of 128 pixels (0,1) per image. As a random variable it can take different assignments in those 128 positions, so the number of possible images is huge.</p>
+
+<p>The red nodes are variables that represent the letter we are after, the letter represented in the image. There is a connection between each blue and red nodes because the probability of the red node being a certain letter is conditioned on what the image looks like. There are 26 possible assignments of each red node, the 26 letters of the alphabet in lower case.</p>
+
+<p>There is a factor that tells us the probability of the red node being a particular letter for each possible image. Since the variability and dimensions of all possible images is huge we create a function that, given an image, computes the probabilities of the character being each letter. This is a singleton factor because for all purposes it only depends on one variable, the red node itself. </p>
+
+<p>Then, the model can be said that operates on the red nodes as random variables alone, since the blue ones are already observed and therefore conditioned/observed and not variable any more.</p>
+
+<p>We use Softmax regression (theory and code seen in October), for which the parameters have already being precomputed (so we only need to load them), and the code directly transplanted from our Softmax code.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>singleton factors</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;examples/letterOCR/data/softmax_params_singleton.csv&#39;</span><span class="p">)]</span>
+</span><span class="line"><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">3200</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span> <span class="c"># 128 x 25</span>
+</span><span class="line"><span class="n">bias</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">3200</span><span class="p">:])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>      <span class="c"># 1   x 25</span>
+</span><span class="line"><span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">bias</span><span class="p">,</span> <span class="n">theta</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">computeImageFactor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">thetas</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;we use softmax regression h() method&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">img</span><span class="p">)])</span> <span class="c"># 1. for the bias param</span>
+</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">thetas</span><span class="p">),</span> <span class="mf">0.</span><span class="p">)</span>   <span class="c"># the 0 is to add the last letter</span>
+</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+</span><span class="line">    <span class="n">suma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">H</span><span class="p">)</span>
+</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">suma</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">H</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">singletonFactor</span><span class="p">(</span><span class="n">var_char</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">var_char</span><span class="p">])</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">computeImageFactor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>For the image bellow we compute its image factor as an array of probabilities that add up to 1.0. Check that, in this case, the softmax regression works pretty well and assigns a probability of 92% to the image being a ‘c’, the third letter of the alphabet and the third cell in the factor array.</p>
+
+<p><img class="left" src="/images/nov13/letter_c.png" /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">Factor</span><span class="p">(</span><span class="n">red_node</span> <span class="o">|</span> <span class="n">blue_node</span> <span class="o">=</span> <span class="n">scanned_image</span><span class="p">)</span> <span class="o">=</span>
+</span><span class="line">
+</span><span class="line">      <span class="p">[</span>  <span class="mf">5.51526624e-04</span>   <span class="mf">2.51680889e-05</span>   <span class="mf">9.19861547e-01</span>   <span class="mf">3.84932931e-07</span>
+</span><span class="line">         <span class="mf">5.27830262e-02</span>   <span class="mf">5.84130106e-05</span>   <span class="mf">9.81360425e-04</span>   <span class="mf">7.36016497e-04</span>
+</span><span class="line">         <span class="mf">4.03551392e-08</span>   <span class="mf">2.11407006e-05</span>   <span class="mf">2.03932346e-04</span>   <span class="mf">3.93086506e-03</span>
+</span><span class="line">         <span class="mf">9.96780992e-11</span>   <span class="mf">9.17523169e-04</span>   <span class="mf">1.58037104e-03</span>   <span class="mf">5.37762710e-08</span>
+</span><span class="line">         <span class="mf">1.67113194e-05</span>   <span class="mf">4.04578301e-03</span>   <span class="mf">1.28410142e-03</span>   <span class="mf">9.86783809e-03</span>
+</span><span class="line">         <span class="mf">5.20212172e-04</span>   <span class="mf">4.19693268e-04</span>   <span class="mf">8.62777153e-15</span>   <span class="mf">2.63680673e-07</span>
+</span><span class="line">         <span class="mf">1.24025217e-04</span>   <span class="mf">2.07000202e-03</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>This primitive model, when run against a set of 99 words and 691 handwritten characters, gives us a character accuracy of 76.85% and 22% probability of getting the whole word right (all letters right in each word).</p>
+
+<h2 id="pairwise-and-triplet-factors">pairwise and triplet factors</h2>
+
+<p><img class="center" src="/images/nov13/ocr_triplet.png" /></p>
+
+<p>Pairwise: Certain letters are followed by certain others. ‘cr’ is more probable than ‘cz’. We can easily compute these probabilities from a big enough corpus into a 26 x 26 matrix and add a factor that pairs two nodes and gives the probabilities of each pair of assignments. Consider that this factor’s values are the same for each couple of adjacent random variables. There would be n-1 factors per n letter word.</p>
+
+<p>Triplets: Something similar could be done for groups of three consecutive letters (‘ing’ being more probable than ‘nnn’). The problem being that it results in a matrix of more than 17,000 assignments. Instead, we focus on the top 2,000 most probable triplets for which we compute the probabilities, we normalize all values so the computed 2,000th most probable’s probability is 1.0, and make the rest equal to 1.0 too (in effect saying that after the top 2000, all 3 letter groupings are equally probable). There would be n-2 triplet factors per n letter word. Consider that this factor’s values are the same for each triplet of adjacent random variables.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>pairwise and triplet factors</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># loading precomputed probabilities</span>
+</span><span class="line"><span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;examples/letterOCR/data/pairwiseModel.csv&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">prob_pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">prob_pairs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">prob_pairs</span><span class="p">,</span> <span class="p">(</span><span class="mi">26</span><span class="p">,</span><span class="mi">26</span><span class="p">),</span> <span class="n">order</span><span class="o">=</span><span class="s">&#39;F&#39;</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;examples/letterOCR/data/tripletModel.csv&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="n">prob_triplets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">26</span><span class="p">,</span><span class="mi">26</span><span class="p">,</span><span class="mi">26</span><span class="p">))</span>
+</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2000</span><span class="p">):</span>
+</span><span class="line">    <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span> <span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="nb">file</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+</span><span class="line">    <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</span><span class="line">    <span class="n">prob_triplets</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># building factors</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">pairwiseFactor</span><span class="p">(</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">):</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">])</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">prob_pairs</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">tripletFactor</span><span class="p">(</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">,</span> <span class="n">var3</span><span class="p">):</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">,</span> <span class="n">var3</span><span class="p">])</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">prob_triplets</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>With these factors we can start inferring, but before we connect the factors into a model we are going to need an inference engine that allows us to efficiently compute the MAP. So before continuing the assignment we are going to take a detour for a couple of posts and build an inference engine that we can use for this and other models.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-16T08:01:00-08:00" pubdate data-updated="true">Nov 16<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ocr/'>OCR</a>, <a class='category' href='/blog/categories/pgn/'>PGN,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2013/11/16/OCR-Words/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2013/11/16/OCR-Words/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/13/Factors-Vectorized/" title="Previous Post: Factors Vectorized">&laquo; Factors Vectorized</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/12/13/Var-Elim/" title="Next Post: PGN: Variable Elimination">PGN: Variable Elimination &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2013/11/16/OCR-Words/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2013/11/16/OCR-Words/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

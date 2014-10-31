@@ -1,0 +1,721 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="SVM is much easier to implement than our previous regressions because it is already been coded in the package scikit learn (sklearn). All that is &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/page/16">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/13/Kaggle-Digit-SVM/">Kaggle Digit OCR: SVM (Top 5)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-13T18:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>SVM is much easier to implement than our previous regressions because it is already been coded in the package <a href="http://scikit-learn.org/stable/modules/svm.html">scikit learn</a> (sklearn). All that is needed is to tweak the hyperparameters to achieve a high accuracy.</p>
+
+<p>My data set is divided as before, 30.000 images for training and 12.000 for evaluation. SVM works best with scaled input so my Xs have been pre-processed so all pixel values are in the range {0,1}, and each feature has zero mean and unit variance. For this we also use sklearn preprocessing utilities.</p>
+
+<p>I have tried two non-linear approaches gaussian and 4<sup>th</sup> degreee polynomial, to see how they compare to the most rudimentary linear approach of past runs.</p>
+
+<h2 id="gaussian-kernel">gaussian kernel</h2>
+
+<p>For the Kaggle digit recognition competition I have employed a Gaussian kernel (RBF) with a sigma equal to 0.001. The safety margin constant C is set to 14. Both parameters were found after a few trail and error runs. SVM is pretty slow so the trick is to use very small training/eval sets (2000 images) to zero in the coeficients. Later on we can better the result with the whole sets.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm rbf on test data</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</span><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
+</span><span class="line"><span class="n">predictions</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<blockquote><p>The accuracy on the evaluation set is 96.55% and on the test set (Kaggle) is 96,91%.</p></blockquote>
+
+<p>The result beat the previous 2-regressions approach (93.6%) by a high margin.</p>
+
+<h2 id="polynomial-kernel">polynomial kernel</h2>
+
+<p>4<sup>th</sup> degreee : $(\gamma \langle x, x’\rangle + r)^4$ with a hyperparameter r of 0.38, and a regularization constant C of 8.3. The hyperparameters were found using the StratifiedKFold and GridSearchCV from the scikit package from which we can also produce a heatmap.</p>
+
+<p><img src="/images/kaggle_ocr/choose_params_svm.png" title="searching for hyperparams" /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm call</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The accuracy on the evaluation set is 97.9%. </p>
+
+<h2 id="twerking-the-training-data">twerking the training data</h2>
+
+<p>But I am not done. I want to try a crazy idea I just found, Virtual SVM! </p>
+
+<p>Kudos to <a href="http://www.jetgoodson.com/blogged.php?ident=49">Jet Goodson</a> and his clever way to put this Virtual SVM to work. It is based on the paper <a href="http://www.cs.berkeley.edu/~malik/cs294/decoste-scholkopf.pdf">Training Invariant Support Vector Machines</a> by Dennis DeCoste and Bernhard Scholkopf.</p>
+
+<p>The trick is that when you run an SVM you get as a byproduct a set of Support Vectors, which are nothing but the subset of the training examples that the SVM actually bases its decisions on. Those are the training examples that define the hyperplanes.</p>
+
+<p><code>clf.support_vectors_</code> gives us a matrix of support vectors, which in our case are around 10,000. And <code>clf.support_</code> gives an array with the index of the training examples that are the support vectors. We can check this:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>python console</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">support_</span>
+</span><span class="line"><span class="c"># array([    5,    69,   146, ..., 41962, 41992, 41999], dtype=int32)</span>
+</span><span class="line"><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">xt</span><span class="p">[</span><span class="mi">5</span><span class="p">,:],</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>So if we want to artificially create new examples from the old ones (moving, blurring, etc.), we should only modify the ones that count. In order to modify the image, since I am a newbie, I’ll just move the image to each side [N,S,W,E] a tiny bit (one pixel), and rotate 10 degrees clockwise and counter-clockwise. </p>
+
+<p>For every image of the support vectors set I can get an additional 6 twerked images. This totals a new training set of around 10.000 x 7 = 70.000 images. This is a stretch for a  SVM but nothing compared that to 42.000 x 7 = 294.000 of directly applying the transformations to the training set.</p>
+
+<blockquote><p>The accuracy on the evaluation set is 98.225% and on the test set (Kaggle): 98.086%.</p></blockquote>
+
+<p><a href="http://scipy-lectures.github.io/advanced/image_processing/index.html">Important resource</a> to start understanding how to manipulate images in python.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Twerk SVM for test set</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">twerk</span><span class="p">(</span><span class="n">x_old_set</span><span class="p">,</span> <span class="n">y_old_set</span><span class="p">):</span>
+</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">    <span class="n">x_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+</span><span class="line">    <span class="n">y_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,))</span>
+</span><span class="line">    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># add the original one</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">x</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
+</span><span class="line">        <span class="n">y</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># move north 1 px</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">27</span><span class="p">:,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="c">#x_new_set[j] = np.roll(x, 2*k[0], k[1]).flatten()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">        <span class="c"># move south 1 px</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">        <span class="c"># move left 1 px</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">        <span class="c"># move right 1 px</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">27</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">        <span class="c"># rotate 10 degrees</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">        <span class="c"># rotate -10 degrees</span>
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">    <span class="k">return</span> <span class="p">[</span><span class="n">x_new_set</span><span class="p">,</span> <span class="n">y_new_set</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">prep_submit</span><span class="p">():</span>
+</span><span class="line">    <span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">x_support</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span>
+</span><span class="line">    <span class="n">y_support</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">clf</span><span class="o">.</span><span class="n">support_</span><span class="p">])</span>
+</span><span class="line">    <span class="p">[</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">]</span><span class="o">=</span> <span class="n">twerk</span><span class="p">(</span><span class="n">x_support</span><span class="p">,</span> <span class="n">y_support</span><span class="p">)</span>
+</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+</span><span class="line">    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">28001</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+</span><span class="line">    <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
+</span><span class="line">    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions_svm.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="last-experiment">last experiment</h2>
+
+<p>For SVM the size of the training set makes a difference. I am going to try to run it all on the 70,000 images, the training set plus the testing set with the added predictions from the best run. </p>
+
+<p>This is totally endogamy and an article of faith no-no but I figured:</p>
+
+<ul>
+  <li>since I am already geting 98% right, if at least I can reinforce the good ones, the better performance from that reinforcement of the good ones may be enough to counteract the added errors from that 2% wrongly labeled.</li>
+  <li>it is great way to confirm the article of faith.</li>
+</ul>
+
+<p>With twerking et all, we do much worse, the new Kaggle rating is 97.95%</p>
+
+<h2 id="no-seriously-the-last-one">no, seriously, the last one</h2>
+
+<p>I thought: why 28x28 and not bigger? Or smaller? The difference is the amount of padding around the image. I have read that the samples are already pretty centered and aligned, so why not give more importance to the center of the picture and less as we go out? What would happen if we initially crop the image from 28x28 to 20x20? It seems that those 4 pixel bands are pretty much empty. Maybe focusing in the inner image we can better train the model.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>croping the images</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line"><span class="n">new_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">400</span><span class="p">))</span>
+</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+</span><span class="line">    <span class="n">old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
+</span><span class="line">    <span class="n">new_x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">old</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line"><span class="n">x</span> <span class="o">=</span> <span class="n">new_x</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Doing the same as before (re-optimizing hyper params =&gt; {C= 2.6, r= 0.34}, twerking as before, etc) we get:</p>
+
+<blockquote><p>Accuracy on evaluation set: 98.7%<br />Score on the test set (Kaggle): 98.87%.</p></blockquote>
+
+<p>It is a huge jump of almost a percentage point only based on munging the input!</p>
+
+<p>The new position is 80 out of 1956 participants (as of today), in the top 5%! Consider that my first trial a few days ago (a simple linear softmax model) placed me at position 1,654, in the bottom 15%.</p>
+
+<h2 id="conclusion">conclusion</h2>
+
+<p>Again, once reached the plateau of the model it is very difficult to raise the bar.</p>
+
+<p>The key is to be creative and look for out-of-the-box approaches.</p>
+
+<p>The single most important aspect is to know the data, visualize in different ways to understand it and to analyze correctly where the model fails.
+Finally, I suspect that, with a bit of further image manipulation, the accuracy can be raised a bit more. I’ll leave this to a future competition.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/13/iPython-EC2/">iPython Notebook on EC2</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-13T09:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have found two wonderful resources for all things Python and ML:</p>
+
+<h2 id="ipython-notebooks">iPython (notebooks)</h2>
+
+<p>Like a console session of python but with the ability to:</p>
+
+<p><img class="right" src="http://ipython.org/_static/IPy_header.png" width="400" title="iPython" /></p>
+
+<ul>
+  <li>interact with the terminal,</li>
+  <li>edit the running program as it goes</li>
+  <li>embed visualization plots, text and md in general</li>
+  <li>create small scripts for each task</li>
+</ul>
+
+<h2 id="running-ml-on-ec2">running ML on EC2</h2>
+
+<p>Instead of hogging up your laptop rely on Amazon EC2 and iPython Notebook. Locally have all your heavy script and then make them run in your EC2 instance in the cloud. A freaking mess for newbies like me if it was not for tutorials like the ones below.</p>
+
+<p>Things to remember:</p>
+
+<ol>
+  <li>
+    <p>connect to the instance with the instance public DNS (EC2 dashboard) from wherever you have the appropriate certificate for this instance.
+ <code>ssh -i MyPyNoteBook.pem ubuntu@xxx.xxx.xxx.xxx</code></p>
+  </li>
+  <li>
+    <p>start the ipython notebook server on the instance
+ <code>ubuntu@ip-xxx-xx-xx-xxx:~$ ipython notebook inline --profile=nbserver</code>
+ You can use unix’s screen to detach (and close the terminal window), and reattach later with <code>screen -ls</code> and <code>screen -r ID-chorizo</code>.
+ It will be faulty because you are connecting from itself. No problemo, say yes to all and get out of w3c or similar (q?).</p>
+  </li>
+  <li>
+    <p>open the notebook on the public dns, dont worry about security concerns.
+ <code>https://ec2-xxx-xxx-xxx-xxx.us-somewhere-9.compute.amazonaws.com:zzzz/#notebooks</code></p>
+  </li>
+</ol>
+
+<p>Tutorials:</p>
+
+<ul>
+  <li><a href="https://gist.github.com/iamatypeofwalrus/5183133/raw/36a6aa7b1f79bbe18b1a32a78fde42a8eb3aec9a/roll_ipython_in_aws.md">original I followed</a></li>
+  <li><a href="http://nbviewer.ipython.org/urls/raw.github.com/Unidata/tds-python-workshop/master/ipython-notebook-server.ipynb">another to review</a></li>
+</ul>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/09/SVM-C/">SVM: Graphical Intuition</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-09T10:02:00-07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Let’s start pointing to the best tutorial I have found in the Internet “<a href="http://webdoc.nyumc.org/nyumc/files/chibi/user-content/Final.pdf">A Gentle Introduction to Support Vector Machines in Biomedicine</a>” by Alexander Statnikov, Douglas Hardin, Isabelle Guyon and Constantin F. Aliferis.</p>
+
+<p>And without much ado, lets begin by simplifying things. We are going to work on two dimensions so we can visualize better how SVM works. </p>
+
+<h2 id="the-simplest-analogy">the simplest analogy</h2>
+
+<p>Consider that we want to classify object as houses or boats. We are given data that is represented in the pictures below. We know that all the green boxed objects are houses, and all the red circles are boats. That is our training data. Then we can ‘draw’ the shoreline with a yellow line as we realize that houses are on land (on one side of the shoreline) and boats are usually on water (on the other side of the decision boundary). The shoreline is our decision boundary, the line that separates one type of objects from the other. New objects will be asked on which side of the line they are, and depending on the answer they will be classified as boats or houses. Caveat: this is not foolproof since, for example, small catamarans could be moored on the sand and would be misclassified as houses.</p>
+
+<p><img src="/images/oct13/house_boat_1.png" width="410" title="classifying houses vs boats" />
+<img src="/images/oct13/house_boat_2.png" width="410" title="classifying houses vs boats" /></p>
+
+<h2 id="decision-boundary-in-svm">decision boundary in svm</h2>
+
+<p>We start with a set of points and their correct labels (north and south koreans in the border). A support vector machine constructs a decision boundary (hyper-plane or set of hyper-planes in a high or infinite dimensional space), which separate different classes. </p>
+
+<p><img src="/images/oct13/korea_0.png" width="410" title="korean buffer zone" />
+<img src="/images/oct13/korea_3.png" width="410" title="one possible boundary" />
+<img src="/images/oct13/korea_1.png" width="410" title="a better boundary" />
+<img src="/images/oct13/korea_2.png" width="410" title="choosing the boundary" /></p>
+
+<p>If we need to choose a border that separates the armies of both Koreas, both lines (green and black) are valid. Nevertheless, we have the intuition that the black one will give us the most robust one. Not only because we can grasp the importance of a buffer zone between the armies, but because given a new point to classify, the black boundary seems to work better (‘generalize’). Formally expressed, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points of any class (so-called functional margin), since <strong>in general the larger the margin the lower the generalization error</strong>.</p>
+
+<p>From before we are looking to solve :</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
+
+<p>As we will see soon, C influences the size of the margin. A large C is good (extra safety and distance). But as it grows, it is more sensitive to outliers (it will include them all), which may be an undesired effect. A low C makes the decision surface simpler and smoother, while a high C aims at classifying all training examples correctly. </p>
+
+<h2 id="now-for-something-entirely-different-vectors">Now, for something entirely different: vectors…</h2>
+
+<p>In 2D, we have two vectors u and v stated as:</p>
+
+<script type="math/tex; mode=display">
+u = 
+\begin{bmatrix}
+u_1 \\
+u_2
+\end{bmatrix}
+\mbox{ and }
+v = 
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}
+</script>
+
+<p>where the u1 and u2 are the u’s components or projections along the axis. The length of u is also called the norm of u or $||u||$, and can derived from Pythagoras’ theorem. </p>
+
+<p>Let’s define also the projection of v onto u, what we call ‘p’, and which is the length of the shadow of v over u if the light is perpendicular to u. p is the projection of v onto u. It is a scalar, not a vector. </p>
+
+<p>The inner product of u and v is:</p>
+
+<script type="math/tex; mode=display">u^T . v = p . \|u\| = u_1.v_1 + u_2.v_2 = v^T . u = p^{'} . \|v\|</script>
+
+<h2 id="and-back-to-margins">…and back to margins</h2>
+
+<p>As we were saying, we needed to minimize the cost function as in:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
+
+<p>Let’s imagine we choose a huge C = 100.000. To minimize that sausage we’ll need to make A as small as possible. Actually, we know that A = 0 if we can find parameters that perfectly comply with:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+ %]]></script>
+
+<p>In that case, because A==0, our minimization problem will have become:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \sum_{i=1}^m \theta_j^2
+\\
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>For clarity we are going to simplify our conditions by considering $\theta_0 = 0$ which means that the decision boundary crosses the origin and that the $\theta$ vector also starts at the origin. Also, since we are in 2D, our vectors have only two features.</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} (\theta_1^2 + \theta_1^2) = \|\theta\|_2
+\end{align}
+</script>
+
+<p>So all SVM is doing is minimizing the length of the parameter vector.</p>
+
+<p>If we plot an example $x^{(i)}$ in its 2D space we can see that it can be expressed as a point in the space or as a vector. Since we also have the two components of $\theta$ we can also plot it as a vector. Then, from above, the inner product $\theta^T x^{(i)} = p^{(i)} ||\theta|| = \theta^1 x<em>1^{(i)} + \theta^2 x</em>2^{(i)}$ where p is the projection of $x^{(i)}$ into $\theta$.</p>
+
+<p>So our optimization objective becomes:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \|\theta\|^2
+\\
+p^{(i)} \|\theta\| >= 1 \mbox{ if } y^{(i)} = 1
+\\
+p^{(i)} \|\theta\| <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>Article of faith: The $\theta$ vector is perpendicular to the decision boundary that separates the two classes. The idea is then, which $\theta$, or which decision boundary works best?</p>
+
+<p>The simplification of $\theta_0 = 0$ only means that the decision boundary (and also the $\theta$ vector) passes through the origin.</p>
+
+<p>DEVELOPING……</p>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/17/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/15/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

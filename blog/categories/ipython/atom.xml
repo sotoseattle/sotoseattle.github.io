@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ipython | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/ipython/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-31T13:57:19-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[iPython Notebook on EC2]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/10/13/iPython-EC2/"/>
+    <updated>2013-10-13T09:02:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/10/13/iPython-EC2</id>
+    <content type="html"><![CDATA[<p>I have found two wonderful resources for all things Python and ML:</p>
+
+<h2 id="ipython-notebooks">iPython (notebooks)</h2>
+
+<p>Like a console session of python but with the ability to:</p>
+
+<p><img class="right" src="http://ipython.org/_static/IPy_header.png" width="400" title="iPython" ></p>
+
+<ul>
+  <li>interact with the terminal,</li>
+  <li>edit the running program as it goes</li>
+  <li>embed visualization plots, text and md in general</li>
+  <li>create small scripts for each task</li>
+</ul>
+
+<h2 id="running-ml-on-ec2">running ML on EC2</h2>
+
+<p>Instead of hogging up your laptop rely on Amazon EC2 and iPython Notebook. Locally have all your heavy script and then make them run in your EC2 instance in the cloud. A freaking mess for newbies like me if it was not for tutorials like the ones below.</p>
+
+<p>Things to remember:</p>
+
+<ol>
+  <li>
+    <p>connect to the instance with the instance public DNS (EC2 dashboard) from wherever you have the appropriate certificate for this instance.
+ <code>ssh -i MyPyNoteBook.pem ubuntu@xxx.xxx.xxx.xxx</code></p>
+  </li>
+  <li>
+    <p>start the ipython notebook server on the instance
+ <code>ubuntu@ip-xxx-xx-xx-xxx:~$ ipython notebook inline --profile=nbserver</code>
+ You can use unix’s screen to detach (and close the terminal window), and reattach later with <code>screen -ls</code> and <code>screen -r ID-chorizo</code>.
+ It will be faulty because you are connecting from itself. No problemo, say yes to all and get out of w3c or similar (q?).</p>
+  </li>
+  <li>
+    <p>open the notebook on the public dns, dont worry about security concerns.
+ <code>https://ec2-xxx-xxx-xxx-xxx.us-somewhere-9.compute.amazonaws.com:zzzz/#notebooks</code></p>
+  </li>
+</ol>
+
+<p>Tutorials:</p>
+
+<ul>
+  <li><a href="https://gist.github.com/iamatypeofwalrus/5183133/raw/36a6aa7b1f79bbe18b1a32a78fde42a8eb3aec9a/roll_ipython_in_aws.md">original I followed</a></li>
+  <li><a href="http://nbviewer.ipython.org/urls/raw.github.com/Unidata/tds-python-workshop/master/ipython-notebook-server.ipynb">another to review</a></li>
+</ul>
+]]></content>
+  </entry>
+  
+</feed>

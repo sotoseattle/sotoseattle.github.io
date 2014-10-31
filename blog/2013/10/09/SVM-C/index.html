@@ -1,0 +1,426 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>SVM: Graphical Intuition - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="Let’s start pointing to the best tutorial I have found in the Internet “A Gentle Introduction to Support Vector Machines in Biomedicine” by Alexander &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2013/10/09/SVM-C">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">SVM: Graphical Intuition</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-09T10:02:00-07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Let’s start pointing to the best tutorial I have found in the Internet “<a href="http://webdoc.nyumc.org/nyumc/files/chibi/user-content/Final.pdf">A Gentle Introduction to Support Vector Machines in Biomedicine</a>” by Alexander Statnikov, Douglas Hardin, Isabelle Guyon and Constantin F. Aliferis.</p>
+
+<p>And without much ado, lets begin by simplifying things. We are going to work on two dimensions so we can visualize better how SVM works. </p>
+
+<h2 id="the-simplest-analogy">the simplest analogy</h2>
+
+<p>Consider that we want to classify object as houses or boats. We are given data that is represented in the pictures below. We know that all the green boxed objects are houses, and all the red circles are boats. That is our training data. Then we can ‘draw’ the shoreline with a yellow line as we realize that houses are on land (on one side of the shoreline) and boats are usually on water (on the other side of the decision boundary). The shoreline is our decision boundary, the line that separates one type of objects from the other. New objects will be asked on which side of the line they are, and depending on the answer they will be classified as boats or houses. Caveat: this is not foolproof since, for example, small catamarans could be moored on the sand and would be misclassified as houses.</p>
+
+<p><img src="/images/oct13/house_boat_1.png" width="410" title="classifying houses vs boats" />
+<img src="/images/oct13/house_boat_2.png" width="410" title="classifying houses vs boats" /></p>
+
+<h2 id="decision-boundary-in-svm">decision boundary in svm</h2>
+
+<p>We start with a set of points and their correct labels (north and south koreans in the border). A support vector machine constructs a decision boundary (hyper-plane or set of hyper-planes in a high or infinite dimensional space), which separate different classes. </p>
+
+<p><img src="/images/oct13/korea_0.png" width="410" title="korean buffer zone" />
+<img src="/images/oct13/korea_3.png" width="410" title="one possible boundary" />
+<img src="/images/oct13/korea_1.png" width="410" title="a better boundary" />
+<img src="/images/oct13/korea_2.png" width="410" title="choosing the boundary" /></p>
+
+<p>If we need to choose a border that separates the armies of both Koreas, both lines (green and black) are valid. Nevertheless, we have the intuition that the black one will give us the most robust one. Not only because we can grasp the importance of a buffer zone between the armies, but because given a new point to classify, the black boundary seems to work better (‘generalize’). Formally expressed, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points of any class (so-called functional margin), since <strong>in general the larger the margin the lower the generalization error</strong>.</p>
+
+<p>From before we are looking to solve :</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
+
+<p>As we will see soon, C influences the size of the margin. A large C is good (extra safety and distance). But as it grows, it is more sensitive to outliers (it will include them all), which may be an undesired effect. A low C makes the decision surface simpler and smoother, while a high C aims at classifying all training examples correctly. </p>
+
+<h2 id="now-for-something-entirely-different-vectors">Now, for something entirely different: vectors…</h2>
+
+<p>In 2D, we have two vectors u and v stated as:</p>
+
+<script type="math/tex; mode=display">
+u = 
+\begin{bmatrix}
+u_1 \\
+u_2
+\end{bmatrix}
+\mbox{ and }
+v = 
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}
+</script>
+
+<p>where the u1 and u2 are the u’s components or projections along the axis. The length of u is also called the norm of u or $||u||$, and can derived from Pythagoras’ theorem. </p>
+
+<p>Let’s define also the projection of v onto u, what we call ‘p’, and which is the length of the shadow of v over u if the light is perpendicular to u. p is the projection of v onto u. It is a scalar, not a vector. </p>
+
+<p>The inner product of u and v is:</p>
+
+<script type="math/tex; mode=display">u^T . v = p . \|u\| = u_1.v_1 + u_2.v_2 = v^T . u = p^{'} . \|v\|</script>
+
+<h2 id="and-back-to-margins">…and back to margins</h2>
+
+<p>As we were saying, we needed to minimize the cost function as in:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
+
+<p>Let’s imagine we choose a huge C = 100.000. To minimize that sausage we’ll need to make A as small as possible. Actually, we know that A = 0 if we can find parameters that perfectly comply with:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+ %]]></script>
+
+<p>In that case, because A==0, our minimization problem will have become:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \sum_{i=1}^m \theta_j^2
+\\
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>For clarity we are going to simplify our conditions by considering $\theta_0 = 0$ which means that the decision boundary crosses the origin and that the $\theta$ vector also starts at the origin. Also, since we are in 2D, our vectors have only two features.</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} (\theta_1^2 + \theta_1^2) = \|\theta\|_2
+\end{align}
+</script>
+
+<p>So all SVM is doing is minimizing the length of the parameter vector.</p>
+
+<p>If we plot an example $x^{(i)}$ in its 2D space we can see that it can be expressed as a point in the space or as a vector. Since we also have the two components of $\theta$ we can also plot it as a vector. Then, from above, the inner product $\theta^T x^{(i)} = p^{(i)} ||\theta|| = \theta^1 x<em>1^{(i)} + \theta^2 x</em>2^{(i)}$ where p is the projection of $x^{(i)}$ into $\theta$.</p>
+
+<p>So our optimization objective becomes:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \|\theta\|^2
+\\
+p^{(i)} \|\theta\| >= 1 \mbox{ if } y^{(i)} = 1
+\\
+p^{(i)} \|\theta\| <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>Article of faith: The $\theta$ vector is perpendicular to the decision boundary that separates the two classes. The idea is then, which $\theta$, or which decision boundary works best?</p>
+
+<p>The simplification of $\theta_0 = 0$ only means that the decision boundary (and also the $\theta$ vector) passes through the origin.</p>
+
+<p>DEVELOPING……</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-09T10:02:00-07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/svm/'>svm,</a>, <a class='category' href='/blog/categories/theory/'>theory</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2013/10/09/SVM-C/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2013/10/09/SVM-C/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/08/SVM-Theory1/" title="Previous Post: SVM: Derivation from Logit">&laquo; SVM: Derivation from Logit</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2013/10/13/iPython-EC2/" title="Next Post: iPython Notebook on EC2">iPython Notebook on EC2 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2013/10/09/SVM-C/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2013/10/09/SVM-C/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

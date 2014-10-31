@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: genetic | SotoSeattle]]></title>
+  <link href="http://sotoseattle.github.io/blog/categories/genetic/atom.xml" rel="self"/>
+  <link href="http://sotoseattle.github.io/"/>
+  <updated>2014-10-31T13:57:19-07:00</updated>
+  <id>http://sotoseattle.github.io/</id>
+  <author>
+    <name><![CDATA[Javier Soto]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Genetic Bayesian Network (IV)]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/11/06/GBN4/"/>
+    <updated>2013-11-06T08:01:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/11/06/GBN4</id>
+    <content type="html"><![CDATA[<p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<h2 id="example-revisited-decoupled-bn-for-cystic-fibrosis">example revisited: decoupled BN for cystic fibrosis</h2>
+
+<p><img class="center" src="/images/nov13/decoup_cysticBN.png" title="Template for Decoupled Genetic Bayesian Network" ></p>
+
+<p>Let’s run our previous example through our decoupled model with a twist. Now instead of two possible alleles (F and f) we are going to have 3: (F, f, n) with the following probabilities to develop CF. Everything else runs similarly as before.</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">genotype</td>
+      <td style="text-align: center">FF</td>
+      <td style="text-align: center">Ff</td>
+      <td style="text-align: center">Fn</td>
+      <td style="text-align: center">ff</td>
+      <td style="text-align: center">fn</td>
+      <td style="text-align: center">nn</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">prob CF</td>
+      <td style="text-align: center">80%</td>
+      <td style="text-align: center">60%</td>
+      <td style="text-align: center">10%</td>
+      <td style="text-align: center">50%</td>
+      <td style="text-align: center">5%</td>
+      <td style="text-align: center">1%</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<p>```python building decoupled network
+# family tree and input data
+family_tree = {}
+family_tree[‘Ira’] = [None, None]
+family_tree[‘Robin’] = [None, None]
+#family_tree[‘Aaron’] = [None, None]
+family_tree[‘Rene’] = [None, None]
+family_tree[‘James’] = [‘Ira’, ‘Robin’]
+family_tree[‘Eva’]   = [‘Ira’, ‘Robin’]
+#family_tree[‘Sandra’] = [‘Aaron’, ‘Eva’]
+family_tree[‘Jason’] = [‘James’, ‘Rene’]   # to speed things up
+family_tree[‘Benito’] = [‘James’, ‘Rene’]</p>
+
+<p>frequency_of_alleles_in_general_population = [0.1, 0.7, 0.2]
+probability_of_trait_based_on_genotype = [0.8, 0.6, 0.1, 0.5, 0.05, 0.01]</p>
+
+<p>TRAIT_PRESENT, TRAIT_ABSENT = [0,1]
+F,f,n = [0,1,2]</p>
+
+<h1 id="building-the-network">building the network</h1>
+<p>GN = geneticNetwork(family_tree, frequency_of_alleles_in_general_population, probability_of_trait_based_on_genotype)
+```</p>
+
+<p>In an initial state, without more information, the probability for Benito developing Cystic Fibrosis is 35.54%.</p>
+
+<p>Now, his grandfather Ira had the ailment, (the trait was present as expressed in phenotype and suffered the disease), and so the chances of Benito being in the same situation raises to 39.01%.</p>
+
+<p>Furthermore, his mother did a genetic test prior to having children and knows that she has a genotype Ff. Now the probability has risen again to 51.47%.</p>
+
+<p>Finally, we do know that aunt Eva developed Cystic Fibrosis. This gives us more information about the probability of James inheriting bad genes from Ira, and so the probability of Benito developing Cystic Fibrosis raises again to 54.10%.</p>
+
+<p>Finally consider that with the unvectorized version of the Factor code I could not run the whole family tree because of memory and time constraints, which forced me to comment out some nodes to run the example in a smaller pedigree tree. Now, commenting out 2 nodes of the family tree (Aaron and Sandra) it still takes quite a few minutes to run it, and the whole CPD has 20 random variables (matrix dimensions) and 204 million cells (different assignments, each one with a probability).</p>
+
+<p>```python conditioning and inferring
+# Evidence conditioning
+modify_Factor_by_evidence(‘Ira’,  ‘pheno’, TRAIT_PRESENT)
+modify_Factor_by_evidence(‘Rene’, ‘geno1’, F)
+modify_Factor_by_evidence(‘Rene’, ‘geno2’, f)
+modify_Factor_by_evidence(‘Eva’,  ‘pheno’, TRAIT_PRESENT)</p>
+
+<h1 id="lets-try-first-the-whole-kahuna-cpd-and-compute-the-prob-of-developing-cf">lets try first the whole kahuna CPD and compute the prob of developing CF</h1>
+<p>a = build_joint_cpd()</p>
+
+<h1 id="marginalizing">marginalizing</h1>
+<p>target = GN[‘Benito’][‘var_pheno’]
+lista = [x for x in a.variables if x!=target]
+for v in lista:
+    a = FactorOperations.marginalize(a, v)</p>
+
+<p>print ‘probability of Benito showing ailment’, 100.*a.values[0], ‘%’
+```</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Genetic Bayesian Network (III)]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/11/05/GBN3/"/>
+    <updated>2013-11-05T08:01:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/11/05/GBN3</id>
+    <content type="html"><![CDATA[<p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<p>A better model that increases flexibility and simplicity is the one that decouples the genes in the following manner:</p>
+
+<p><img class="center" src="/images/nov13/decoupled_template.png" width="600" title="Template for Genetic Bayesian Network" ></p>
+
+<p>```python factors
+def genes2Alleles(numAlleles):
+    sol = {}
+    count = 0
+    for i in range(numAlleles):
+        for j in range(i, numAlleles):
+            sol[(i,j)] = count
+            count +=1
+    return sol</p>
+
+<p>def alleles2Genes(numAlleles):
+    sol = {}
+    count = 0
+    for i in range(numAlleles):
+        for j in range(numAlleles):
+            if i &lt; j:
+                sol[count] = (i,j)
+            else:
+                sol[count] = (j, i)
+            count +=1
+    return sol</p>
+
+<p>def Factor_genotype_given_allele_freqs(alleleFreqs, genoVar):
+    f = Factor.Factor([genoVar])
+    f.fill_values(alleleFreqs)
+    return f</p>
+
+<p>def Factor_genotype_given_parents_genes(numAlleles, genKid, gen_parent<em>1, gen_parent</em>2):
+    ff = Factor.Factor([genKid, gen_parent<em>1, gen_parent</em>2])
+    arr = ff.values.flatten()
+    alleleProbsCount = 0;
+    for i in range(numAlleles):
+        for j in range(numAlleles):
+            for k in range(numAlleles):
+                if j == k:
+                    if i == k:
+                        arr[alleleProbsCount] = 1.
+                    else:
+                        arr[alleleProbsCount] = .5
+                elif i == k:
+                    arr[alleleProbsCount] = .5
+                alleleProbsCount += 1
+    ff.fill_values(arr)
+    return ff</p>
+
+<p>def Factor_phenotype_given_genotype_Not_Mendelian(alphaList, numAlleles, genoVar<em>1, genoVar</em>2, phenoVar):
+    ff = Factor.Factor([phenoVar, genoVar<em>1, genoVar</em>2]) # written like in cond prob order    </p>
+
+<pre><code>chocho = alleles2Genes(numAlleles)
+chochin = genes2Alleles(numAlleles)
+cols_CPD = genoVar_1.totCard() * genoVar_2.totCard()
+arr = ff.values.flatten()
+
+for i in range(len(chocho)):
+    k = chocho[i] 
+    v = alphaList[chochin[k]]
+    arr[2*i] = v        # trait present
+    arr[2*i+1] = 1-v    # trait absent
+ff.fill_values(arr)
+return ff
+</code></pre>
+
+<p>def geneticNetwork(pedigree, alleleFreqs, alphaList):
+    PHENOTYPE_CARD = 2 # present or absent
+    numAlleles = len(alleleFreqs)</p>
+
+<pre><code>varList = {}
+
+# first we create all variables
+count = 0
+for name in pedigree:
+    varList[name] = {}
+    dad_gn, mom_gn = pedigree[name]
+    varList[name]['var_geno1'] = Rvar.Rvar(count, numAlleles)
+    count +=1
+    varList[name]['var_geno2'] = Rvar.Rvar(count, numAlleles)
+    count +=1
+    varList[name]['var_pheno'] = Rvar.Rvar(count, PHENOTYPE_CARD)
+    count +=1
+
+# and now the factors
+for name in pedigree:
+    kid_gn1 = varList[name]['var_geno1']
+    kid_gn2 = varList[name]['var_geno2']
+    kid_ph  = varList[name]['var_pheno']
+
+    dad_gn, mom_gn = pedigree[name]
+    if dad_gn and mom_gn:
+        f1 = Factor_genotype_given_parents_genes(numAlleles, kid_gn1, varList[dad_gn]['var_geno1'], varList[dad_gn]['var_geno2'])
+        f2 = Factor_genotype_given_parents_genes(numAlleles, kid_gn2, varList[mom_gn]['var_geno1'], varList[mom_gn]['var_geno2'])
+    else:
+        f1 = Factor_genotype_given_allele_freqs(alleleFreqs, kid_gn1)
+        f2 = Factor_genotype_given_allele_freqs(alleleFreqs, kid_gn2)
+    varList[name]['factor_geno1'] = f1
+    varList[name]['factor_geno2'] = f2
+
+    varList[name]['factor_pheno'] = Factor_phenotype_given_genotype_Not_Mendelian(alphaList, numAlleles, kid_gn1, kid_gn2, kid_ph)
+
+return varList
+</code></pre>
+
+<h1 id="this-is-fugly">this is fugly</h1>
+<p>def modify_Factor_by_evidence(name, node, ass):
+    factor = GN[name][‘factor<em>‘+node]
+    randvar = GN[name][‘var</em>‘+node]
+    GN[name][‘factor_‘+node] = FactorOperations.observe(factor, {randvar:ass})</p>
+
+<p>def build_joint_cpd():
+    a = None
+    for k in GN.keys():
+        b = FactorOperations.multiply(GN[k][‘factor_geno1’], GN[k][‘factor_geno2’])
+        b = FactorOperations.multiply(b, GN[k][‘factor_pheno’])
+        if a==None:
+            a = b
+        else:
+            a = FactorOperations.multiply(a, b)
+    return a
+```</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Genetic Bayesian Network (II)]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/11/04/GBN2/"/>
+    <updated>2013-11-04T08:01:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/11/04/GBN2</id>
+    <content type="html"><![CDATA[<p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<h2 id="an-example-cystic-fibrosis">an example: cystic fibrosis</h2>
+
+<p>Let’s create a network for the Cystic Fibrosis. It is expressed through two possible alleles: F and f, where F is dominant. The alleles can take the following genetic forms: FF, Ff, and ff. Given a pedigree like the one bellow lets build a Bayesian network and run some inference.</p>
+
+<p><img class="center" src="/images/nov13/cysticBN.png" width="500" title="Template for Genetic Bayesian Network" ></p>
+
+<p>```python creating genetic Bayesian network
+family_tree = {}
+family_tree[‘Ira’] = [None, None]
+family_tree[‘Robin’] = [None, None]
+family_tree[‘Aaron’] = [None, None]
+family_tree[‘Rene’] = [None, None]
+family_tree[‘James’] = [‘Ira’, ‘Robin’]
+family_tree[‘Eva’]   = [‘Ira’, ‘Robin’]
+family_tree[‘Sandra’] = [‘Aaron’, ‘Eva’]
+family_tree[‘Jason’] = [‘James’, ‘Rene’]
+family_tree[‘Benito’] = [‘James’, ‘Rene’]</p>
+
+<p>frequency_of_alleles_in_general_population = [0.1, 0.9]
+probability_of_trait_based_on_genotype = [0.8, 0.6, 0.1]</p>
+
+<p>TRAIT_PRESENT, TRAIT_ABSENT = [0,1]
+FF, Ff, ff = [0,1,2]</p>
+
+<h1 id="building-the-network">building the network</h1>
+
+<p>GN = geneticNetwork(family_tree, frequency_of_alleles_in_general_population, probability_of_trait_based_on_genotype)
+```</p>
+
+<p>The main problem is that, so far, the way we are computing probabilities is by multiplying factors together, which means creating a CPD for the whole universe of possible assignments of all random variables (nodes). This super table takes into consideration all possible states, all possible scenarios, and therefore is huge. It used to take a very long time to compute it when using loops for the factor operations (a matter of hours), now with a vectorized version (see later post) it takes less than 3 seconds.</p>
+
+<p>```python running the network
+# Evidence conditioning
+modify_Factor_by_evidence(‘Ira’,   ‘pheno’, TRAIT_PRESENT)
+modify_Factor_by_evidence(‘James’, ‘geno’, Ff)
+modify_Factor_by_evidence(‘Rene’,  ‘geno’, FF)</p>
+
+<h1 id="lets-try-first-the-whole-kahuna-cpd-and-compute-the-prob-of-developing-cf">lets try first the whole kahuna CPD and compute the prob of developing CF</h1>
+<p>a = build_joint_cpd()</p>
+
+<h1 id="marginalizing">marginalizing</h1>
+<p>target = GN[‘Benito’][‘var_pheno’]
+lista = [x for x in a.variables if x!=target]
+for v in lista:
+    a = FactorOperations.marginalize(a, v)</p>
+
+<h1 id="the-result">the result</h1>
+<p>print ‘probability of Benito showing ailment’, 100.*a.values[0], ‘%’
+```</p>
+
+<p>In an initial state, without more information, the probability for Benito developing Cystic Fibrosis is 19.70%. It is not even necessary to infer this from the network (although it is possible) since it is the weighted average of the genotype distribution <code>0.197 = (0.01*0.8)+(0.18*0.6)+(0.81*0.1)</code>.</p>
+
+<p>Now, if his grandfather Ira had the ailment, (the trait was present as expressed in phenotype and suffered the disease), the chances of Benito being in the same situation raises to 24.75%</p>
+
+<p>Furthermore, his parents did a genetic test prior to having children and they know that Jame’s genotype is Ff and that Rene’s is FF. Now the probability has risen again to 70%.</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Genetic Bayesian Network (I)]]></title>
+    <link href="http://sotoseattle.github.io/blog/2013/11/03/Genetic-BN/"/>
+    <updated>2013-11-03T08:01:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2013/11/03/Genetic-BN</id>
+    <content type="html"><![CDATA[<p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<p>As a first exercise I am going to create the typical genetic Bayesian network. Given a family tree, for each member of the family we are going to have two nodes, one for the person’s genotype, and another for her phenotype. The template would be:</p>
+
+<p><img class="center" src="/images/nov13/template.png" width="500" title="Template for Genetic Bayesian Network" ></p>
+
+<h2 id="phenotype-factor">phenotype Factor</h2>
+<p>The Phenotype of a person will depend on her Genotype, so there is a single link between both nodes. The factor that describes this relationship (probability of trait present given the genotype) will be a function that computes the probability of each possible assignment. </p>
+
+<p>The phenotype can be either present (val 0) or not (val 1) with a cardinality of 2.</p>
+
+<p>In the simplest case the genotype has 2 alleles and each one can be dominant (A) or recessive (a). The presence of the dominant allele (A) determines the presence of the trait. </p>
+
+<p>This means a total of 3 possible allele combinations: AA, Aa==aA, aa. For example, given a genotype x_3, the conditional probabilities of phenotype x_1 showing up are:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: left"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">p(x_1 | x_3)</td>
+      <td style="text-align: right">AA</td>
+      <td style="text-align: right">Aa</td>
+      <td style="text-align: right">aa</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">present</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">absent</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: left"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br />
+In a fast and dirty way the above becomes:</p>
+
+<p>```python Factor for phenotype given genotype in Mendellian manner
+geno  = Rvar.Rvar(1, 3)
+pheno = Rvar.Rvar(2, 2)</p>
+
+<p>def Factor_phenotype_given_genotype_Mendelian(isDominant, genoVar, phenoVar):
+    varis = [phenoVar, genoVar] # written like in cond prob order
+    if isDominant:
+        valus = [1., 0., 1., 0., 0., 1.]
+    else:
+        valus = [0., 1., 1., 0., 1., 0.]
+    f = Factor.Factor(varis)
+    f.fill_values(np.array(valus))
+    return f
+```</p>
+
+<p>Generalizing the previous case we can determine probabilities for the presence of the trait. For this we supply an alphaList that tells us the probability of presenting the trait if certain genotype is present. For example, continuing the previous example, and alphaList of [0.8, 0.6, 0.1] that correlates with genotypes [AA, Aa, aa], means that if the AA is present, the probability of having the trait is 80%.</p>
+
+<p><code>python Factor for phenotype given genotype and probabilities
+def Factor_phenotype_given_genotype_Not_Mendelian(alphaList, genoVar, phenoVar):
+    ff = Factor.Factor([phenoVar, genoVar]) # written like in cond prob order
+    order, dic = ff.idx2ass(ff.values.flatten())
+    arr = ff.values.copy().flatten()
+    for i in range(len(alphaList)):
+        v = alphaList[i]
+        k = order.index((0,i))  # trait present
+        arr[k] = v
+        arr[k+1] = 1.-v    # trait absent
+    ff.fill_values(arr)
+    return ff
+</code></p>
+
+<h2 id="genotype-factor-without-inheritance">genotype Factor without inheritance</h2>
+
+<p>The simplest Factor for genotype is the one that does not depend on inheritance and instead depends solely on the frequency of the alleles showing up in the general population. </p>
+
+<p>We consider these probabilities to be independent. As a result, the probability of a genotype is the product of the frequencies of its constituent alleles.</p>
+
+<p>```python Factor Genotype given Alleles frequency (in general population)
+def genes2Alleles(numAlleles):
+    sol = {}
+    count = 0
+    for i in range(numAlleles):
+        for j in range(i, numAlleles):
+            sol[(i,j)] = count
+            count +=1
+    return sol</p>
+
+<p>def Factor_genotype_given_allele_freqs(alleleFreqs, genoVar):
+    ff = Factor.Factor([genoVar])</p>
+
+<pre><code>numAlleles = len(alleleFreqs)    
+numGenotypes = genoVar.totCard()
+chocho = genes2Alleles(numAlleles)
+for row in range(numAlleles):
+    for col in range(numAlleles):
+        key = chocho[tuple(sorted((row, col)))]
+        ff.values[key] += alleleFreqs[row]*alleleFreqs[col]
+return ff ```
+</code></pre>
+
+<h2 id="genotype-factor-without-inheritance-1">genotype Factor without inheritance</h2>
+
+<p>Finally, the probabilities of having a certain genotype based on the genotypes of the parents:</p>
+
+<p>```python Factor Genotype given Parents Genotypes
+def numGenos(numAlleles):
+    return numAlleles*(numAlleles+1)/2</p>
+
+<p>def Factor_genotype_given_parents_genes(numAlleles, genKid, genDad, genMom):
+    ff = Factor.Factor([genKid, genDad, genMom])
+    order, dic = ff.idx2ass(ff.values.flatten())
+    chocho = genes2Alleles(numAlleles)
+    kid = chocho
+    dad = chocho.copy()
+    mom = chocho.copy()
+    arr = ff.values.flatten()
+    for dad_gen in dad:
+        for mom_gen in mom:
+            for kid_gen in kid:
+                hits = 0.
+                for chuchu in itertools.product(dad_gen, mom_gen):
+                    if sorted(chuchu)==list(kid_gen):
+                        hits += 1
+                hits = hits/4.
+                arr[order.index((kid[kid_gen], dad[dad_gen], mom[mom_gen]))] = hits
+    ff.fill_values(arr)
+    return ff
+```</p>
+
+<h2 id="building-the-genetic-network">building the genetic network</h2>
+
+<p>Self explanatory. For a given family tree we create the variables and factors associated to each person/node.</p>
+
+<p>```python putting it all together
+def geneticNetwork(pedigree, alleleFreqs, alphaList):
+    PHENOTYPE_CARD = 2 # present or absent
+    numAlleles = len(alleleFreqs)
+    numG = numGenos(numAlleles)</p>
+
+<pre><code>varList = {}
+
+# first we create all variables
+count = 0
+for name in pedigree:
+    varList[name] = {}
+    varList[name]['var_geno'] = Rvar.Rvar(count, numG)
+    count +=1
+    varList[name]['var_pheno'] = Rvar.Rvar(count, PHENOTYPE_CARD)
+    count +=1
+    
+# and now the factors
+for name in pedigree:
+    kid_gn = varList[name]['var_geno']
+    kid_ph = varList[name]['var_pheno']
+    
+    dad_gn, mom_gn = pedigree[name]
+    if dad_gn and mom_gn:
+        dad_gn = varList[dad_gn]['var_geno']
+        mom_gn = varList[mom_gn]['var_geno']
+        ff = Factor_genotype_given_parents_genes(numAlleles, kid_gn, dad_gn, mom_gn)
+    else:
+        ff = Factor_genotype_given_allele_freqs(alleleFreqs, kid_gn)
+    varList[name]['factor_geno'] = ff
+    varList[name]['factor_pheno'] = Factor_phenotype_given_genotype_Not_Mendelian(alphaList, kid_gn, kid_ph)
+
+return varList
+</code></pre>
+
+<h1 id="this-is-fugly">this is fugly</h1>
+<p>def modify_Factor_by_evidence(name, node, ass):
+    factor = GN[name][‘factor<em>‘+node]
+    randvar = GN[name][‘var</em>‘+node]
+    GN[name][‘factor_‘+node] = FactorOperations.observe(factor, {randvar:ass})</p>
+
+<p>def build_joint_cpd():
+    a = None
+    for k in GN.keys():
+        b = FactorOperations.multiply(GN[k][‘factor_geno’], GN[k][‘factor_pheno’])
+        if a==None:
+            a = b
+        else:
+            a = FactorOperations.multiply(a, b)
+    return a
+```</p>
+
+]]></content>
+  </entry>
+  
+</feed>

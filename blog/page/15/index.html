@@ -1,0 +1,793 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="cost function We use a generalization of the logistic regression cost function: \begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\ &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/page/15">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/19/Neural-Net-Cost/">Neural Networks Theory: Backwards</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-19T09:02:00-07:00" pubdate data-updated="true">Oct 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2 id="cost-function">cost function</h2>
+
+<p>We use a generalization of the logistic regression cost function:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\log h_\theta(x^{(i)})) + (1-y^{(i)}) (\log (1-h_\theta(x^{(i)})))\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+\</script>
+
+<p>To create our neurotic cost function:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m \sum_{k=1}^K y_k^{(i)} \log (h_\Theta(x^{(i)}))_k + (1-y_k^{(i)}) \log (1-(h_\Theta(x^{(i)}))_k)\right] + \frac{\lambda}{2m} \sum_{l=1}^{L-1} \sum_{i=1}^s_{l} \sum_{j=1}^{s_{l+1}} {\Theta_{ji}^{(l)}}^2
+\end{align}
+</script>
+
+<p>In logit there was a single output unit, so the generalized for only adds a sum over the K output units of the layer. The new regularization component is just adding over all possible values of $\Theta_{ji}^{(l)}$ for each l, j and i. Also, like logit, it excludes all the parameters for bias units.</p>
+
+<p>The intuition is simple, in a fast and dirty way, the cost of example i is ‘like’ the square error, or squared difference between what the network says and the reality dictates.</p>
+
+<p>Finally, consider that the cost function is not convex, so we can get stuck.end up in a local minimum when optimizing the parameters. In practice this is not a big problem and the usual suspects algorithms will get to a very good local minimum even if not the global one.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cost function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">y_bloat</span> <span class="o">=</span> <span class="n">groundTruth</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class="line">    <span class="n">a</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="mf">0.</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thetas</span><span class="p">:</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">a</span><span class="p">])</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">        <span class="n">r</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</span><span class="line">    <span class="n">J</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">y_bloat</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y_bloat</span><span class="p">)</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">lam</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">m</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">J</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="gradient">gradient</h2>
+
+<p>So the idea is to find the parameters $\theta$ that minimize the cost function. Like before, we need to compute both the cost and the gradient at each iteration of an optimization algorithm.</p>
+
+<p>The same way that $a_j^{(l)}$ is the activation (result, output) of node j in layer l, we are going to have a $\delta_j^{(l)}$, which will represent the “error” on the activation of that node, kind of like how much is the output off from where we needed it to be.</p>
+
+<p>If we go all the way to the end, we do know that the final activation is the predicted h(x) and should be equal to the ‘true’ observed label y. So in a case with 4 layers (4<sup>th</sup>) layer is the output layer) we have, $\delta_j^{(4)} = a_j^{(4)} - y_j = (h_{\Theta}(x))_j - y_j$ or in vectorized form: $\delta^{(4)} = a^{(4)} - y$</p>
+
+<p>Now we can go backwards and compute the deltas one layer at a time considering that g’ is the derivative of the activation function.</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+\delta^{(3)} = (\Theta^{(3)})^T \delta^{(4)} .* g'(z^{(3)}) = (\Theta^{(3)})^T \delta^{(4)} .* (a^{(3)} .* (1-a^{(3)}))
+\\
+\delta^{(2)} = (\Theta^{(2)})^T \delta^{(3)} .* g'(z^{(2)}) = (\Theta^{(2)})^T \delta^{(3)} .* (a^{(2)} .* (1-a^{(2)}))
+\end{align}
+</script>
+
+<p>There is no $\delta^{(1)}$ because the first layer has no errors, is the input.</p>
+
+<p>In a sense, if we forward propagate the computation of the activations in each layer from the input forward, we back propagate the computations of the errors from the output backwards.</p>
+
+<p>It is possible to demonstrate mathematically that the partial derivative of the cost function is equal to $a_j^{(l)} \delta_i^{(l+1)}$ when no considering regularization.</p>
+
+<p>Intuition: Imagine a node A from which two activation outputs connect it to another two nodes B and C. The $\delta$ of A is computed as a weighted average of the $\delta$ of B and C weighted by the $\Theta$ that connect them to node A.</p>
+
+<script type="math/tex; mode=display">
+\delta_A \approx \Theta_{A \to B} \delta_B + \Theta_{A \to C} \delta_C
+</script>
+
+<h2 id="backpropagation-algorithm">backpropagation algorithm</h2>
+
+<ul>
+  <li>Set $\Delta_{ij}^{(l)}$ for all l, i, j, that we will use to later compute the gradient</li>
+  <li>For each example:
+    <ul>
+      <li>set $a^{(1)} = x^{(i)}$</li>
+      <li>forward propagate to compute all $a^{(l)}$</li>
+      <li>backpropagate using first $y^{(i)}$ to compute all $\delta^{(l)}$ up to $\delta^{(2)}$</li>
+      <li>compute the $\Delta$ updating with the partial derivative:</li>
+    </ul>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+\Delta_{ij}^{(l)} &:= \Delta_{ij}^{(l)} + a_{j}^{(l)} \delta_{i}^{(l+1)}
+\\
+\Delta^{(l)} &:= \Delta^{(l)} + \delta^{(l+1)} (a^{(l)})^T
+\end{align}
+ %]]></script>
+
+<ul>
+  <li>Compute D terms that correspond to the gradient, partial derivative of $J(\Theta)$ now with regularization:</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+D_{ij}^{(l)} &:= \frac{1}{m} \Delta_{ij}^{(l)} + \lambda \Theta_{ij}^{(l)} \mbox{  if j!=0}
+\\
+D_{ij}^{(l)} &:= \frac{1}{m} \Delta_{ij}^{(l)} \mbox{  if j=0}
+\end{align}
+ %]]></script>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>gradient function and backpropagation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">num_thetas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+</span><span class="line">    <span class="n">y_bloat</span> <span class="o">=</span> <span class="n">groundTruth</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># forward =&gt; fill lists of &#39;activations&#39; and &#39;z&#39;</span>
+</span><span class="line">    <span class="n">a</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">):</span>
+</span><span class="line">        <span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+</span><span class="line">        <span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">        <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># backwards =&gt; fill list of deltas</span>
+</span><span class="line">    <span class="n">d</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_bloat</span><span class="p">)]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+</span><span class="line">        <span class="n">d</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">*</span> <span class="n">sigmoid_gradient</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># forward =&gt; compute gradient</span>
+</span><span class="line">    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">):</span>
+</span><span class="line">        <span class="n">Vwip</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="n">lam</span><span class="o">*</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span><span class="o">/</span><span class="n">m</span>
+</span><span class="line">        <span class="n">Vwip</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span><span class="n">lam</span><span class="o">/</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">V</span><span class="p">,</span> <span class="n">Vwip</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">V</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">thetas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">f</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">d</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/17/Neural-Net-Theory/">Neural Networks Theory: Forwards</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-17T19:02:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>No need to introduce how neurons work. The pictures below are self explanatory and better explanations can be founf in the Net. Again thanks to Prof Ng of Coursera fame for making this material so accessible easy so grasp, and to the always great reference of <a href="http://ufldl.stanford.edu/wiki/index.php/Neural_Networks">Stanford Ufldl</a>.</p>
+
+<p><img class="center" src="/images/oct13/neuron.png" title="neuron" /></p>
+
+<p><img class="center" src="/images/oct13/neuron_transmission.gif" title="neuron" /></p>
+
+<h2 id="digital-neurons">digital neurons</h2>
+
+<p>Our simplified version has the computation, transformation of input into output, being the logistic regression of the input.</p>
+
+<p><img class="left" src="/images/oct13/one_neuron.png" title="neurotic neuron alone" /></p>
+
+<p>In the picture the +1 input is another input, the $x_0$, also called the ‘bias unit’ and as we know from logistic regression, always with value one. Sometimes it is explicitly specified, sometimes it is absent from the representations, nevertheless it is always there when we compute things. This single neuron model is a.k.a. Sigmoid (logistic) activation function (where activation function was the g(z)).</p>
+
+<script type="math/tex; mode=display">
+h(x) = \frac{1}{ 1  + e^{ -\theta^T x } }
+\\
+g(z) = \frac{1}{ 1  + e^{-z}}
+</script>
+
+<p>A neural network is just a bunch of neurons connected together in layers. In the picture below, three neurons in a layer plus another neuron on layer three. Realize that the bias units of layers 1 and 2 are not drawn. The first layer is called ‘Input Layer’, the last layer is the ‘Output Layer’, and the ones between are the ‘Hidden Layers’.</p>
+
+<p><img class="center" src="/images/oct13/neural_net.png" title="neuron party" /></p>
+
+<p>More terminology: $a_i^{j}$ is the output (‘activation’) of neuron in layer j. $\Theta^{j}$ is the matrix of parameters ($\theta$) that control the function mapping from layer j to the next one (j+1).</p>
+
+<h2 id="feed-forward-propagation">feed-forward propagation</h2>
+
+<p>Let’s compute things moving starting at the input, from left to right. The computation of the outputs of layer 2 based on the inputs is:</p>
+
+<script type="math/tex; mode=display">
+a_1^{(2)} = g(\theta_{10}^{(1)}x_0 + \theta_{11}^{(1)}x_1 + \theta_{13}^{(1)}x_3) = g(z_1^{2})
+\\
+a_2^{(2)} = g(\theta_{20}^{(1)}x_0 + \theta_{21}^{(1)}x_1 + \theta_{23}^{(1)}x_3) = g(z_2^{2}
+\\
+a_3^{(2)} = g(\theta_{30}^{(1)}x_0 + \theta_{31}^{(1)}x_1 + \theta_{33}^{(1)}x_3) = g(z_3^{2}
+\\
+h_{\Theta}(x) = a_1^{(3)} = g(\theta_{10}^{(2)}a_0^{(2)} + \theta_{11}^{(2)}a_1^{(2)} + \theta_{12}^{(2)}a_2^{(2)} + \theta_{13}^{(2)}a_3^{(2)} ) = g(z_1^{3}
+</script>
+
+<p>So because we have 3 input units (plus the bias one) and 3 hidden units, the $\Theta^{1}$ would have shape (3,4). Similarly, $\Theta^{2}$ maps from 3 hidden units (plus bias one) to 1 output unit, so the shape is (1,4). Things to consider:</p>
+
+<ul>
+  <li>in the example, $x_i$ are the inputs and work exactly like given $a_{input}$</li>
+  <li>as bias units, $a^{1} = x_0 = 1$</li>
+  <li>number of params matrices = layers - 1.</li>
+  <li>shape of params matrix = out layer size x in layer size [+ bias].</li>
+</ul>
+
+<p>The above equations, vectorized become:</p>
+
+<script type="math/tex; mode=display">
+z^{2} = \Theta^{(1)} x = \Theta^{(1)} a^{(1)}
+\\
+a^{(2)} = g(z^{(2)})
+</script>
+
+<p>Where x is a vector (4,1), and $z^{(2)}$ is (3,1).</p>
+
+<script type="math/tex; mode=display">
+z^{3} = \Theta^{(3)} a^{(2)}
+\\
+a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
+</script>
+
+<p>And $z^{(3)}$ is a vector a scalar because $\Theta^{(3)} . a^{(2)}$ is (1,4) x (4,1).</p>
+
+<p>The key to understand is that we are just applying logistic regression to each neuron based on features that are the activation inputs from previous layers. It is obvious in the last unit, and is easy to generalize from it backwards. </p>
+
+<p>Another take: In the old logistic regression we had some features from which we compute a set of parameters and then predict the hypothesis function. Now, we can create a new set of features based on the initial features, and use these new features to compute the logistic regression prediction. Is just applying the same logit in a chained manner. The new features will be a set of different, derived, more nuances and more complex features than the initial ones. </p>
+
+<p>The more to the right the layer, the more complex the features because of more manipulation. It is very illustrative the example of Prof. Ng replicating the function XNOR with just three neurons to appreciate how it is possible to create very complex features by applying simple functions to each unit, so they compound the complexity along the way.</p>
+
+<p><img class="center" src="/images/oct13/x1xnorx2.png" title="compounded complexity" /></p>
+
+<p>The code couldn’t be simpler.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>feed forward</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1E-11</span><span class="p">))(</span><span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">sigmoid_gradient</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">feedforward</span><span class="p">(</span><span class="n">theta_matrix</span><span class="p">,</span> <span class="n">input_v</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;one layer forward computation, assumes input_v has no bias&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">m</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="n">input_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">input_v</span><span class="p">])</span>
+</span><span class="line">    <span class="n">z</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">theta_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">one_x</span><span class="p">):</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">one_x</span><span class="p">),</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">one_x</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thetas</span><span class="p">:</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="n">a</span><span class="p">])</span> <span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">a</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/17/Titanic/">Kaggle Titanic: Features (Top 5)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-17T18:02:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have spent the last few days in the <a href="http://www.kaggle.com/c/titanic-gettingStarted">Titanic competition</a>. It is another easy, entry level, tutorial example to get a grasp of how machine learning works. Again I didn’t use the random forest model as suggested and got lazy with the only two things I know, logistic regression and SVM.</p>
+
+<p>I am not going to delve in the details of the data structure, suffice to say that we are given a part of the Titanic’s manifest with the survivorship rates. Our goal is for another set of passengers predict their survival.</p>
+
+<p>I wanted to test the waters first so I used a very simple logistic regression with few variables: Sex, Pclass and Fare. That landed me in the bottom 15%, as usual, with a very low accuracy.</p>
+
+<p>The main concept of the competition is the importance of the features we use. For example, it is obvious that Sex (gender) is an important feature (predictor), as it is Age (younger passengers have a better chance) and means (richer fare better than poor passengers). All this can be visualized through plots of different variables and their correlations.</p>
+
+<p>So doing an SVM (Gaussian kernel) with the obvious candidates of Sex, Pclass, Fare gets us to a fair accuracy. If we add Age we don’t improve things, mainly because many entries are NaN. To solve it, I substituted those unknown ages with 24, the median age of passengers of 3rd class (which I assume to be ones least known). This raised the bar a bit more.</p>
+
+<h2 id="beware-of-rates-and-sets">beware of rates and sets</h2>
+
+<p>Consider that the data set is small, so depending on how you partition it between training and cross validation the accuracy on CV varies. I started seting up two sets:</p>
+
+<ul>
+  <li>training of the first 691 records, and the following 200 for cross validation.</li>
+  <li>training of the last 691 records, and the previous 200 for cross validation.</li>
+</ul>
+
+<p>I achieved a higher accuracy when both were high (aprox. 85%) than when they were apart (86.5% and 82%). Furthermore, I always got much higher accuracies on the CV set than on the test set, so 85% translated into 80% in the test set.</p>
+
+<p>Then I realized that I could use the whole training set and use the StratifiedKFold utility of scikit. Much easier way to go about it. </p>
+
+<p><img class="center" src="/images/kaggle_titanic/hypeparams.png" width="600" title="hyperparams search" /></p>
+
+<h2 id="python-pandas-manipulation">python pandas manipulation</h2>
+
+<p>Some tips to remember as to how munge data in pandas:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>dataframa manipulation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># basic mapping</span>
+</span><span class="line"><span class="n">data</span><span class="o">.</span><span class="n">Sex</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Sex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="s">&#39;male&#39;</span> <span class="k">else</span> <span class="mf">0.</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># regexp extraction</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">re</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">extract_patt</span><span class="p">(</span><span class="n">patt</span><span class="p">,</span> <span class="n">linea</span><span class="p">):</span>
+</span><span class="line">    <span class="n">matchObj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">patt</span><span class="p">,</span> <span class="n">linea</span><span class="p">)</span>
+</span><span class="line">    <span class="n">result</span> <span class="o">=</span> <span class="n">NaN</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">matchObj</span><span class="p">:</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">matchObj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</span><span class="line">    <span class="k">else</span><span class="p">:</span>
+</span><span class="line">        <span class="k">print</span> <span class="s">&quot;No match!!&quot;</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">NaN</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">extract_title</span><span class="p">(</span><span class="n">linea</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">extract_patt</span><span class="p">(</span><span class="s">&#39;^.+,\s(.+)\..+&#39;</span><span class="p">,</span> <span class="n">linea</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># apply functions to dataframe =&gt; Fare NaN</span>
+</span><span class="line"><span class="n">fares_by_class</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;Pclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">getFare</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">isnull</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s">&#39;Fare&#39;</span><span class="p">]):</span>
+</span><span class="line">        <span class="n">example</span><span class="p">[</span><span class="s">&#39;Fare&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fares_by_class</span><span class="p">[</span><span class="n">example</span><span class="p">[</span><span class="s">&#39;Pclass&#39;</span><span class="p">]]</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">example</span>
+</span><span class="line">
+</span><span class="line"><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getFare</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># plotting</span>
+</span><span class="line"><span class="n">bp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s">&#39;Age&#39;</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s">&#39;Pclass&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
+</span><span class="line">    <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Age</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Pclass</span><span class="o">==</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+</span><span class="line">    <span class="c"># Add some random &quot;jitter&quot; to the x-axis</span>
+</span><span class="line">    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+</span><span class="line">    <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s">&#39;r.&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="and-then-i-got-creative">and then I got creative:</h2>
+
+<p>I established as base features the Sex, Pclass, Fare and Age. To fill the missing values of Age I first extracted the titles from the names, then used the median of the title group as best guess. I used similar approaches for other missing values.</p>
+
+<p>Then I added 3 identity feature vectors [C, Q, S] depending on where the passenger embarked on. So if Mss. Roberts embarked on Southampton the three vectors would be [0, 0, 1].</p>
+
+<p>I wanted to give more power to the mix experience with money so I created another vector that resulted from multiplying Age and Pclass. The intuition behind was that when the moment came to choose among passengers, an elder statesman would have more ‘presence’ to win a social standoff.</p>
+
+<p>I didn’t like the Parch data because it mixes parents with children, which I think is key. And neither I liked SibSp because it mixes spouses with siblings. So I added them all in a single vector with the idea that people with family would fare differently that those without.</p>
+
+<p>I added another identity vector that described if the person was married based on the title associated in the name (1 for Mr and Mrs).</p>
+
+<p>Finally I created a last identity vector with the following characteristics:</p>
+
+<ul>
+  <li>if the passenger is a woman, get a 1 if a relative (searched by same last name) or cabin fellow (someone in the same cabin) survived.</li>
+  <li>if the passenger is a man, get a 1 if the same applies but the survivor is older.</li>
+</ul>
+
+<p>The intuition was based on the assumption that if someone survives, he/she would try to also help a younger male (son) or relative.</p>
+
+<p>I also tried many other weird features like using the letter of the Cabin which didn’t give good results (a scatter plot of this with Pclass is enough to see there is not much there).</p>
+
+<h2 id="better-way-to-fill-in-missing-data">better way to fill in missing data</h2>
+
+<p>Age seems to be a key feature and many of its values are missing. The median per title is a good approach but we can do better. Why not train an SVM? I created bins of age &lt;= [14,30,60,…], and trained an SVM with Pclass, Parch, SibSp, isMarried and title_level (a different int for each unique title) to assign each missing age to one of the new age bins. My accuracy on a cv set was a mere 67.5%.</p>
+
+<p>Now, consider that I left charisma as it was because it proved to be a good feature (computed as the product between the class and the age computed as given or median of title).</p>
+
+<p>Finally, I reduced the number of features so instead of the initial 12 I went down to 10. (Used a loop of possible features combinations and let it self evaluate the best combo).</p>
+
+<h2 id="conclusions">conclusions</h2>
+
+<p>With my latest iteration, number 13, I landed on the 77 spot of 6,978 participants (as of today).</p>
+
+<blockquote><p>Score on the test set (Kaggle): 81.818%.</p></blockquote>
+
+<p>The key is the feature set. It needs to be expressive, but too much bullshit only drives the model down. So only add important information (remember the boost got from using 20x20 instead of the 28x28 images on the OCR competition).</p>
+
+<p>Treat the results from your cross validation with a grain of salt. Obsessing too much about them may push you to overfit your data! My best score resulted from a model that gave me a lower 85% on my cross validation sets. A good hint comes from the number of support vectors distilled by the model!</p>
+
+<p>I have only spent a couple of days on features, with a creative team I am sure that the results can be improved greatly. There are many ideas to try like:</p>
+
+<ul>
+  <li>use a neural network to get a better age estimate.</li>
+  <li>mix and match models and make them vote on predictions.</li>
+  <li>try new narratives than can be converted into features (like the intuition that a father who survives will do the utmost for his children to survive too).</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/blog/page/16/">&larr; Older</a>
+    
+    <a href="/blog/archives">Blog Archives</a>
+    
+    <a class="next" href="/blog/page/14/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        var disqus_script = 'count.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

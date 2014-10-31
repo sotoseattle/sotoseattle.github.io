@@ -1,0 +1,427 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>MCMC Gibbs - Analysis - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="We are going to use our primitive MCMC Gibbs Inference engine on our 9 variable toy Ising grid (with histerical potentials [1.0, 0.2]). And then &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">MCMC Gibbs - Analysis</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T08:01:00-08:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>We are going to use our primitive MCMC Gibbs Inference engine on our 9 variable toy Ising grid (with histerical potentials [1.0, 0.2]). And then compare our results to our previous approximation using Loopy Belief Propagation.</p>
+
+<p><img class="center" src="/images/feb14/toy_grid.png" width="300" title="Small Pairwise Markov Grid" /></p>
+
+<p>The big problem is that there is no clear cut way to know when we have left the wandering zone around and entered the domain of the joint probability. We cannot know when the chain has mixed, we can only guess.</p>
+
+<h2 id="mixing">Mixing</h2>
+
+<p>As a first experiment we run our MCMC to collect a total of 70,000 samples. The initial assignment is initialized to all ones. </p>
+
+<p>Now from the samples we get subsets every 1,000 samples of size 10,000. That is 59 subsets that go from sample [0 to 10,000], [1,000 to 11,000], [2,000 to 12,000], …. Each subset is a window, of 10,000 samples collected after different mixing times.</p>
+
+<p>If we plot the difference between the exact marginal and our MCMC estimated marginal of the three variables (number 0 as red, 4 as blue, and 8 as green), we have the following charts (from two different runs).</p>
+
+<div>
+	<img src="/images/feb14/dist_to_exact_mcmcg.png" width="425" title="Run 1" />
+	<img class="right" src="/images/feb14/dist_to_exact_mcmcgB.png" width="425" title="Run 2" />
+</div>
+
+<p>What I deduce from this (and here is pure amateur talking) is that all variables tend to move together. I don’t know what is a good mixing time, it looks like it is pretty much mixed from the start. Nevertheless, I’ll choose 7,000 to be safe. Also, as we walk around, the system oscilates and spike away from the exact marginals in a bounded range.</p>
+
+<h2 id="sample-size">Sample size</h2>
+
+<p>Following the previous settings but fixing the mixing time to 7,000, we can plot the difference between exact and estimated marginals as we collect more samples. From the charts (two different runs) we see that anything beyond 30,000 samples seems to be ok.</p>
+
+<div>
+	<img class="left" src="/images/feb14/dist_to_exact_mcmcg_3.png" width="425" title="Run 1" />
+	<img class="right" src="/images/feb14/dist_to_exact_mcmcg_3B.png" width="425" title="Run 2" />
+</div>
+
+<h2 id="marginals-convergence">Marginals Convergence</h2>
+
+<p>Gibbs walks one step at a time, so for grids with high potentials (high correlation between variables), it tends to stay for long periods next to high potential states (or clusters), slowing down mixing.</p>
+
+<p>In the following charts we run twice different models and see how well the estimated marginals converge across runs. All models are Ising grids with 9 variables, have mixing time of 7,000 and sample size of 10,000. </p>
+
+<div>
+	<img class="left" src="/images/feb14/compare_runs_0703.png" width="425" />
+	<img class="right" src="/images/feb14/compare_runs_102.png" width="425" />
+	<img class="center" src="/images/feb14/compare_runs_095005.png" width="425" />
+</div>
+
+<p>The better convergence the closer the estimated marginals to the diagonal. The first model has potentials [0.7, 0.3] and all variables are along the diagonal. The same happens for the second model, our optimized [1., 0.2], where the a corner variable get a bit off, but good for all purposes. </p>
+
+<p>A third model with even further heighened potentials [0.95, 0.05] shows discouraging results. The true marginals are all in the narrow range [0.5974, 0.6009], but our estimated marginals for the first run are tightly clustered around 0.0, while all marginals for the second run are tightly clustered around 0.6. This can be palliated with a bigger sample size up to a point.</p>
+
+<p>Two points to make: 1) this shows convergence between runs, not to the exact marginal. 2) The lower correlation between variables, the better convergence.</p>
+
+<h2 id="comparison-to-lbp">Comparison to LBP</h2>
+
+<p>Finally we are going to run 10 times the model we have. Mixing time of 7,000. Sample size of 20,000. Starting assignment, 5 runs with 0s, and 5 runs with 1s. We are going to compute the error as before and see what results we get as compared to the exact marginals for all variables.</p>
+
+<p>The error, as defined in previous posts, from our 10 runs is 0.065 on the average, with a range of [0.005, 0.17] and a standard deviation of 0.05. That is a further improvement from our best approximation of 0.24 with RBP.</p>
+
+<p>Nevertheless, although Gibbs gives us on the average much better results, from time to time it go cyclothymic and spikes markedly away from the exact marginals.</p>
+
+<p>As a data point for comparison purposes, taking the estimated marginals from our last run (the 10th run) we get an error of 0.059, and the already familiar table:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">MCMC Gibbs aprox</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.52015</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.541</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.53745</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.5518</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.57795</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.58745</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.5918</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.59885</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.60425</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<p>Even for higher order Ising grids, as long as we don’t have way too highly correlated variables, we mix long enhough and we collect a sufficiently big sample size, we get pretty decent results!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T08:01:00-08:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/pgn/'>PGN,</a>, <a class='category' href='/blog/categories/theory/'>theory</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/10/Gibbs-code/" title="Previous Post: MCMC Gibbs - Code">&laquo; MCMC Gibbs - Code</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/02/12/MCMC-MH-Theory/" title="Next Post: MCMC ~ Metropolis Hastings">MCMC ~ Metropolis Hastings &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Binary-Tree-Meta/">Ruby Metaprogramming II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
