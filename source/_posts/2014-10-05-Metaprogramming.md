@@ -30,6 +30,7 @@ point_a == point_b           # => true
 point_a.hash == point_b.hash # => true
 ```
 <!--more-->
+
 ## Include instance of a Module?
 
 ```ruby
@@ -112,7 +113,7 @@ puts "a.who_am_i? = #{a.who_am_i?}"
 => a.who_am_i? = God!
 ```
 
-Convoluted, pirouetticall, and yet it works.
+Convoluted, pirouettical, and yet it works.
 
 ## Define Method
 
