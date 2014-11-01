@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema &hellip;">
+  <meta name="description" content="Walk-through to use Devise with Angular in Rails 4.2. This is more of a jump-through than a walk-through since I am going to be more jumping around &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -118,7 +118,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise Into Angular + Rails</a></h1>
       
       
     
@@ -135,62 +135,7 @@
   
 
 
-<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="right" src="/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
-
-<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
-
-<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
-
-<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
-
-<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
-
-<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
-
-<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/29/Rails-API-Versioning/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise Into Angular + Rails</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+<time datetime="2014-10-30T16:17:00-07:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
         
       </p>
     
@@ -227,7 +172,62 @@
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/10/29/Devise-Angular-Rails/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2014/10/30/Devise-Angular-Rails/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-28T16:17:00-07:00" pubdate data-updated="true">Oct 28<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="right" src="/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
+
+<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
+
+<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
+
+<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
+
+<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
+
+<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
+
+<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/28/Rails-API-Versioning/">Read on &rarr;</a>
     </footer>
   
 
@@ -323,11 +323,11 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+        <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+        <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
       </li>
     
       <li class="post">

@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T16:35:13-07:00</updated>
+  <updated>2014-11-01T16:36:42-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,70 +15,11 @@
   
   <entry>
     
-    <title type="html"><![CDATA[Rails Api Versioning]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/"/>
-    
-    <updated>2014-10-29T16:17:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning</id>
-    
-    <content type="html"><![CDATA[<p><img class="right" src="http://sotoseattle.github.io/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
-
-<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
-
-<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
-
-<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
-
-<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
-
-<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
-
-<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
-
-<!--more-->
-
-<p>Nevertheless, this is the approach I have generally used since it provides me with the most experience and learning.</p>
-
-<p>You can actually have it both ways, pre-pending the api version and automating with a gem (up to a point) with the Versionist Gem, which provides three different ways to version your api out of the box:</p>
-
-<ul>
-  <li>Specifying version via an HTTP header</li>
-  <li>Specifying version by pre-pending paths with a version slug</li>
-  <li>Specifying version via a request parameter</li>
-</ul>
-
-<p>Pre-pending the path with a version slug is the same as the method discussed in RailsCast, visual, fast and intuitive. The problem is that the gem won’t move files for you so you’ll need to re-organize some files around and change some configuration details.</p>
-
-<h3 id="request-header">Request Header</h3>
-
-<p>The <a href="https://github.com/bploetz/versionist">Versionist</a> gem also allows us to include the version to use as a parameter in the header of the request call. Which has the benefits and disadvantages of hiding away this information in the header. It is less transparent and user friendly, but great for automated calls. Less opportunity to fudge at the cost of a higher initial cost of setting the system up.</p>
-
-<h3 id="url-parameter">Url Parameter</h3>
-
-<p>The third way Versionist can work is by appending the api version as a parameter at the end of the call, which although benefiting from being as somewhat visual, it fudges the url mixing resource parameters with unrelated information. This practice is frowned upon in the rails development community.</p>
-
-<h3 id="mime-type">MIME Type</h3>
-
-<p>You could register a MIME type for each api version and use the rails’ respond_to handle the response. Check Robbie Clutton <a href="http://pivotallabs.com/api-versioning/">post about it</a>.</p>
-
-<p>The registration happens in the config/initializers/mime_types.rb, and all you need is to reconfigure your controllers.</p>
-
-<h3 id="api-model">API Model</h3>
-
-<p>Gems like <a href="https://github.com/craigs/api_versioning">ApiVersioning</a> use a model-based approach. Where a controller renamed as a <code>presenter</code>, handles API responses. It allows to specified the version in the header or passed as a parameter.</p>
-
-<p>Thanks to Scot Hale who pointed me in the right direction in order to research this topic!</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
     <title type="html"><![CDATA[Wiring Devise into Angular + Rails]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/"/>
+    <link href="http://sotoseattle.github.io/blog/2014/10/30/Devise-Angular-Rails/"/>
     
-    <updated>2014-10-29T16:17:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails</id>
+    <updated>2014-10-30T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/30/Devise-Angular-Rails</id>
     
     <content type="html"><![CDATA[<h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
 
@@ -438,6 +379,65 @@
 
 <p>Special thanks to Derek Maffett, whose help was invaluable to navigate the angular example.</p>
 
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Rails Api Versioning]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/28/Rails-API-Versioning/"/>
+    
+    <updated>2014-10-28T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/28/Rails-API-Versioning</id>
+    
+    <content type="html"><![CDATA[<p><img class="right" src="http://sotoseattle.github.io/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
+
+<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
+
+<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
+
+<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
+
+<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
+
+<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
+
+<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
+
+<!--more-->
+
+<p>Nevertheless, this is the approach I have generally used since it provides me with the most experience and learning.</p>
+
+<p>You can actually have it both ways, pre-pending the api version and automating with a gem (up to a point) with the Versionist Gem, which provides three different ways to version your api out of the box:</p>
+
+<ul>
+  <li>Specifying version via an HTTP header</li>
+  <li>Specifying version by pre-pending paths with a version slug</li>
+  <li>Specifying version via a request parameter</li>
+</ul>
+
+<p>Pre-pending the path with a version slug is the same as the method discussed in RailsCast, visual, fast and intuitive. The problem is that the gem won’t move files for you so you’ll need to re-organize some files around and change some configuration details.</p>
+
+<h3 id="request-header">Request Header</h3>
+
+<p>The <a href="https://github.com/bploetz/versionist">Versionist</a> gem also allows us to include the version to use as a parameter in the header of the request call. Which has the benefits and disadvantages of hiding away this information in the header. It is less transparent and user friendly, but great for automated calls. Less opportunity to fudge at the cost of a higher initial cost of setting the system up.</p>
+
+<h3 id="url-parameter">Url Parameter</h3>
+
+<p>The third way Versionist can work is by appending the api version as a parameter at the end of the call, which although benefiting from being as somewhat visual, it fudges the url mixing resource parameters with unrelated information. This practice is frowned upon in the rails development community.</p>
+
+<h3 id="mime-type">MIME Type</h3>
+
+<p>You could register a MIME type for each api version and use the rails’ respond_to handle the response. Check Robbie Clutton <a href="http://pivotallabs.com/api-versioning/">post about it</a>.</p>
+
+<p>The registration happens in the config/initializers/mime_types.rb, and all you need is to reconfigure your controllers.</p>
+
+<h3 id="api-model">API Model</h3>
+
+<p>Gems like <a href="https://github.com/craigs/api_versioning">ApiVersioning</a> use a model-based approach. Where a controller renamed as a <code>presenter</code>, handles API responses. It allows to specified the version in the header or passed as a parameter.</p>
+
+<p>Thanks to Scot Hale who pointed me in the right direction in order to research this topic!</p>
 ]]></content>
     
   </entry>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Angular, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/angular/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T16:35:13-07:00</updated>
+  <updated>2014-11-01T16:36:42-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Wiring Devise into Angular + Rails]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/"/>
-    <updated>2014-10-29T16:17:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails</id>
+    <link href="http://sotoseattle.github.io/blog/2014/10/30/Devise-Angular-Rails/"/>
+    <updated>2014-10-30T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/30/Devise-Angular-Rails</id>
     <content type="html"><![CDATA[<h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
 
 <p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: API | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/api/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T16:35:13-07:00</updated>
+  <updated>2014-11-01T16:36:42-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Rails Api Versioning]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning/"/>
-    <updated>2014-10-29T16:17:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/10/29/Rails-API-Versioning</id>
+    <link href="http://sotoseattle.github.io/blog/2014/10/28/Rails-API-Versioning/"/>
+    <updated>2014-10-28T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/28/Rails-API-Versioning</id>
     <content type="html"><![CDATA[<p><img class="right" src="/images/Oct14/versionapi.png" width="200" title="RailsCast" ></p>
 
 <p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
