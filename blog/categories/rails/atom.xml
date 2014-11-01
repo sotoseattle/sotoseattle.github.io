@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/rails/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T08:56:30-07:00</updated>
+  <updated>2014-11-01T16:35:13-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -65,6 +65,231 @@
 <p>Gems like <a href="https://github.com/craigs/api_versioning">ApiVersioning</a> use a model-based approach. Where a controller renamed as a <code>presenter</code>, handles API responses. It allows to specified the version in the header or passed as a parameter.</p>
 
 <p>Thanks to Scot Hale who pointed me in the right direction in order to research this topic!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Wiring Devise into Angular + Rails]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/"/>
+    <updated>2014-10-29T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails</id>
+    <content type="html"><![CDATA[<h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
+
+<p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>
+
+<p>Include in your Gemfile devise and bundle. We request at least version 4.3.1 because of some troubles with previous versions and Rails 4.2.</p>
+
+<p><code>ruby
+gem 'devise', '~&gt; 3.4.1'
+</code></p>
+
+<p>Run the generator and follow the config steps suggested by the gem.</p>
+
+<p><code>bash
+$ rails g devise:install
+</code></p>
+
+<p>Make devise respond to json by adding the following to your application.rb:</p>
+
+<p><code>ruby
+config.to_prepare do
+  DeviseController.respond_to :html, :json
+end
+</code></p>
+
+<!-- more -->
+
+<p>Generate the User model with devise:</p>
+
+<p><code>bash
+$ rails g devise user
+</code></p>
+
+<p>Don’t forget to floss, I mean <code>rake migrate</code>. Now, download the following modules from the angular site: [angular-cookies.js, angular-route.js] and place them where you have your angular file (in my case in app/assets/javascripts/). Make sure to add them to the application.js manifest after loading angular:</p>
+
+<p><code>js
+//= require jquery
+//= require jquery_ujs
+//= require angular.min
+//= require angular-cookies.min
+//= require angular-route.min
+...
+//= require_tree .
+</code></p>
+
+<p>Now, in my case I use the application layout to call the angular app.</p>
+
+<p>```erb
+<!-- application.html.erb -->
+&lt;!DOCTYPE html&gt;
+&lt;html data-ng-app="WhateverApp"&gt;</p>
+<head>...</head>
+<body>
+    &lt;%= yield %&gt;
+  </body>
+<p>&lt;/html&gt;
+```</p>
+
+<p>Again, in my particular case all I have is a single Rails controller with a single action (index), and a single index view. In that index.html.erb we reference to angular routes:</p>
+
+<p><code>erb
+&lt;div data-ng-view&gt;&lt;/div&gt;
+</code></p>
+
+<p>In app/assets/javascript/angular_app/ we create a new file <code>routes.js</code> with the routes we want. In my case I have appended the .erb type so Rails pre-processes the erb tags:</p>
+
+<p><code>javascript
+(function() {
+  var app = angular.module('GemStore');
+  app.config(['$routeProvider', function($routeProvider) {
+    $routeProvider
+      .when('/store_front', {
+        controller: 'Resource1Controller',
+        templateUrl: '&lt;%= asset_path("angular_app/resource_1/views/store_forefront.html") %&gt;'
+      })
+      .when('/admin', {
+        controller: 'UsersCtrl',
+        templateUrl: '&lt;%= asset_path("angular_app/users/views/user_entrance.html") %&gt;'
+      })
+      .when('/dashboard', {
+        controller: 'Resource2Ctrl',
+        templateUrl: '&lt;%= asset_path("angular_app/resource_2/views/dashboard.html") %&gt;'
+      })
+      .otherwise({
+        redirectTo: '/store_front'
+      });
+  }]);
+})();
+</code></p>
+
+<p>The route /admin will take us to the User that Devise created and whose view is:</p>
+
+<p>```javascript
+&lt;div data-ng-controller="UsersCtrl"&gt;</p>
+<div>
+    <div data-ng-show="!isLoggedIn()">
+      <button data-ng-click="setForm('signUp')"> Create User</button>
+      <button data-ng-click="setForm('signIn')">Sign In</button>
+    </div>
+    <div data-ng-show="isLoggedIn()">
+      <button data-ng-click="signOut()">Sign Out</button>
+    </div>
+  </div>
+<p><br /><br /></p>
+
+<form name="newUserForm" data-ng-show="form == 'signUp'">
+    <label>Email</label>:
+    <input type="text" required="" data-ng-model="newUser.email" />
+    <label>Password</label>:
+    <input type="password" required="" data-ng-model="newUser.password" />
+    <label>Password confirmation</label>:
+    <input type="password" required="" data-ng-model="newUser.password_confirmation" />
+
+    <button data-ng-disabled="newUserForm.$invalid" data-ng-click="signUp(newUser)"> Create User</button>
+  </form>
+
+<form name="loginForm" data-ng-show="form == 'signIn'">
+    <label>Email</label>
+    <input type="text" required="" data-ng-model="user.email" />
+    <label>Password</label>
+    <input type="password" required="" data-ng-model="user.password" />
+    <button data-ng-disabled="loginForm.$invalid" data-ng-click="signIn(user)">Sign In</button>
+  </form>
+<p>&lt;/div&gt;</p>
+
+<p>&lt;button data-ng-click="StorePath()"&gt;Store Front&lt;/button&gt;
+```</p>
+
+<p>The different panels and buttons show and hide depending on if we are logged in or not. I included those functions in my top app.js and under the rootScope so they can be called from anywhere:</p>
+
+<p>```javascript
+app.run([‘$rootScope’,’$cookieStore’, ‘$location’, function($rootScope, $cookieStore, $location) {
+    $rootScope.isLoggedIn = function() {
+      return ($cookieStore.get(‘logged_user’) ? true : false);
+    };</p>
+
+<pre><code>$rootScope.logged_user = function() {
+  return $cookieStore.get('logged_user').email;
+};   }]); ```
+</code></pre>
+
+<p>Finally, the UserCtrl.js includes the way to connect to Rails, query the User model and set the cookies:</p>
+
+<p>```javascript
+(function(){
+  var app = angular.module(‘GemStore’);</p>
+
+<p>app.controller(‘UsersCtrl’, [
+    ‘$scope’,’$http’,’$cookieStore’,’$location’,function($scope, $http, $cookieStore,$location){</p>
+
+<pre><code>$scope.user = {};
+$scope.new_user = {};
+
+$scope.signUp = function(new_user){
+  data = { user: new_user };
+  $http.post('/users', data)
+  .success(function(data){
+    $scope.new_user = {};
+    $cookieStore.put('logged_user', data);
+    $scope.setForm('');
+    $location.path('/dashboard');
+  })
+  .error(function(data, status){
+    console.log(data);
+    console.log(status);
+  });
+};
+
+$scope.signIn = function(new_user){
+  data = { user: new_user };
+  $http.post('/users/sign_in', data)
+  .success(function(data){
+    $scope.user = {};
+    $cookieStore.put('logged_user', data);
+    $scope.setForm('');
+    $location.path('/dashboard');
+  })
+  .error(function(data,status){
+    console.log(data);
+    console.log(status);
+  });
+};
+
+$scope.signOut = function() {
+  $http({
+    method: 'DELETE',
+    url: 'users/sign_out'
+  })
+    .success(function() {
+      $cookieStore.remove('logged_user');
+      $scope.setForm('');
+      $location.path('/store_front');
+    })
+    .error(function(status) {
+      console.log(status);
+    })
+};
+
+$scope.setForm = function(form) {
+  $scope.form = form;
+};   }]); })() ```
+</code></pre>
+
+<p>Finally, make sure you are nullifying the sessions as you protect from CSRF attacks.</p>
+
+<p>```ruby
+class ApplicationController &lt; ActionController::Base
+  respond_to :html, :json</p>
+
+<p># Prevent CSRF attacks by raising an exception.
+  # For APIs, you may want to use :null_session instead.
+  # protect_from_forgery with: :exception
+  protect_from_forgery with: :null_session
+end
+```</p>
+
+<p>Special thanks to Derek Maffett, whose help was invaluable to navigate the angular example.</p>
+
 ]]></content>
   </entry>
   

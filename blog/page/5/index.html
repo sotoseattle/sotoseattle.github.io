@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="With Gibbs sampling, we changed the assigment of our variables one at a time, and after cycling though all the variables we got to new state, a &hellip;">
+  <meta name="description" content="The code for a Q based on the Uniform distribution has three steps: come up with a new complete assignment out of the blue (literally) compute the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,160 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/13/MCMC-MH-Uniform/">MCMC MH Uniform</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-13T08:01:00-08:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The code for a Q based on the Uniform distribution has three steps:</p>
+
+<ul>
+  <li>come up with a new complete assignment out of the blue (literally)</li>
+  <li>compute the acceptance probability. When we compute π(x’)Q(x’ → x), π is the joint probability reduced by the complete assignment (unormalized), meaning the total probability of having that assignment. The question is, how do I compute Q(x’ → x)? Since it is the uniform distribution, Q(x’ → x) == Q(x → x’) == constant, so it cancels out and I only need to compute the ratio of π(x’) / π(x).</li>
+  <li>decide with the new acceptance if, like The Clash asks, should we stay or should we go.</li>
+</ul>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Q from Uniform dist</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Uniform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
+</span><span class="line">    <span class="c"># get a random complete assignment from uniform distribution</span>
+</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">]</span>
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">floor</span><span class="p">([</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span><span class="o">*</span><span class="n">cardio</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cardio</span><span class="p">))])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+</span><span class="line">    <span class="n">to_ass</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">e</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># compute the probabilities of transitions</span>
+</span><span class="line">    <span class="n">fwd</span><span class="p">,</span> <span class="n">bwd</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">        <span class="n">fwd</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">to_ass</span><span class="p">))</span>
+</span><span class="line">        <span class="n">bwd</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># compute acceptance probability and return the new state</span>
+</span><span class="line">    <span class="n">p_acceptance</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fwd</span><span class="p">)</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">bwd</span><span class="p">))])</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">p_acceptance</span><span class="p">:</span>
+</span><span class="line">        <span class="n">from_ass</span> <span class="o">=</span> <span class="n">to_ass</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">from_ass</span>
+</span><span class="line"><span class="n">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>To speed up the process, I have added a new utility function to Factor Operations, to extract the potential/probability value of a complete assigment from a given factor. It is the same as reducing, but instead of giving back a reduced factor, since we have a complete assignment (all variables have assignments) we return a value (float).</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Get Factor Value of Complete Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">reduce_to_value</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;reduce factor by complete assignment to a single value&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">complete_ass</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">evidence</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">])</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">complete_ass</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="mixing">Mixing</h2>
+
+<p>As before we run the MCMCMHU to collect a total of 70,000 samples. The initial assignment is initialized to all ones. </p>
+
+<p>Now we get subsets every 1,000 samples of size 10,000. That is 59 windows of 10,000 samples collected after different mixing times.</p>
+
+<p>Ploting the difference between the exact marginal and our estimated marginals of the three variables (number 0 as red, 4 as blue, and 8 as green), we have the following charts (from two different runs).</p>
+
+<div>
+	<img class="left" src="/images/feb14/MHU_mix.png" width="425" title="Mixing Windows Run 1" />
+	<img class="right" src="/images/feb14/MHU_mixB.png" width="425" title="Mixing Windows Run 2" />
+</div>
+<p><br /></p>
+
+<p>No clear mixing threshold.</p>
+
+<h2 id="sample-size">Sample size</h2>
+
+<p>Following the previous settings but fixing the mixing time to 1,000, we can plot the difference between exact and estimated marginals as we collect more samples. From the charts (two different runs) we see that it converges beyond 20,000. </p>
+
+<div>
+	<img class="left" src="/images/feb14/MHU_size.png" width="425" title="Sample Size Run 1" />
+	<img class="right" src="/images/feb14/MHU_sizeB.png" width="425" title="Sample Size Run 2" />
+</div>
+<p><br /></p>
+
+<p>Nevertheless, it seems to work worse than Gibbs.</p>
+
+<h2 id="marginals-convergence">Marginals Convergence</h2>
+
+<p>We again run twice the model and see how well the estimated marginals converge across runs. All models are Ising grids with 9 variables, have mixing time of 7,000 and sample size of 10,000. </p>
+
+<div>
+	<img class="left" src="/images/feb14/MHU_compare_runs_0703.png" width="425" />
+	<img class="right" src="/images/feb14/MHU_compare_runs_102.png" width="425" />
+	<img class="center" src="/images/feb14/MHU_compare_runs_095005.png" width="425" />
+</div>
+
+<p>Again, worse results.</p>
+
+<h2 id="comparison-to-gibbs">Comparison to Gibbs</h2>
+
+<p>Lile we did for Gibbs, we run 10 times this MCMCMHU model. Now with mixing time of 5,000 and sample size of 30,000. Starting assignment, 5 runs with 0s, and 5 runs with 1s. We compute the error as before and see what results we get as compared to the exact marginals for all variables.</p>
+
+<p>The error, as defined in previous posts, from our 10 runs is 0.12 on the average (vs. 0.065 from Gibbs), with a range of [0.03, 0.24] (vs. [0.005, 0.17]) and a standard deviation of 0.07 (vs. 0.05). Definetively worse performance.</p>
+
+<p>Finally, this is for a 9 node Ising net. For a 4 sided net with 16 nodes, with strong correlation this MHU method performs very poorly because we get stuck in specific assignments for very long times. Because the probability of a new assignment (randomly chosen) tends to be so small as compared to the probability we start with that the ratio is miniscule, and A() always rejects. The more correlated (i.e. higher on diagonal values vs off diagonal) the more steps we need to take, and even that doesn’t guarantee good results. Consider that for 100,000 steps, only around 50 are accepted, which means we need to run it much longer to achieve good results. </p>
+
+<p>For the easiest 16 nodes with pairwise potentials [0.5, 0.5], 0 mixing and 30,000 steps, MHU and Gibs give similar good results. MHU gives us an average error and standard dev of [0.02, 0.004], while Gibbs achieves [0.01, 0.001].</p>
+
+<div>
+    <img class="left" src="/images/feb14/Gibbs_hist.png" width="425" title="Gibbs Error 100 Runs" />
+    <img class="right" src="/images/feb14/MHU_hist.png" width="425" title="MHU Error 100 Runs" />
+</div>
+<p><br /></p>
+
+<p>Finally we compare the histogram of errors for these two methods when applied to the [1.0, 0.2] in the 16 node Ising model. Each histogram is based on 100 runs. Both have a mixing time of 10,000 and a sampling size of 70,000. Gibbs’s histogram shown in red, MHU in blue.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -352,208 +506,6 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/10/Gibbs-code/">MCMC Gibbs - Code</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-10T08:01:00-08:00" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2 id="how-to-sample-a-distribution">How to sample a distribution</h2>
-
-<p>The first method we need is to find a random assignment given a discrete distribution. For example, if we have a distribution over a single variable with cardinality 3, [p0, p1, p2] = [0.25, 0.35, 0.4] we:</p>
-
-<ul>
-  <li>create the cumulative distr =&gt; [c1, c2, c3] = [0.25, 0.60, 1.0]</li>
-  <li>pick up a random number r between 0 and 1 (based on uniform dist), let’s say we get 0.43</li>
-  <li>create a new array based on [c &gt;= r] =&gt; [False, True, True]</li>
-  <li>the first True gives us the assignment, in this case 1 out of possible assignments (0, 1, 2).</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Sample Randomly From Given Distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">randSampleDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
-</span><span class="line">    <span class="n">cum_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
-</span><span class="line">    <span class="n">u</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">cum_prob</span><span class="p">))</span>
-</span><span class="line">    <span class="n">included</span> <span class="o">=</span> <span class="n">cum_prob</span><span class="o">&gt;=</span><span class="n">u</span>
-</span><span class="line">    <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">included</span><span class="o">==</span><span class="bp">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c"># get first</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sample</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="find-distribution-for-a-variable-given-a-complete-assignment">Find distribution for a variable given a complete assignment</h2>
-
-<p>Now we are going to get the distribution of a variable given that all other variables have been assigned. We operate in log space for easier computations.</p>
-
-<p>The key is to understand that for each factor fu that includes the variable we can reduce it with the assignment (excluding the sampling variable) and marginalize for all variables (excluding the sampling variable) to come up with the distribution for that variable. Operating in log space we add this arrays of probabilities to come up with the total distribution.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Log Distribution for a Variable Given an Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">logDistAss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_var</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">])</span>
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">cardio</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_to_factors</span><span class="p">[</span><span class="n">sample_var</span><span class="p">]:</span>
-</span><span class="line">        <span class="n">evi</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">k</span><span class="o">!=</span> <span class="n">sample_var</span><span class="p">)</span>
-</span><span class="line">        <span class="n">fu</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_dist</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">)</span>
-</span><span class="line">        <span class="n">logbp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fu</span><span class="p">)</span>
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="n">logbp</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">logbp</span><span class="p">)</span> <span class="c"># to avoid underflow when back in normal space</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">logbp</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Note three things:</p>
-
-<ul>
-  <li>that FactorOperations.extract is an added method that works the same as marginalize but marginalizing in a sweep all variables except the one to extract.</li>
-  <li>.var_to_factors is a dictionary where for each variable we have a set of the factors it is involved with. This structure is computed once and allows us to compute faster the sampling process.</li>
-  <li>to speed up things I have coded a utility function based on reducing a factor by evidence. It gets an assignment to all factor variables except one and produces an array with the distribution resulting for that variable.</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Reducing Factor to a single var distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">reduce_to_dist</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;reduce factor by complete assignment to a single variable distribution&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">ass</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">evidence</span><span class="p">:</span>
-</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">))</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">counter</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error in observed vars&quot;</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ass</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="one-step-down-the-chain">One step down the Chain</h2>
-
-<p>The Gibbs sampling process, starts with a complete assignment and ends with another complete assignment. For each variable we:</p>
-
-<ul>
-  <li>compute the distribution based on the other assigned variables, </li>
-  <li>find it’s new assignment based on rolling a dice on the distribution,</li>
-  <li>update the assignment with this new value so for the new iteration one variable of the assignment has changed</li>
-</ul>
-
-<p>We repeat for all variables, updating all variables in the process, until we get a newly complete assignment that corresponds to the new state in the Markov Chain.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Gibbs 1 step down the Markov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">Gibbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
-</span><span class="line">        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDistAss</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">ass</span><span class="p">)</span>
-</span><span class="line">        <span class="n">ass</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">randSampleDist</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">(),</span> <span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">ass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="running-around-the-chain">Running around the Chain</h2>
-
-<p>Collecting samples from the Markov Chain is as easy as running iteratively the previous Gibbs method. We introduce two new inputs:</p>
-
-<ul>
-  <li>mix_time: how many steps to take before we think the chain has converged and we start collecting samples. Consider that at the start we are wondering near the initial assignment and to reach a ‘real’ assignment we need enough time walking around.</li>
-  <li>num_samples: after mixing time, how many steps to take, how many samples to collect.</li>
-</ul>
-
-<p>The code is self explanatory:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Collecting Samples from the Makov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sampleMarkovChain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
-</span><span class="line">    <span class="n">max_iter</span> <span class="o">=</span> <span class="n">mix_time</span> <span class="o">+</span> <span class="n">num_samples</span>
-</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
-</span><span class="line">        <span class="n">seed_assignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gibbs</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)</span>
-</span><span class="line">        <span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)]</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">mix_time</span><span class="p">:</span>
-</span><span class="line">            <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">all_samples</span><span class="p">,</span> <span class="n">sol</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">all_samples</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="inference">Inference</h2>
-
-<p>Now that we have the samples we can compute the estimated marginals by counting, for each variable, how many times each as assignment shows up.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Inference from MCMC using Gibbs Transitions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">infere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
-</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampleMarkovChain</span><span class="p">(</span><span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">x</span><span class="p">])</span>
-</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">all_samples</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">M</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/6/">&larr; Older</a>
@@ -575,6 +527,10 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
       </li>
     
       <li class="post">
+        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
@@ -584,10 +540,6 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
     
       <li class="post">
         <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
       </li>
     
   </ul>

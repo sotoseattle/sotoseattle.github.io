@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T08:56:30-07:00</updated>
+  <updated>2014-11-01T16:35:13-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -68,6 +68,376 @@
 <p>Gems like <a href="https://github.com/craigs/api_versioning">ApiVersioning</a> use a model-based approach. Where a controller renamed as a <code>presenter</code>, handles API responses. It allows to specified the version in the header or passed as a parameter.</p>
 
 <p>Thanks to Scot Hale who pointed me in the right direction in order to research this topic!</p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Wiring Devise into Angular + Rails]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/"/>
+    
+    <updated>2014-10-29T16:17:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails</id>
+    
+    <content type="html"><![CDATA[<h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
+
+<p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>
+
+<p>Include in your Gemfile devise and bundle. We request at least version 4.3.1 because of some troubles with previous versions and Rails 4.2.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 3.4.1&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Run the generator and follow the config steps suggested by the gem.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise:install
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Make devise respond to json by adding the following to your application.rb:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">config</span><span class="o">.</span><span class="n">to_prepare</span> <span class="k">do</span>
+</span><span class="line">  <span class="no">DeviseController</span><span class="o">.</span><span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<!-- more -->
+
+<p>Generate the User model with devise:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise user
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Don’t forget to floss, I mean <code>rake migrate</code>. Now, download the following modules from the angular site: [angular-cookies.js, angular-route.js] and place them where you have your angular file (in my case in app/assets/javascripts/). Make sure to add them to the application.js manifest after loading angular:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+</pre></td><td class="code"><pre><code class="js"><span class="line"><span class="c1">//= require jquery</span>
+</span><span class="line"><span class="c1">//= require jquery_ujs</span>
+</span><span class="line"><span class="c1">//= require angular.min</span>
+</span><span class="line"><span class="c1">//= require angular-cookies.min</span>
+</span><span class="line"><span class="c1">//= require angular-route.min</span>
+</span><span class="line"><span class="p">...</span>
+</span><span class="line"><span class="c1">//= require_tree .</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now, in my case I use the application layout to call the angular app.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="erb"><span class="line"><span class="x">&lt;!-- application.html.erb --&gt;</span>
+</span><span class="line"><span class="x">&lt;!DOCTYPE html&gt;</span>
+</span><span class="line"><span class="x">&lt;html data-ng-app=&quot;WhateverApp&quot;&gt;</span>
+</span><span class="line"><span class="x">  &lt;head&gt;...&lt;/head&gt;</span>
+</span><span class="line"><span class="x">  &lt;body&gt;</span>
+</span><span class="line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="k">yield</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class="line"><span class="x">  &lt;/body&gt;</span>
+</span><span class="line"><span class="x">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Again, in my particular case all I have is a single Rails controller with a single action (index), and a single index view. In that index.html.erb we reference to angular routes:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="erb"><span class="line"><span class="x">&lt;div data-ng-view&gt;&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In app/assets/javascript/angular_app/ we create a new file <code>routes.js</code> with the routes we want. In my case I have appended the .erb type so Rails pre-processes the erb tags:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;GemStore&#39;</span><span class="p">);</span>
+</span><span class="line">  <span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">([</span><span class="s1">&#39;$routeProvider&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$routeProvider</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">$routeProvider</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/store_front&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;Resource1Controller&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/resource_1/views/store_forefront.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;UsersCtrl&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/users/views/user_entrance.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;Resource2Ctrl&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/resource_2/views/dashboard.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">otherwise</span><span class="p">({</span>
+</span><span class="line">        <span class="nx">redirectTo</span><span class="o">:</span> <span class="s1">&#39;/store_front&#39;</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span><span class="line"><span class="p">})();</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The route /admin will take us to the User that Devise created and whose view is:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">controller</span><span class="o">=</span><span class="s2">&quot;UsersCtrl&quot;</span><span class="o">&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;!isLoggedIn()&quot;</span><span class="o">&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;setForm(&#39;signUp&#39;)&quot;</span><span class="o">&gt;</span> <span class="nx">Create</span> <span class="nx">User</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;setForm(&#39;signIn&#39;)&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">In</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;isLoggedIn()&quot;</span><span class="o">&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signOut()&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">Out</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/div&gt;&lt;br&gt;&lt;br&gt;</span>
+</span><span class="line">
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">form</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;newUserForm&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;form == &#39;signUp&#39;&quot;</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Email</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.email&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Password</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.password&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Password</span> <span class="nx">confirmation</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.password_confirmation&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">disabled</span><span class="o">=</span><span class="s2">&quot;newUserForm.$invalid&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signUp(newUser)&quot;</span><span class="o">&gt;</span> <span class="nx">Create</span> <span class="nx">User</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span><span class="line">
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">form</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;loginForm&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;form == &#39;signIn&#39;&quot;</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span><span class="o">&gt;</span><span class="nx">Email</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;user.email&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span><span class="o">&gt;</span><span class="nx">Password</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;user.password&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">disabled</span><span class="o">=</span><span class="s2">&quot;loginForm.$invalid&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signIn(user)&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">In</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span><span class="line"><span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">
+</span><span class="line"><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;StorePath()&quot;</span><span class="o">&gt;</span><span class="nx">Store</span> <span class="nx">Front</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The different panels and buttons show and hide depending on if we are logged in or not. I included those functions in my top app.js and under the rootScope so they can be called from anywhere:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">app</span><span class="p">.</span><span class="nx">run</span><span class="p">([</span><span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span><span class="s1">&#39;$cookieStore&#39;</span><span class="p">,</span> <span class="s1">&#39;$location&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">,</span> <span class="nx">$cookieStore</span><span class="p">,</span> <span class="nx">$location</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="p">(</span><span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">)</span> <span class="o">?</span> <span class="kc">true</span> <span class="o">:</span> <span class="kc">false</span><span class="p">);</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">logged_user</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">).</span><span class="nx">email</span><span class="p">;</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Finally, the UserCtrl.js includes the way to connect to Rails, query the User model and set the cookies:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;GemStore&#39;</span><span class="p">);</span>
+</span><span class="line">
+</span><span class="line">  <span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;UsersCtrl&#39;</span><span class="p">,</span> <span class="p">[</span>
+</span><span class="line">    <span class="s1">&#39;$scope&#39;</span><span class="p">,</span><span class="s1">&#39;$http&#39;</span><span class="p">,</span><span class="s1">&#39;$cookieStore&#39;</span><span class="p">,</span><span class="s1">&#39;$location&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$http</span><span class="p">,</span> <span class="nx">$cookieStore</span><span class="p">,</span><span class="nx">$location</span><span class="p">){</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">new_user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signUp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">new_user</span><span class="p">){</span>
+</span><span class="line">      <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">new_user</span> <span class="p">};</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/users&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">new_user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">        <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">status</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signIn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">new_user</span><span class="p">){</span>
+</span><span class="line">      <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">new_user</span> <span class="p">};</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/users/sign_in&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">        <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="nx">status</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signOut</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">({</span>
+</span><span class="line">        <span class="nx">method</span><span class="o">:</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;users/sign_out&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">        <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">          <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">);</span>
+</span><span class="line">          <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">          <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/store_front&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="p">})</span>
+</span><span class="line">        <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">        <span class="p">})</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">$scope</span><span class="p">.</span><span class="nx">form</span> <span class="o">=</span> <span class="nx">form</span><span class="p">;</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span><span class="line"><span class="p">})()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Finally, make sure you are nullifying the sessions as you protect from CSRF attacks.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="ss">ActionController</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class="line">  <span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
+</span><span class="line">
+</span><span class="line">  <span class="c1"># Prevent CSRF attacks by raising an exception.</span>
+</span><span class="line">  <span class="c1"># For APIs, you may want to use :null_session instead.</span>
+</span><span class="line">  <span class="c1"># protect_from_forgery with: :exception</span>
+</span><span class="line">  <span class="n">protect_from_forgery</span> <span class="ss">with</span><span class="p">:</span> <span class="ss">:null_session</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Special thanks to Derek Maffett, whose help was invaluable to navigate the angular example.</p>
+
 ]]></content>
     
   </entry>
@@ -3317,210 +3687,6 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
 </span><span class="line"><span class="n">B</span> <span class="o">=</span> <span class="n">BetheNetwork</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[:</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">],</span> <span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">:])</span>
 </span><span class="line"><span class="k">print</span> <span class="n">B</span><span class="o">.</span><span class="n">box</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[OCR Words (III): Conditional Random Fields]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/01/25/OCR-CRF/"/>
-    
-    <updated>2014-01-25T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/01/25/OCR-CRF</id>
-    
-    <content type="html"><![CDATA[<p>And so we finally can run our own character recognition software. As before, we use the data from Prof. Daphne Koller, Stanford University, Coursera course. We have a set of 99 words. Each word contains a list of images where each image correspond to a handwritten (lowercase) letter. We also have the ground truth for each word so we can rate the accuracy of the code.</p>
-
-<p>For each word, we already knwo how to build all the factors involved:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>OCR Framework</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># We hold words in dictionary allWords. For each word tow keys, &#39;gT&#39; (ground truth) and &#39;img&#39; (the image)</span>
-</span><span class="line"><span class="n">alpha</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">,</span><span class="s">&#39;e&#39;</span><span class="p">,</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;g&#39;</span><span class="p">,</span><span class="s">&#39;h&#39;</span><span class="p">,</span><span class="s">&#39;i&#39;</span><span class="p">,</span><span class="s">&#39;j&#39;</span><span class="p">,</span><span class="s">&#39;k&#39;</span><span class="p">,</span><span class="s">&#39;l&#39;</span><span class="p">,</span><span class="s">&#39;m&#39;</span><span class="p">,</span><span class="s">&#39;n&#39;</span><span class="p">,</span><span class="s">&#39;o&#39;</span><span class="p">,</span><span class="s">&#39;p&#39;</span><span class="p">,</span><span class="s">&#39;q&#39;</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">,</span><span class="s">&#39;s&#39;</span><span class="p">,</span><span class="s">&#39;t&#39;</span><span class="p">,</span><span class="s">&#39;u&#39;</span><span class="p">,</span><span class="s">&#39;v&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">,</span><span class="s">&#39;x&#39;</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">,</span><span class="s">&#39;z&#39;</span><span class="p">]</span>
-</span><span class="line"><span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-</span><span class="line"><span class="n">image_px</span> <span class="o">=</span> <span class="mi">128</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">MAP_Word</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
-</span><span class="line">    <span class="n">chars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">])</span>
-</span><span class="line">    <span class="n">vall</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">chars</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">singletonFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pairwiseFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tripletFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]))</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># choose the top two similar images</span>
-</span><span class="line">    <span class="n">ss</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
-</span><span class="line">            <span class="n">ss</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">similarity</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">])])</span>
-</span><span class="line">    <span class="n">ss</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-</span><span class="line">    <span class="n">top1</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_simil_factor</span><span class="p">(</span><span class="n">top1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">top1</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-</span><span class="line">    <span class="n">top2</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_simil_factor</span><span class="p">(</span><span class="n">top2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">top2</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Now that we have all factors listed we can compute the clique tree and perform belief propagation to find the MAP assignment.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>(&#8230;cont)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MAP_Word</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
-</span><span class="line">	<span class="o">...</span>
-</span><span class="line">	<span class="n">cc</span> <span class="o">=</span> <span class="n">CliqueTree</span><span class="o">.</span><span class="n">CliqueTree</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span class="line">    <span class="n">cc</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">isMax</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">vari</span> <span class="ow">in</span> <span class="n">vall</span><span class="p">:</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">cc</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">vari</span> <span class="ow">in</span> <span class="n">beta</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="n">fu</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">vari</span><span class="p">])):</span>
-</span><span class="line">                    <span class="n">fu</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">max_marginalize</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
-</span><span class="line">                <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</span><span class="line">                <span class="n">sol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">maxi</span><span class="p">))</span>
-</span><span class="line">                <span class="k">break</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sol</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>For example, consider the first word in the set: ‘torturing’. It has 9 variables and initially 26 factors (9 singletons, 8 pairwise, 7 triplets and 2 similiraty). The top similarities are between the ‘t’s (var 0 and 3) and ‘r’s (var 2 and 5). Without the similarity factors the tree would have 7 nodes with three consecutive letters each. The similarities force some nodes together and we end up with just four nodes. The less nodes, with the most variables imply the more complex the computation since we end up with huge factors. Finally, see that in this case, with factors among adjacent variables, our tree becomes a chain.</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/jan14/ocr_crf_example.png" width="600" title="'torturing' Example" /></p>
-
-<p>Running a simple scoring method over the whole 99 words tells us how well we do:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Measure infered vs. ground truth</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">score</span><span class="p">():</span>
-</span><span class="line">    <span class="n">tot_chars</span><span class="p">,</span> <span class="n">tot_words</span><span class="p">,</span> <span class="n">chars_ok</span><span class="p">,</span> <span class="n">words_ok</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allWords</span><span class="p">)):</span>
-</span><span class="line">        <span class="n">tot_words</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">        <span class="n">w</span> <span class="o">=</span> <span class="n">allWords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">        <span class="n">count</span> <span class="o">=</span> <span class="mf">0.</span>
-</span><span class="line">        <span class="n">num_letters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">])</span>
-</span><span class="line">        <span class="nb">map</span> <span class="o">=</span> <span class="n">MAP_Word</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_letters</span><span class="p">):</span>
-</span><span class="line">            <span class="n">tot_chars</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">            <span class="k">if</span> <span class="nb">map</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">==</span><span class="n">w</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">][</span><span class="n">e</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">chars_ok</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">                <span class="n">count</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">count</span><span class="o">==</span><span class="n">num_letters</span><span class="p">:</span>
-</span><span class="line">            <span class="n">words_ok</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;words:&#39;</span><span class="p">,</span> <span class="n">words_ok</span><span class="p">,</span> <span class="p">(</span><span class="mf">100.</span><span class="o">*</span><span class="n">words_ok</span><span class="o">/</span><span class="n">tot_words</span><span class="p">),</span><span class="s">&#39;%&#39;</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;letters:&#39;</span><span class="p">,</span> <span class="n">chars_ok</span><span class="p">,</span> <span class="p">(</span><span class="mf">100.</span><span class="o">*</span><span class="n">chars_ok</span><span class="o">/</span><span class="n">tot_chars</span><span class="p">),</span><span class="s">&#39;%&#39;</span>
-</span><span class="line">    <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line"><span class="n">score</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>And these are the results:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: left"> </th>
-      <th style="text-align: center"> </th>
-      <th style="text-align: center"> </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">Accuracy (%)</td>
-      <td style="text-align: center">Words</td>
-      <td style="text-align: center">Letters</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"> </td>
-      <td style="text-align: center"> </td>
-      <td style="text-align: center"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: left">Only Singleton</td>
-      <td style="text-align: center">22.2</td>
-      <td style="text-align: center">76.8</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Pairwise</td>
-      <td style="text-align: center">26.3</td>
-      <td style="text-align: center">79.2</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Triplet</td>
-      <td style="text-align: center">34.3</td>
-      <td style="text-align: center">80.1</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Similarity</td>
-      <td style="text-align: center">37.4</td>
-      <td style="text-align: center">81.7</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Not amazing but not bad for an easily extendable model. Just add factors between variables, watching out to not make too many connections among distant variables.</p>
 ]]></content>
     
   </entry>

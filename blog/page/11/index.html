@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="In the previous post we created a Clique Tree from a list of factors. The problem is that many times, the clique tree will be too unnecessary big. &hellip;">
+  <meta name="description" content="The goal is to assign the factors from the initial factor list to the cliques (nodes) in the Clique Tree. We do it in two steps. First, we create &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,91 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/16/Initialize-Cliques-Potentials/">PGN: Initialize Clique Potentials</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-16T08:01:00-08:00" pubdate data-updated="true">Dec 16<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The goal is to assign the factors from the initial factor list to the cliques (nodes) in the Clique Tree. We do it in two steps.</p>
+
+<p>First, we create factors/potentials for each node, with all values initialized to one. Then for each factor in the input factor list, we choose the first node whose variable set holds all the factor’s variables, and the node’s potential becomes the factor product of the node’s potential itself and the newly assigned factor (remember that we set an innocuous factor of ones beforehand). </p>
+
+<p>If a factor is unassigned we raise an exception. </p>
+
+<p>If a node is factor-less (or one of its variables), there is no problem because we had it already initialized to ones.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Initializing Potentials (unrefactored)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># ... add to the end of code</span>
+</span><span class="line">        <span class="c"># initialize all potentials first to ones</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)):</span>
+</span><span class="line">            <span class="n">fu</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+</span><span class="line">            <span class="n">fu</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">+=</span> <span class="p">[</span><span class="n">fu</span><span class="p">]</span>
+</span><span class="line">        <span class="c"># ... and now brutishly (FIFO) we assign the factors</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span><span class="p">:</span>
+</span><span class="line">            <span class="n">notUsed</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">]:</span>
+</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fu</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">                <span class="n">notUsed</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class="line">                <span class="k">break</span>  <span class="c"># to use only once</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">notUsed</span><span class="p">:</span>
+</span><span class="line">                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s">&#39;factor not used in any clique!&#39;</span><span class="p">,</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -451,186 +536,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/13/Var-Elim/">PGN: Variable Elimination</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-13T08:01:00-08:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Given a network of random variables (Bayes of Markov) defined by a set of factors the way to do Variable Elimination is straightforward:</p>
-
-<ul>
-  <li>Reduce all factors by evidence and have set of factors (F)</li>
-  <li>Choose the variable to eliminate (z)</li>
-  <li>Gather the factors that have z in their scope </li>
-  <li>Multiply them together into a new factor ($\lambda$)</li>
-  <li>Marginalize $\lambda$ for z to produce $\tau$</li>
-  <li>The new set of factors is reduced by the factors ‘sum-producted’ plus the new one $\tau$</li>
-  <li>… repeat until …</li>
-  <li>the last set of factors we just multiply together and renormalize</li>
-</ul>
-
-<p>The complexity of this algorithm depends linearly on:</p>
-
-<ul>
-  <li>the size of the model (number variables and factors), and </li>
-  <li>on the number of variables of the largest factor generated in the process ($tau$), whose size is in itself exponential in its scope (i.e. 9 binary vars =&gt; 2^9).</li>
-</ul>
-
-<p>Therefore, the elimination ordering is the key to the algorithm’s efficiency (because the order defines the size of the generated factors).</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>variable elimination single pass</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">eliminateVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">varList</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="n">var2elim</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># separate factors into two lists, those that use var2elim (F_Cluster) and the rest (F_Rest)</span>
-</span><span class="line">        <span class="n">F_Cluster</span><span class="p">,</span> <span class="n">F_Rest</span><span class="p">,</span> <span class="n">Lambda_vars</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">var2elim</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Cluster</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
-</span><span class="line">                <span class="n">Lambda_vars</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">F_Cluster</span><span class="o">!=</span><span class="p">[]:</span>
-</span><span class="line">            <span class="n">Lambda_vars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">Lambda_vars</span><span class="p">)))</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># multiply the factors in Cluster... (lambda) ...and marginalize by var2elim (tau)</span>
-</span><span class="line">            <span class="n">tau</span> <span class="o">=</span> <span class="n">F_Cluster</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">tau</span><span class="o">.</span><span class="n">variables</span> <span class="o">!=</span> <span class="p">[</span><span class="n">var2elim</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">var2elim</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># add to unused factor list the resulting tau ==&gt; new factor list with var eliminated</span>
-</span><span class="line">            <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tau</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># update the edges (connect all vars inside new cluster, &amp; disconnect the eliminated variable)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">Lambda_vars</span><span class="p">:</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">Lambda_vars</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">E</span><span class="p">[</span><span class="n">varList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="n">varList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class="line">            <span class="n">E</span><span class="p">[</span><span class="n">varList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var2elim</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">            <span class="n">E</span><span class="p">[:,</span> <span class="n">varList</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var2elim</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">
-</span><span class="line">            <span class="n">F</span> <span class="o">=</span> <span class="n">F_Rest</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">return</span> <span class="p">[</span><span class="n">F</span><span class="p">,</span> <span class="n">E</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Graphically, to find the best ordering we:</p>
-
-<ul>
-  <li>transform the directed graph to undirected (from Bayes Net to Induced Markov Net)</li>
-  <li>moralize the V structures by connecting the parents. The key being that every factor’s scope is represented in the graph, so if Fa(A,B,C) =&gt; there must be connections between eacg pair of them: AB, AC, BC.</li>
-  <li>as we eliminate variables two things happen:
-    <ul>
-      <li>the eliminated variables are removed from the graph (and their links)</li>
-      <li>the resulting scope of the $\tau$ must also be reflected in the graph with additional connections! (filled edges). Another way to see it, all the variables connected to the eliminated one, become connected among themselves.</li>
-    </ul>
-  </li>
-</ul>
-
-<p>The initial graph plus all the filled edges is called the Induced Graph. This graph is very important because:</p>
-
-<ul>
-  <li>every factor produced during VE is a clique in the Induced Graph, and</li>
-  <li>every maximal clique in the Induced Graph is factor produced during VE</li>
-  <li>an Induced Graph is triangulated (no loops of length &gt; 3 without a bridge)</li>
-</ul>
-
-<p>Ways to find a good ordering are:</p>
-
-<ol>
-  <li>performing a greedy search using an ad-hoc cost function and at each point eliminate the node with the smallest cost. Examples: 
-    <ul>
-      <li>min-neigbors: pick the node with the minimum number of neighbors (smallest factor), </li>
-      <li>min-weight: considering that different variables have different cardinalities it would be better a factor of 10 binary vars than a factor of two vars but each of 100 possible values.</li>
-      <li>min -fill: choose vars that create the min amount of new connections (a very good approach),</li>
-      <li>weighted min-fill.</li>
-    </ul>
-  </li>
-  <li>finding a low-width triangulation of original graph (beyond my reach)</li>
-</ol>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>min neighbors variable selection</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="nd">@classmethod</span>
-</span><span class="line"><span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">varList</span><span class="p">,</span> <span class="n">edgematrix</span><span class="p">):</span>
-</span><span class="line">    <span class="n">connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">edgematrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-</span><span class="line">    <span class="n">minE</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;+inf&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">minE</span><span class="p">:</span>
-</span><span class="line">            <span class="n">minE</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">varList</span><span class="p">[</span><span class="n">connections</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minE</span><span class="p">)]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/12/">&larr; Older</a>
@@ -652,6 +557,10 @@
       </li>
     
       <li class="post">
+        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
@@ -661,10 +570,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
       </li>
     
   </ul>

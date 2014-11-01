@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="In variant II we change the way we compute Q and R. The Q Continuum Q, the transition probability, now depends on the probabilities of the factors on &hellip;">
+  <meta name="description" content="In order to hone in my coding skills and get up to par with professional best practices I am joining the Rails Dev Accelerator Course imparted by &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,51 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/15/Back-to-School/">Back to School</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-15T08:01:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
+
+<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
+
+<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
+
+<p><a href="http://www.codefellows.com"><img class="center" src="/images/logos/codefellows.png" width="200" title="Code Fellows logo" /></a></p>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -582,160 +627,6 @@ Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/13/MCMC-MH-Uniform/">MCMC MH Uniform</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-13T08:01:00-08:00" pubdate data-updated="true">Feb 13<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>The code for a Q based on the Uniform distribution has three steps:</p>
-
-<ul>
-  <li>come up with a new complete assignment out of the blue (literally)</li>
-  <li>compute the acceptance probability. When we compute π(x’)Q(x’ → x), π is the joint probability reduced by the complete assignment (unormalized), meaning the total probability of having that assignment. The question is, how do I compute Q(x’ → x)? Since it is the uniform distribution, Q(x’ → x) == Q(x → x’) == constant, so it cancels out and I only need to compute the ratio of π(x’) / π(x).</li>
-  <li>decide with the new acceptance if, like The Clash asks, should we stay or should we go.</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Q from Uniform dist</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Uniform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="c"># get a random complete assignment from uniform distribution</span>
-</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">]</span>
-</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">floor</span><span class="p">([</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span><span class="o">*</span><span class="n">cardio</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cardio</span><span class="p">))])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
-</span><span class="line">    <span class="n">to_ass</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">e</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">))</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># compute the probabilities of transitions</span>
-</span><span class="line">    <span class="n">fwd</span><span class="p">,</span> <span class="n">bwd</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">        <span class="n">fwd</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">to_ass</span><span class="p">))</span>
-</span><span class="line">        <span class="n">bwd</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">))</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># compute acceptance probability and return the new state</span>
-</span><span class="line">    <span class="n">p_acceptance</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">fwd</span><span class="p">)</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">bwd</span><span class="p">))])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">p_acceptance</span><span class="p">:</span>
-</span><span class="line">        <span class="n">from_ass</span> <span class="o">=</span> <span class="n">to_ass</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">from_ass</span>
-</span><span class="line"><span class="n">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>To speed up the process, I have added a new utility function to Factor Operations, to extract the potential/probability value of a complete assigment from a given factor. It is the same as reducing, but instead of giving back a reduced factor, since we have a complete assignment (all variables have assignments) we return a value (float).</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Get Factor Value of Complete Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">reduce_to_value</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;reduce factor by complete assignment to a single value&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">complete_ass</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">evidence</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">])</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">complete_ass</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="mixing">Mixing</h2>
-
-<p>As before we run the MCMCMHU to collect a total of 70,000 samples. The initial assignment is initialized to all ones. </p>
-
-<p>Now we get subsets every 1,000 samples of size 10,000. That is 59 windows of 10,000 samples collected after different mixing times.</p>
-
-<p>Ploting the difference between the exact marginal and our estimated marginals of the three variables (number 0 as red, 4 as blue, and 8 as green), we have the following charts (from two different runs).</p>
-
-<div>
-	<img class="left" src="/images/feb14/MHU_mix.png" width="425" title="Mixing Windows Run 1" />
-	<img class="right" src="/images/feb14/MHU_mixB.png" width="425" title="Mixing Windows Run 2" />
-</div>
-<p><br /></p>
-
-<p>No clear mixing threshold.</p>
-
-<h2 id="sample-size">Sample size</h2>
-
-<p>Following the previous settings but fixing the mixing time to 1,000, we can plot the difference between exact and estimated marginals as we collect more samples. From the charts (two different runs) we see that it converges beyond 20,000. </p>
-
-<div>
-	<img class="left" src="/images/feb14/MHU_size.png" width="425" title="Sample Size Run 1" />
-	<img class="right" src="/images/feb14/MHU_sizeB.png" width="425" title="Sample Size Run 2" />
-</div>
-<p><br /></p>
-
-<p>Nevertheless, it seems to work worse than Gibbs.</p>
-
-<h2 id="marginals-convergence">Marginals Convergence</h2>
-
-<p>We again run twice the model and see how well the estimated marginals converge across runs. All models are Ising grids with 9 variables, have mixing time of 7,000 and sample size of 10,000. </p>
-
-<div>
-	<img class="left" src="/images/feb14/MHU_compare_runs_0703.png" width="425" />
-	<img class="right" src="/images/feb14/MHU_compare_runs_102.png" width="425" />
-	<img class="center" src="/images/feb14/MHU_compare_runs_095005.png" width="425" />
-</div>
-
-<p>Again, worse results.</p>
-
-<h2 id="comparison-to-gibbs">Comparison to Gibbs</h2>
-
-<p>Lile we did for Gibbs, we run 10 times this MCMCMHU model. Now with mixing time of 5,000 and sample size of 30,000. Starting assignment, 5 runs with 0s, and 5 runs with 1s. We compute the error as before and see what results we get as compared to the exact marginals for all variables.</p>
-
-<p>The error, as defined in previous posts, from our 10 runs is 0.12 on the average (vs. 0.065 from Gibbs), with a range of [0.03, 0.24] (vs. [0.005, 0.17]) and a standard deviation of 0.07 (vs. 0.05). Definetively worse performance.</p>
-
-<p>Finally, this is for a 9 node Ising net. For a 4 sided net with 16 nodes, with strong correlation this MHU method performs very poorly because we get stuck in specific assignments for very long times. Because the probability of a new assignment (randomly chosen) tends to be so small as compared to the probability we start with that the ratio is miniscule, and A() always rejects. The more correlated (i.e. higher on diagonal values vs off diagonal) the more steps we need to take, and even that doesn’t guarantee good results. Consider that for 100,000 steps, only around 50 are accepted, which means we need to run it much longer to achieve good results. </p>
-
-<p>For the easiest 16 nodes with pairwise potentials [0.5, 0.5], 0 mixing and 30,000 steps, MHU and Gibs give similar good results. MHU gives us an average error and standard dev of [0.02, 0.004], while Gibbs achieves [0.01, 0.001].</p>
-
-<div>
-    <img class="left" src="/images/feb14/Gibbs_hist.png" width="425" title="Gibbs Error 100 Runs" />
-    <img class="right" src="/images/feb14/MHU_hist.png" width="425" title="MHU Error 100 Runs" />
-</div>
-<p><br /></p>
-
-<p>Finally we compare the histogram of errors for these two methods when applied to the [1.0, 0.2] in the 16 node Ising model. Each histogram is based on 100 runs. Both have a mixing time of 10,000 and a sampling size of 70,000. Gibbs’s histogram shown in red, MHU in blue.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/5/">&larr; Older</a>
@@ -757,6 +648,10 @@ Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
       </li>
     
       <li class="post">
+        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
@@ -766,10 +661,6 @@ Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
     
       <li class="post">
         <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
       </li>
     
   </ul>

@@ -1,0 +1,663 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Wiring Devise into Angular + Rails - SotoSeattle</title>
+  <meta name="author" content="Javier Soto">
+
+  
+  <meta name="description" content="Walk-through to use Devise with Angular in Rails 4.2. This is more of a jump-through than a walk-through since I am going to be more jumping around &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["$$","$$"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+  
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner">
+	<div class="header-title"><a href="/">SotoSeattle</a></div>
+
+
+	<br><div class="header-subtitle">Developer of software, ideas, startups</div>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+<!--   <li><a href="" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li> -->
+  
+  <li class='icon'>
+    <a href="https://github.com/sotoseattle/">
+      <img src="/images/logos/github_icon.png" width="36" height="27">
+      </img>
+    </a>
+  </li>
+  <li class='icon'>
+    <a href="https://www.linkedin.com/in/sotoseattle/">
+      <img src="/images/logos/linkedin-256.png"  width="27" height="27">
+      </img>
+    </a>
+  </li>
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:sotoseattle.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+<!--   <li><a href="projects/">Projects</a></li> -->
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/images/Javier_Soto_resume.pdf">Resume</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+  
+    
+      <h1 class="entry-title">Wiring Devise Into Angular + Rails</h1>
+    
+  
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
+
+<p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>
+
+<p>Include in your Gemfile devise and bundle. We request at least version 4.3.1 because of some troubles with previous versions and Rails 4.2.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 3.4.1&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Run the generator and follow the config steps suggested by the gem.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise:install
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Make devise respond to json by adding the following to your application.rb:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">config</span><span class="o">.</span><span class="n">to_prepare</span> <span class="k">do</span>
+</span><span class="line">  <span class="no">DeviseController</span><span class="o">.</span><span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<!-- more -->
+
+<p>Generate the User model with devise:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise user
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Don’t forget to floss, I mean <code>rake migrate</code>. Now, download the following modules from the angular site: [angular-cookies.js, angular-route.js] and place them where you have your angular file (in my case in app/assets/javascripts/). Make sure to add them to the application.js manifest after loading angular:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+</pre></td><td class="code"><pre><code class="js"><span class="line"><span class="c1">//= require jquery</span>
+</span><span class="line"><span class="c1">//= require jquery_ujs</span>
+</span><span class="line"><span class="c1">//= require angular.min</span>
+</span><span class="line"><span class="c1">//= require angular-cookies.min</span>
+</span><span class="line"><span class="c1">//= require angular-route.min</span>
+</span><span class="line"><span class="p">...</span>
+</span><span class="line"><span class="c1">//= require_tree .</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Now, in my case I use the application layout to call the angular app.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="erb"><span class="line"><span class="x">&lt;!-- application.html.erb --&gt;</span>
+</span><span class="line"><span class="x">&lt;!DOCTYPE html&gt;</span>
+</span><span class="line"><span class="x">&lt;html data-ng-app=&quot;WhateverApp&quot;&gt;</span>
+</span><span class="line"><span class="x">  &lt;head&gt;...&lt;/head&gt;</span>
+</span><span class="line"><span class="x">  &lt;body&gt;</span>
+</span><span class="line"><span class="x">    </span><span class="cp">&lt;%=</span> <span class="k">yield</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span><span class="line"><span class="x">  &lt;/body&gt;</span>
+</span><span class="line"><span class="x">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Again, in my particular case all I have is a single Rails controller with a single action (index), and a single index view. In that index.html.erb we reference to angular routes:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="erb"><span class="line"><span class="x">&lt;div data-ng-view&gt;&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In app/assets/javascript/angular_app/ we create a new file <code>routes.js</code> with the routes we want. In my case I have appended the .erb type so Rails pre-processes the erb tags:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;GemStore&#39;</span><span class="p">);</span>
+</span><span class="line">  <span class="nx">app</span><span class="p">.</span><span class="nx">config</span><span class="p">([</span><span class="s1">&#39;$routeProvider&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$routeProvider</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">$routeProvider</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/store_front&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;Resource1Controller&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/resource_1/views/store_forefront.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/admin&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;UsersCtrl&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/users/views/user_entrance.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">when</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class="line">        <span class="nx">controller</span><span class="o">:</span> <span class="s1">&#39;Resource2Ctrl&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">templateUrl</span><span class="o">:</span> <span class="s1">&#39;&lt;%= asset_path(&quot;angular_app/resource_2/views/dashboard.html&quot;) %&gt;&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">otherwise</span><span class="p">({</span>
+</span><span class="line">        <span class="nx">redirectTo</span><span class="o">:</span> <span class="s1">&#39;/store_front&#39;</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span><span class="line"><span class="p">})();</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The route /admin will take us to the User that Devise created and whose view is:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">controller</span><span class="o">=</span><span class="s2">&quot;UsersCtrl&quot;</span><span class="o">&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;!isLoggedIn()&quot;</span><span class="o">&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;setForm(&#39;signUp&#39;)&quot;</span><span class="o">&gt;</span> <span class="nx">Create</span> <span class="nx">User</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;setForm(&#39;signIn&#39;)&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">In</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;isLoggedIn()&quot;</span><span class="o">&gt;</span>
+</span><span class="line">      <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signOut()&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">Out</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/div&gt;&lt;br&gt;&lt;br&gt;</span>
+</span><span class="line">
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">form</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;newUserForm&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;form == &#39;signUp&#39;&quot;</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Email</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.email&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Password</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.password&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span> <span class="o">&gt;</span><span class="nx">Password</span> <span class="nx">confirmation</span><span class="o">&lt;</span><span class="err">/label&gt;:</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;newUser.password_confirmation&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">disabled</span><span class="o">=</span><span class="s2">&quot;newUserForm.$invalid&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signUp(newUser)&quot;</span><span class="o">&gt;</span> <span class="nx">Create</span> <span class="nx">User</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span><span class="line">
+</span><span class="line">  <span class="o">&lt;</span><span class="nx">form</span> <span class="nx">name</span><span class="o">=</span><span class="s2">&quot;loginForm&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">show</span><span class="o">=</span><span class="s2">&quot;form == &#39;signIn&#39;&quot;</span><span class="o">&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span><span class="o">&gt;</span><span class="nx">Email</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;text&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;user.email&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">label</span><span class="o">&gt;</span><span class="nx">Password</span><span class="o">&lt;</span><span class="err">/label&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">input</span> <span class="nx">type</span><span class="o">=</span><span class="s2">&quot;password&quot;</span> <span class="nx">required</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">model</span><span class="o">=</span><span class="s2">&quot;user.password&quot;</span><span class="o">&gt;&lt;</span><span class="err">/br&gt;</span>
+</span><span class="line">    <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">disabled</span><span class="o">=</span><span class="s2">&quot;loginForm.$invalid&quot;</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;signIn(user)&quot;</span><span class="o">&gt;</span><span class="nx">Sign</span> <span class="nx">In</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class="line">  <span class="o">&lt;</span><span class="err">/form&gt;</span>
+</span><span class="line"><span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class="line">
+</span><span class="line"><span class="o">&lt;</span><span class="nx">button</span> <span class="nx">data</span><span class="o">-</span><span class="nx">ng</span><span class="o">-</span><span class="nx">click</span><span class="o">=</span><span class="s2">&quot;StorePath()&quot;</span><span class="o">&gt;</span><span class="nx">Store</span> <span class="nx">Front</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The different panels and buttons show and hide depending on if we are logged in or not. I included those functions in my top app.js and under the rootScope so they can be called from anywhere:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">app</span><span class="p">.</span><span class="nx">run</span><span class="p">([</span><span class="s1">&#39;$rootScope&#39;</span><span class="p">,</span><span class="s1">&#39;$cookieStore&#39;</span><span class="p">,</span> <span class="s1">&#39;$location&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">$rootScope</span><span class="p">,</span> <span class="nx">$cookieStore</span><span class="p">,</span> <span class="nx">$location</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">isLoggedIn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="p">(</span><span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">)</span> <span class="o">?</span> <span class="kc">true</span> <span class="o">:</span> <span class="kc">false</span><span class="p">);</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$rootScope</span><span class="p">.</span><span class="nx">logged_user</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">).</span><span class="nx">email</span><span class="p">;</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Finally, the UserCtrl.js includes the way to connect to Rails, query the User model and set the cookies:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">angular</span><span class="p">.</span><span class="nx">module</span><span class="p">(</span><span class="s1">&#39;GemStore&#39;</span><span class="p">);</span>
+</span><span class="line">
+</span><span class="line">  <span class="nx">app</span><span class="p">.</span><span class="nx">controller</span><span class="p">(</span><span class="s1">&#39;UsersCtrl&#39;</span><span class="p">,</span> <span class="p">[</span>
+</span><span class="line">    <span class="s1">&#39;$scope&#39;</span><span class="p">,</span><span class="s1">&#39;$http&#39;</span><span class="p">,</span><span class="s1">&#39;$cookieStore&#39;</span><span class="p">,</span><span class="s1">&#39;$location&#39;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">$scope</span><span class="p">,</span> <span class="nx">$http</span><span class="p">,</span> <span class="nx">$cookieStore</span><span class="p">,</span><span class="nx">$location</span><span class="p">){</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">new_user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signUp</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">new_user</span><span class="p">){</span>
+</span><span class="line">      <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">new_user</span> <span class="p">};</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/users&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">new_user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">        <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">status</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signIn</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">new_user</span><span class="p">){</span>
+</span><span class="line">      <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">new_user</span> <span class="p">};</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/users/sign_in&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">user</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line">        <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/dashboard&#39;</span><span class="p">);</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">      <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span><span class="nx">status</span><span class="p">){</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+</span><span class="line">        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">      <span class="p">});</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">signOut</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">$http</span><span class="p">({</span>
+</span><span class="line">        <span class="nx">method</span><span class="o">:</span> <span class="s1">&#39;DELETE&#39;</span><span class="p">,</span>
+</span><span class="line">        <span class="nx">url</span><span class="o">:</span> <span class="s1">&#39;users/sign_out&#39;</span>
+</span><span class="line">      <span class="p">})</span>
+</span><span class="line">        <span class="p">.</span><span class="nx">success</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class="line">          <span class="nx">$cookieStore</span><span class="p">.</span><span class="nx">remove</span><span class="p">(</span><span class="s1">&#39;logged_user&#39;</span><span class="p">);</span>
+</span><span class="line">          <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">          <span class="nx">$location</span><span class="p">.</span><span class="nx">path</span><span class="p">(</span><span class="s1">&#39;/store_front&#39;</span><span class="p">);</span>
+</span><span class="line">        <span class="p">})</span>
+</span><span class="line">        <span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">status</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">status</span><span class="p">);</span>
+</span><span class="line">        <span class="p">})</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">
+</span><span class="line">    <span class="nx">$scope</span><span class="p">.</span><span class="nx">setForm</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">$scope</span><span class="p">.</span><span class="nx">form</span> <span class="o">=</span> <span class="nx">form</span><span class="p">;</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}]);</span>
+</span><span class="line"><span class="p">})()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Finally, make sure you are nullifying the sessions as you protect from CSRF attacks.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="ss">ActionController</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class="line">  <span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
+</span><span class="line">
+</span><span class="line">  <span class="c1"># Prevent CSRF attacks by raising an exception.</span>
+</span><span class="line">  <span class="c1"># For APIs, you may want to use :null_session instead.</span>
+</span><span class="line">  <span class="c1"># protect_from_forgery with: :exception</span>
+</span><span class="line">  <span class="n">protect_from_forgery</span> <span class="ss">with</span><span class="p">:</span> <span class="ss">:null_session</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Special thanks to Derek Maffett, whose help was invaluable to navigate the angular example.</p>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-29T16:17:00-07:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angular/'>Angular,</a>, <a class='category' href='/blog/categories/devise/'>Devise</a>, <a class='category' href='/blog/categories/rails/'>Rails,</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/10/27/Wire-Angular-Rails/" title="Previous Post: Wiring Angular into Rails">&laquo; Wiring Angular into Rails</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/10/29/Rails-API-Versioning/" title="Next Post: Rails Api Versioning">Rails Api Versioning &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Rails-API-Versioning/">Rails Api Versioning</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 -  Javier Soto <br/>
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
+	  
+  </span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'sotoseattle';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/10/29/Devise-Angular-Rails/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX", "output/HTML-CSS"],
+  tex2jax: {
+    inlineMath: [ ['$', '$'] ],
+    displayMath: [ ['$$', '$$']],
+    processEscapes: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+  },
+  messageStyle: "none",
+  "HTML-CSS": { preferredFont: "TeX", availableFonts: ["STIX","TeX"] }
+});
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>

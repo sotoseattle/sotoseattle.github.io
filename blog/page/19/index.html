@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="There is no known closed-form way to solve for the minimum of $J(θ)$, and thus as usual we’ll resort to an iterative optimization algorithm such as &hellip;">
+  <meta name="description" content="To train the model and find the parameters we need some sort of gradient descent algorithm. In python fmin_bfgs takes way too long and hogs memory, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,79 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/04/Softmax-IV/">Softmax Theory: $θ$</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-04T09:02:00-07:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>To train the model and find the parameters we need some sort of gradient descent algorithm. In python <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">fmin_bfgs</a> takes way too long and hogs memory, while it’s sister <a href="http://en.wikipedia.org/wiki/Limited-memory_BFGS">fmin_l_bfgs_b</a> is much faster and lighter.</p>
+
+<p>To call it we need to consider the following issues:</p>
+
+<ul>
+  <li>we need to pass the cost and gradient function separately (unlike in Octave).</li>
+  <li>the first argument of the function and of its derivation has to be the parameter to be optimized.</li>
+  <li>tinit is an initial set of parameters from which to start the search, a good compromise is <code>0.005 * np.random.rand(labels, n)</code>.</li>
+  <li>for the l_bfgs to work the gradient format must be rolled out (not in matrix form).</li>
+  <li>the optimizing algorithm provides additional useful information [f, d] about the search performed.</li>
+  <li>other options, like the maximum number of iterations to perform or the convergence tolerance can be researched online.</li>
+</ul>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>optimizing thetas</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+</span><span class="line"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -381,248 +454,9 @@ y &=
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/01/Softmax-I/">Softmax Theory: $h_θ(x)$</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-01T09:02:00-07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>These notes are based on the material publicly available at <a href="http://ufldl.stanford.edu/wiki/index.php/Softmax_Regression">UFLDL</a> site from Stanford University (check it out, is a great resource) and Wikipedia.</p>
-
-<h2 id="intro">intro</h2>
-
-<p>Softmax regression is a.k.a multinomial logistic regression or multinomial logit. In fields like NLP, when a classifier is implemented using softmax regression, it is commonly known as a maximum entropy classifier, conditional maximum entropy model or MaxEnt model for short.</p>
-
-<p>It is used when the dependent variable in question is nominal (equivalently categorical, meaning that it falls into any one of a set of categories which cannot be ordered in any meaningful way) and for which there are more than two categories. Some examples would be:</p>
-
-<p>We are interested in multi-class classification (as opposed to only binary classification), and so the label y can take on k different values, rather than only two (for logistic regression). Being a classification problem, all label classes are equivalently categorical, meaning that the set of categories cannot be ordered in any meaningful way and we just decide which to assign. Examples:</p>
-
-<ul>
-  <li>Which major will a college student choose, given their grades, stated likes and dislikes, etc.?</li>
-  <li>Which blood type does a person have, given the results of various diagnostic tests?</li>
-  <li>In a hands-free mobile phone dialing application, which person’s name was spoken, given various properties of the speech signal?</li>
-  <li>Which candidate will a person vote for, given particular demographic characteristics?</li>
-  <li>Which country will a firm locate an office in, given the characteristics of the firm and of the various candidate countries?</li>
-</ul>
-
-<h2 id="hypothesis-function">hypothesis function</h2>
-
-<p>We will have a set of features (independent variables) that will predict the dependent variable ($y$), the assigned class. Softmax regression is a particular solution to the classification problem that <b>assumes that a linear combination of the observed features</b> and some problem-specific parameters can be used to determine the probability of each particular outcome of the dependent variable. </p>
-
-<p>As with other types of regression, there is no need for the independent variables to be statistically independent from each other (unlike, for example, in a naive Bayes classifier); however, collinearity is assumed to be relatively low, as it becomes difficult to differentiate between the impact of several variables if they are highly correlated.</p>
-
-<p>In our training set $(x^{(1)}, y^{(1)}), \ldots, (x^{(m)}, y^{(m)})$, we now have that $y^{(i)} \in \{1, 2, \ldots, k\}$ instead of taking the values $ \{0, 1\} $.</p>
-
-<p>[Note] Since we’ll be working in Python our convention in the code will be to index the classes starting from 0, rather than from 1 (in these notes and coding in Octave).</p>
-
-<p>Given a test input x, we want our hypothesis to estimate the probability that p(y = j|x) for each value of $j = \{1, \ldots, k\}$. In other words, give the input x, we want to estimate the probability that its label is each of the k different possible values. Thus, our hypothesis will output a k dimensional vector (whose elements sum to 1) giving us our k estimated probabilities. Concretely, our hypothesis $h_θ(x)$ takes the form:</p>
-
-<script type="math/tex; mode=display">
-\begin{align}
-h_\theta(x^{(i)}) =
-\begin{bmatrix}
-p(y^{(i)} = 1 | x^{(i)}; \theta) \\
-p(y^{(i)} = 2 | x^{(i)}; \theta) \\
-\vdots \\
-p(y^{(i)} = k | x^{(i)}; \theta)
-\end{bmatrix}
-=
-\frac{1}{ \sum_{j=1}^{k}{e^{ \theta_j^T x^{(i)} }} }
-\begin{bmatrix}
-e^{ \theta_1^T x^{(i)} } \\
-e^{ \theta_2^T x^{(i)} } \\
-\vdots \\
-e^{ \theta_k^T x^{(i)} } \\
-\end{bmatrix}
-\end{align}
-</script>
-
-<p>The term </p>
-
-<script type="math/tex; mode=display">\frac{1}{ \sum_{j=1}^{k}{e^{ \theta_j^T x^{(i)} }} }</script>
-
-<p>normalizes the distribution, so that it sums to one. $θ$ is the set of parameters of our model, a (k, n) matrix obtained by stacking up $\{ \theta<em>1, \theta</em>2, \ldots, \theta_k \}$ in rows, so that</p>
-
-<script type="math/tex; mode=display">
-\theta = \begin{bmatrix}
-\mbox{---} \theta_1^T \mbox{---} \\
-\mbox{---} \theta_2^T \mbox{---} \\
-\vdots \\
-\mbox{---} \theta_k^T \mbox{---} \\
-\end{bmatrix}
-</script>
-
-<p>Assuming input data x as a matrix (m, n) the code would be:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>hypothesys function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">thetas</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>                        <span class="c"># basic product to compute h</span>
-</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>                 <span class="c"># to avoid overflow subtract max</span>
-</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">H</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>                            <span class="c"># exponentiate</span>
-</span><span class="line">    <span class="n">suma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>   <span class="c"># compute normalization constant</span>
-</span><span class="line">    <span class="n">H</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">suma</span><span class="p">)</span>                     <span class="c"># and normalize</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">H</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="overflow-trick">overflow trick</h2>
-
-<p>When the products $\theta_i^T x^{(i)}$ are large, the exponential function $e^{\theta_i^T x^{(i)}}$ will become very large and possibly overflow. To avoid this there is an easy solution - observe that we can multiply the top and bottom of the hypothesis by some constant without changing the output:</p>
-
-<script type="math/tex; mode=display">% <![CDATA[
-
-\begin{align} 
-h(x^{(i)}) &=
- 
-\frac{1}{ \sum_{j=1}^{k}{e^{ \theta_j^T x^{(i)} }} }
-\begin{bmatrix} 
-e^{ \theta_1^T x^{(i)} } \\
-e^{ \theta_2^T x^{(i)} } \\
-\vdots \\
-e^{ \theta_k^T x^{(i)} } \\
-\end{bmatrix} \\
-&=
-
-\frac{ e^{-\alpha} }{ e^{-\alpha} \sum_{j=1}^{k}{e^{ \theta_j^T x^{(i)} }} }
-\begin{bmatrix} 
-e^{ \theta_1^T x^{(i)} } \\
-e^{ \theta_2^T x^{(i)} } \\
-\vdots \\
-e^{ \theta_k^T x^{(i)} } \\
-\end{bmatrix} \\
-
-&=
-
-\frac{ 1 }{ \sum_{j=1}^{k}{e^{ \theta_j^T x^{(i)} - \alpha }} }
-\begin{bmatrix} 
-e^{ \theta_1^T x^{(i)} - \alpha } \\
-e^{ \theta_2^T x^{(i)} - \alpha } \\
-\vdots \\
-e^{ \theta_k^T x^{(i)} - \alpha } \\
-\end{bmatrix} \\
-
-\end{align}
- %]]></script>
-
-<p>So, to prevent overflow simply subtract some large constant value from each of the $\theta_j^T x^{(i)}$ terms before computing the exponential. In practice, for each example, you can use the maximum of the $\theta_j^T x^{(i)}$ terms as the constant.</p>
-
-<h2 id="when-to-use">when to use</h2>
-
-<p>When classes are mutually exclusive a softmax regression classifier is appropriate. Otherwise it may be more appropriate to build separate logistic regression classifiers.</p>
-
-<p>For a digit OCR recognition softmax is ok because the labels are mutually exclusive and we’ll just choose one among them. One label will have a high probability and the rest almost null.</p>
-
-<p>For a letter OCR recognition that not only relies on the simple probability of the label but, for example, in adjacent letters, it may not be appropiate because we’ll need the different probabilities so we can weight them in different ways with other parts of the model. For example with logistic regression: a character may be an “i” (p=0.3) or an “l” (p=0.5), but it is followed by “ng”.</p>
-
-<h2 id="overparametrization">overparametrization</h2>
-
-<p>Softmax regression has an unusual property that it has a “redundant” set of parameters. To explain what this means, suppose we take each of our parameter vectors $θj$, and subtract some fixed vector $ψ$ from it, so that every $θj$ is now replaced with $θj − ψ (\forall j=1, \ldots, k)$. Our hypothesis now estimates the class label probabilities as</p>
-
-<script type="math/tex; mode=display">% <![CDATA[
-
-\begin{align}
-p(y^{(i)} = j | x^{(i)} ; \theta)
-&= \frac{e^{(\theta_j-\psi)^T x^{(i)}}}{\sum_{l=1}^k e^{ (\theta_l-\psi)^T x^{(i)}}}  \\
-&= \frac{e^{\theta_j^T x^{(i)}} e^{-\psi^Tx^{(i)}}}{\sum_{l=1}^k e^{\theta_l^T x^{(i)}} e^{-\psi^Tx^{(i)}}} \\
-&= \frac{e^{\theta_j^T x^{(i)}}}{\sum_{l=1}^k e^{ \theta_l^T x^{(i)}}}.
-\end{align}
- %]]></script>
-
-<p>In other words, it does not affect our hypothesis’ predictions at all! This shows that softmax regression’s parameters are “redundant.” More formally, we say that our softmax model is over parameterized, meaning that for any hypothesis we might fit to the data, <strong>there are multiple parameter settings that give rise to exactly the same hypothesis function</strong> $hθ$ mapping from inputs x to the predictions.</p>
-
-<h2 id="softmax-is-a-generalization-of-logistic-regression">softmax is a generalization of logistic regression</h2>
-
-<p>In the special case where k = 2, the softmax regression hypothesis outputs:</p>
-
-<script type="math/tex; mode=display">% <![CDATA[
-
-\begin{align}
-h_\theta(x) &=
-
-\frac{1}{ e^{\theta_1^Tx}  + e^{ \theta_2^T x^{(i)} } }
-\begin{bmatrix}
-e^{ \theta_1^T x } \\
-e^{ \theta_2^T x }
-\end{bmatrix}
-\end{align}
- %]]></script>
-
-<p>Taking advantage of the fact that this hypothesis is over parameterized and setting $ψ$ = $θ$1, we can subtract $θ$1 from each of the two parameters, giving us</p>
-
-<script type="math/tex; mode=display">% <![CDATA[
-
-\begin{align}
-h(x) &=
-
-\frac{1}{ e^{\vec{0}^Tx}  + e^{ (\theta_2-\theta_1)^T x^{(i)} } }
-\begin{bmatrix}
-e^{ \vec{0}^T x } \\
-e^{ (\theta_2-\theta_1)^T x }
-\end{bmatrix} \\
-
-
-&=
-\begin{bmatrix}
-\frac{1}{ 1 + e^{ (\theta_2-\theta_1)^T x^{(i)} } } \\
-\frac{e^{ (\theta_2-\theta_1)^T x }}{ 1 + e^{ (\theta_2-\theta_1)^T x^{(i)} } }
-\end{bmatrix} \\
-
-&=
-\begin{bmatrix}
-\frac{1}{ 1  + e^{ (\theta_2-\theta_1)^T x^{(i)} } } \\
-1 - \frac{1}{ 1  + e^{ (\theta_2-\theta_1)^T x^{(i)} } } \\
-\end{bmatrix}
-\end{align}
- %]]></script>
-
-<p>Thus, replacing $θ$2 − $θ$1 with a single parameter vector $$’, we find that softmax regression predicts the probability of each class like with logistic regression. </p>
-
-<script type="math/tex; mode=display">
-\frac{1}{ 1  + e^{ (\theta')^T x^{(i)} } }
-\\
-1 - \frac{1}{ 1 + e^{ (\theta')^T x^{(i)} } }
-</script>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/20/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -641,6 +475,10 @@ e^{ (\theta_2-\theta_1)^T x }
       </li>
     
       <li class="post">
+        <a href="/blog/2014/10/29/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
@@ -650,10 +488,6 @@ e^{ (\theta_2-\theta_1)^T x }
     
       <li class="post">
         <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a>
       </li>
     
   </ul>
