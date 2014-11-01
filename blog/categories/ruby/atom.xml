@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-10-31T14:08:24-07:00</updated>
+  <updated>2014-11-01T08:51:56-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -20,7 +20,7 @@
     <id>http://sotoseattle.github.io/blog/2014/10/24/Binary-Tree-Meta</id>
     <content type="html"><![CDATA[<p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
 
-<p>For this exercise we are going to start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
+<p>We start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
 
 <p>```ruby
 class BinaryTree
@@ -33,7 +33,7 @@ class BinaryTree
 end
 ```</p>
 
-<p>For our example we are going to create an ad-hoc tree that we wire in the following manner.</p>
+<p>We create an ad-hoc tree that we wire in the following manner.</p>
 
 <p><img class="center" src="/images/Oct14/binary_tree.png" width="300"></p>
 
@@ -217,8 +217,9 @@ point_b = GeoLocation.new(1, 2)</p>
 <p>point_a == point_b           # =&gt; true
 point_a.hash == point_b.hash # =&gt; true
 ```
-<!--more-->
-## Include instance of a Module?</p>
+<!--more--></p>
+
+<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
 
 <p><code>ruby
 # example
@@ -302,7 +303,7 @@ puts “a.who_am_i? = #{a.who_am_i?}”
 =&gt; a.who_am_i? = God!
 ```</p>
 
-<p>Convoluted, pirouetticall, and yet it works.</p>
+<p>Convoluted, pirouettical, and yet it works.</p>
 
 <h2 id="define-method">Define Method</h2>
 
