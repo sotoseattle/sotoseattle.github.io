@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Primo | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/primo/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-01T19:53:23-07:00</updated>
+  <updated>2014-11-01T20:07:20-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[PRIMO: Factors]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion/"/>
+    <link href="http://sotoseattle.github.io/blog/2014/07/17/Primo-Factors/"/>
     <updated>2014-07-17T08:01:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion</id>
+    <id>http://sotoseattle.github.io/blog/2014/07/17/Primo-Factors</id>
     <content type="html"><![CDATA[<h2 id="factor">Factor</h2>
 
 <p>The best way to visualize a Factor is in terms of an n-dimensional matrix. Each dimension (or axis) corresponds to a random variable. These variables are held in the <code>@vars</code> instance variable.</p>
@@ -26,7 +26,7 @@
 
 <p>For example, given two random variables that represent the toss of a coin, both being binary (head or tails) would give us the following factor:</p>
 
-<table>
+<table class="widetable">
   <thead>
     <tr>
       <th> </th>
@@ -48,9 +48,11 @@
   </tbody>
 </table>
 
+<p><br /></p>
+
 <p>In tabular form we have:</p>
 
-<table>
+<table class="widetable">
   <thead>
     <tr>
       <th>outcome</th>
@@ -77,6 +79,8 @@
   </tbody>
 </table>
 
+<p><br /></p>
+
 <p>So apart from the variables it holds, the Factor also keeps track of the values of all possible outcomes, the <code>@vals</code>. These will be the probabilities of the outcomes in most cases.</p>
 
 <p>Now, the vars are kept in an array, and the vals are stored in an N-array, a multidimensional array, where each dimension correspond to a random variable.</p>
@@ -91,7 +95,7 @@
   <li>modify the first element ( a * b =&gt; a is changed)</li>
   <li>allow multiplying/adding by number (elementwise) or factor</li>
   <li>override the common operators (* == multiply factors, + == add factors)</li>
-  <li>returns itself so we can chain operations (f1 * f2 * f3 % v1)</li>
+  <li>returns itself so we can chain operations (f1 * f2 * f3)</li>
 </ul>
 
 <p>The key methods. Given two factors I modify each one by:</p>

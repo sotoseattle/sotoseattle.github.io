@@ -163,7 +163,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/07/17/Primo-Ruby-Conversion/">PRIMO: Factors</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/07/17/Primo-Factors/">PRIMO: Factors</a></h1>
       
       
     
@@ -195,7 +195,7 @@
 
 <p>For example, given two random variables that represent the toss of a coin, both being binary (head or tails) would give us the following factor:</p>
 
-<table>
+<table class="widetable">
   <thead>
     <tr>
       <th> </th>
@@ -217,9 +217,11 @@
   </tbody>
 </table>
 
+<p><br /></p>
+
 <p>In tabular form we have:</p>
 
-<table>
+<table class="widetable">
   <thead>
     <tr>
       <th>outcome</th>
@@ -246,6 +248,8 @@
   </tbody>
 </table>
 
+<p><br /></p>
+
 <p>So apart from the variables it holds, the Factor also keeps track of the values of all possible outcomes, the <code>@vals</code>. These will be the probabilities of the outcomes in most cases.</p>
 
 <p>Now, the vars are kept in an array, and the vals are stored in an N-array, a multidimensional array, where each dimension correspond to a random variable.</p>
@@ -260,7 +264,7 @@
   <li>modify the first element ( a * b =&gt; a is changed)</li>
   <li>allow multiplying/adding by number (elementwise) or factor</li>
   <li>override the common operators (* == multiply factors, + == add factors)</li>
-  <li>returns itself so we can chain operations (f1 * f2 * f3 % v1)</li>
+  <li>returns itself so we can chain operations (f1 * f2 * f3)</li>
 </ul>
 
 <p>The key methods. Given two factors I modify each one by:</p>
