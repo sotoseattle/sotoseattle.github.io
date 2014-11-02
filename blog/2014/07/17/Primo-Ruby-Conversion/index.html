@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>SotoSeattle</title>
+  <title>PRIMO: Factors - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="In order to hone in my coding skills and get up to par with professional best practices I am joining the Rails Dev Accelerator Course imparted by &hellip;">
+  <meta name="description" content="Factor The best way to visualize a Factor is in terms of an n-dimensional matrix. Each dimension (or axis) corresponds to a random variable. These &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.io/blog/page/4">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -109,63 +109,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/09/15/Back-to-School/">Back to School</a></h1>
-      
-      
+      <h1 class="entry-title">PRIMO: Factors</h1>
     
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
   
-
-
-<time datetime="2014-09-15T08:01:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
-
-<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
-
-<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
-
-<p><a href="http://www.codefellows.com"><img class="center" src="/images/logos/codefellows.png" width="200" title="Code Fellows logo" /></a></p>
-
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/17/Primo-Ruby-Conversion/">PRIMO: Factors</a></h1>
-      
-      
     
       <p class="meta">
         
@@ -187,7 +139,7 @@
   </header>
 
 
-  <div class="entry-content"><h2 id="factor">Factor</h2>
+<div class="entry-content"><h2 id="factor">Factor</h2>
 
 <p>The best way to visualize a Factor is in terms of an n-dimensional matrix. Each dimension (or axis) corresponds to a random variable. These variables are held in the <code>@vars</code> instance variable.</p>
 
@@ -389,24 +341,16 @@
 
 <p>We modify the NArray values by 1) selecting the observed variable axis and leaving all other axis untouched, and 2) for the selected axis, setting to 0. all cells that are not in the observation column.</p>
 </div>
-  
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
   
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/16/Primo-Random-Var/">PRIMO: Random Variables</a></h1>
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
       
-      
-    
-      <p class="meta">
-        
 
 
 
@@ -418,97 +362,46 @@
   
 
 
-<time datetime="2014-07-16T08:01:00-07:00" pubdate data-updated="true">Jul 16<span>th</span>, 2014</time>
-        
-      </p>
+<time datetime="2014-07-17T08:01:00-07:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/pgn/'>PGN,</a>, <a class='category' href='/blog/categories/primo/'>Primo</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
-
-
-  <div class="entry-content"><h2 id="als-primo">Alás Primo!</h2>
-
-<p>I have decided to code all this in Ruby instead of Python. The reason being that Ruby is more flexible in order to build prototypes that encompass all aspects of the functionality. The apps that I would like to build around ML are like cars. The engine may be a key component and its performance paramount, but there is more to a car than its engine. Our apps will be more than its inference engine, and in all those other aspects Ruby shines. If I was obsessed only with the engine I would have code it all in Julia or C, but I am in this for the fun and the possibilities, and Ruby is a pleasure to play with.</p>
-
-<p>Besides, what I have already coded in Ruby is already faster than my Python code (which shows what a beginner I am in Python). The key to the performance boost has been the use of the <a href="http://masa16.github.io/narray/">NArray gem from Masahiro Tanaka</a>, which allows me to, for example, multiply two multidimensional arrays element wise in a single step, after aligning them with simple rotations of their axes (actually pretty cool).</p>
-
-<p>I have christened this working library as PRIMO (Probabilistic Inference Modeling), and the code is available at https://github.com/sotoseattle/PRIMO</p>
-
-<p>It works along the same lines as the Python version so the following posts will be a bit repetitive since we are rehearsing much of what was done months ago in Python. This is an ongoing effort that I hope to culminate with a working CRF application that estimates its own parameters.</p>
-
-<h2 id="random-variables">Random Variables</h2>
-
-<p>The essential building block of Primo, similar to Nodes in graphs, each holds the following instance variables:</p>
-
-<ul>
-  <li><strong>cardinality</strong>. For example, a binary variable that can only take two values (true-false, 0-1) and therefore it has a cardinality of 2. The roll of a dice would have cardinality of 6, because the the outcome can take 6 different values: 1, 2, 3, 4, 5 or 6.</li>
-  <li><strong>ass</strong> (assignments). An ordered array with all the possible assignments. If no assignments are given it uses integers starting from 0. The previous dice roll would have an ass of [0, 1, 2, 3, 4, 5]; a binary variable would have an ass of [0, 1]. We can also make a binary random variable for the health of a patient with the assignment array [‘healthy’, ‘sick’].</li>
-  <li><strong>name</strong>. Just a name to make it easier to identify the variable.</li>
-</ul>
-
-<p>An important detail is how we define the &lt;=&gt; operator because we will be comparing between random variables based on their internal object ids. This is necessary because later on, when we multiply sets of variables, we will do it according to their order. The order itself doesn’t matter, all we’ll need is that there is a way to order them in a stable, immutable and persistent way.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-</span><span class="line">    <span class="n">args</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="nb">name</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="ss">ass</span><span class="p">:</span> <span class="kp">nil</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="vi">@card</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="ss">:card</span><span class="o">].</span><span class="n">to_i</span>
-</span><span class="line">    <span class="vi">@name</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="ss">:name</span><span class="o">].</span><span class="n">to_s</span>
-</span><span class="line">    <span class="vi">@ass</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="ss">:ass</span><span class="o">]</span> <span class="p">?</span> <span class="nb">Array</span><span class="p">(</span><span class="n">args</span><span class="o">[</span><span class="ss">:ass</span><span class="o">]</span><span class="p">)</span> <span class="p">:</span> <span class="o">[*</span><span class="mi">0</span><span class="o">.</span><span class="n">.</span><span class="o">.</span><span class="vi">@card</span><span class="o">]</span>
-</span><span class="line">
-</span><span class="line">    <span class="nb">fail</span> <span class="no">ArgumentError</span> <span class="k">if</span> <span class="vi">@card</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="vi">@ass</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="vi">@card</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">&lt;=&gt;</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-</span><span class="line">    <span class="nb">object_id</span> <span class="o">&lt;=&gt;</span> <span class="n">other</span><span class="o">.</span><span class="n">object_id</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">[]</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
-</span><span class="line">    <span class="n">ass</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">assignment</span><span class="p">)</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">to_s</span>
-</span><span class="line">    <span class="s2">&quot;</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/16/Primo-Random-Var/" title="Previous Post: PRIMO: Random Variables">&laquo; PRIMO: Random Variables</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2014/09/15/Back-to-School/" title="Next Post: Back to School">Back to School &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
 
-    </article>
-  
-  <div class="pagination">
-    
-      <a class="prev" href="/blog/page/5/">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-    <a class="next" href="/blog/page/3/">Newer &rarr;</a>
-    
-  </div>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 </div>
+  </section>
+
+</div>
+
 <aside class="sidebar">
   
     <section>
@@ -545,6 +438,7 @@
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -561,7 +455,10 @@
       var disqus_shortname = 'sotoseattle';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/07/17/Primo-Ruby-Conversion/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
