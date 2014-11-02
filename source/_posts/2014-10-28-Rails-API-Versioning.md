@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Rails Api Versioning"
-date: 2014-10-29 16:17
+date: 2014-10-28 16:17
 comments: true
 categories: Rails, API
 ---

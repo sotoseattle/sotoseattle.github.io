@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Ruby Metaprogramming II"
+title: "Ruby Meta-Frolicking"
 date: 2014-10-24 8:01
 comments: true
 categories: Ruby, Metaprogramming
@@ -8,7 +8,7 @@ categories: Ruby, Metaprogramming
 
 This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the [Equalizer gem](/blog/2014/10/05/Metaprogramming/).
 
-For this exercise we are going to start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.
+We start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.
 
 ```ruby
 class BinaryTree
@@ -21,7 +21,7 @@ class BinaryTree
 end
 ```
 
-For our example we are going to create an ad-hoc tree that we wire in the following manner.
+We create an ad-hoc tree that we wire in the following manner.
 
 {% img center /images/Oct14/binary_tree.png 300 %}
 
