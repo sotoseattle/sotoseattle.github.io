@@ -1,15 +1,15 @@
 ---
 layout: post
-title: "GRIM Genes with Clique Trees"
+title: "PRIMO Genes with Clique Trees"
 date: 2014-07-20 8:01
 comments: true
-categories: PGN
+categories: PGN, Primo
 published: false
 ---
 
 Now we revisit our revised Cystic Fibrosis Simple Genetic Network from two days ago [post](/blog/2014/07/19/Grim-Genes/) and from our previous python code [post](/blog/2014/01/21/Gene-Clique-1/). Instead of inferring marginals by computing the overall factor product over all the variables (which we saw is too exhaustive and intensive), we will build the associated clique tree and use Belief Propagation.
 
-All the code is included at [[GRIM @ Github](https://github.com/sotoseattle/GRIM)]. Our initial network was:
+All the code is included at [[Primo @ Github](https://github.com/sotoseattle/Primo)]. Our initial network was:
 
 {% img center /images/nov13/cysticBN.png 600 Template for Genetic Bayesian Network%}
 

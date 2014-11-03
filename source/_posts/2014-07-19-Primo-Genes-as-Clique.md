@@ -3,7 +3,7 @@ layout: post
 title: "Ruby Clique Trees"
 date: 2014-07-19 8:01
 comments: true
-categories: PGN
+categories: PGN, Primo
 published: false
 ---
 

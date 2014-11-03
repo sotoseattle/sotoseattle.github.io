@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "GRIM Genes"
+title: "Primo Genes"
 date: 2014-07-18 8:01
 comments: true
-categories: PGN
+categories: PGN, Primo
 published: false
 ---
 
