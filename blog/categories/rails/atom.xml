@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rails, | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/rails/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-03T10:16:35-08:00</updated>
+  <updated>2014-11-03T14:34:14-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -413,6 +413,59 @@ In this newly loaded file we reference again another folder tree, ‘angular_sto
 <p>That’s it. Run it and check it works.</p>
 
 <p>One final note of advice, in my case using CoffeeScript gave me quite a bit of trouble, and although I still have to investigate the exact causes of the it, I recommend to use it with caution.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Rails BDD cheats]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD/"/>
+    <updated>2014-09-17T18:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD</id>
+    <content type="html"><![CDATA[<p>As a reminder, when testing BDD style a Rails app these are helpful to have close by:</p>
+
+<p>```ruby
+# Rakefile
+require File.expand_path(‘../config/application’, <strong>FILE</strong>)</p>
+
+<p>Rails.application.load_tasks</p>
+
+<p>Rails::TestTask.new(‘test:features’ =&gt; ‘test:prepare’) do |t|
+  t.pattern = ‘test/features/<em>*/</em>_test.rb’
+end</p>
+
+<p>Rake::Task[‘test:run’].enhance [‘test:features’]</p>
+
+<p>task default: ‘test’
+```</p>
+
+<p>```ruby
+# test_helper.rb
+# ENV[‘RAILS_ENV’] ||= ‘test’
+Rails.env = ‘test’
+puts “Current environment: #{Rails.env}”</p>
+
+<p>require File.expand_path(‘../../config/environment’, <strong>FILE</strong>)
+require ‘rails/test_help’
+require ‘minitest/rails/capybara’
+require ‘capybara/poltergeist’
+# require ‘pry-rescue/minitest’</p>
+
+<p>class ActiveSupport::TestCase
+  fixtures :all
+  Capybara.javascript_driver = :poltergeist
+end
+```</p>
+
+<p>```ruby
+# test/features/do_some_test.rb
+require ‘test_helper’</p>
+
+<p>feature ‘Do something’ do
+  scenario ‘anybody can do something’ do
+    …
+  end
+end
+```</p>
 ]]></content>
   </entry>
   

@@ -5,11 +5,24 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Ask before pushing - SotoSeattle</title>
+  <title>Rails BDD cheats - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally &hellip;">
+  <meta name="description" content="As a reminder, when testing BDD style a Rails app these are helpful to have close by: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+# Rakefile
+require File.expand_path &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +31,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -115,7 +128,7 @@
   <header>
   
     
-      <h1 class="entry-title">Ask Before Pushing</h1>
+      <h1 class="entry-title">Rails BDD Cheats</h1>
     
   
     
@@ -132,22 +145,40 @@
   
 
 
-<time datetime="2014-09-16T08:01:00-07:00" pubdate data-updated="true">Sep 16<span>th</span>, 2014</time>
+<time datetime="2014-09-17T18:01:00-07:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally in git, besides, as they say, when in doubt reset –hard. But once your code is committed up to a publicly available and centralized repo, you become the butt of jokes in the office, people point at you behind your back and changing history becomes a nightmare.</p>
+<div class="entry-content"><p>As a reminder, when testing BDD style a Rails app these are helpful to have close by:</p>
 
-<p>I have found a little trick that helps with this, git hooks!</p>
-
-<p>Inside your .git folder there is another one, ‘hooks’, and inside, there is a treasure trove of configurable callbacks to personalize your git work flow.</p>
-
-<p>There are many good sources in the Internet to check. Here is a good walk through: <a href="http://blog.ittybittyapps.com/blog/2013/09/03/git-pre-push/">link</a>. And this is the <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks">Chacon bible</a> chapter about it.</p>
-
-<p>I ended including the following file ‘.git/hooks/pre-push’, which forces a confirmation every time I intend to push to master. Many other variants are possible, like making sure that your tests have run before pushing, I recommend exploring them all.</p>
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># Rakefile</span>
+</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../config/application&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">load_tasks</span>
+</span><span class="line">
+</span><span class="line"><span class="ss">Rails</span><span class="p">:</span><span class="ss">:TestTask</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;test:features&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;test:prepare&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class="line">  <span class="n">t</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;test/features/**/*_test.rb&#39;</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="ss">Rake</span><span class="p">:</span><span class="ss">:Task</span><span class="o">[</span><span class="s1">&#39;test:run&#39;</span><span class="o">].</span><span class="n">enhance</span> <span class="o">[</span><span class="s1">&#39;test:features&#39;</span><span class="o">]</span>
+</span><span class="line">
+</span><span class="line"><span class="n">task</span> <span class="ss">default</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -164,25 +195,39 @@
 <span class="line-number">13</span>
 <span class="line-number">14</span>
 <span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c">#!/bin/bash</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test_helper.rb</span>
+</span><span class="line"><span class="c1"># ENV[&#39;RAILS_ENV&#39;] ||= &#39;test&#39;</span>
+</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;Current environment: </span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s2">&quot;</span>
 </span><span class="line">
-</span><span class="line"><span class="nv">protected_branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span>
-</span><span class="line"><span class="nv">current_branch</span><span class="o">=</span><span class="k">$(</span>git symbolic-ref HEAD | sed -e <span class="s1">&#39;s,.*/\(.*\),\1,&#39;</span><span class="k">)</span>
+</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../../config/environment&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;rails/test_help&#39;</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;minitest/rails/capybara&#39;</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;capybara/poltergeist&#39;</span>
+</span><span class="line"><span class="c1"># require &#39;pry-rescue/minitest&#39;</span>
 </span><span class="line">
-</span><span class="line"><span class="k">if</span> <span class="o">[</span> <span class="nv">$protected_branch</span> <span class="o">=</span> <span class="nv">$current_branch</span> <span class="o">]</span>
-</span><span class="line"><span class="k">then</span>
-</span><span class="line"><span class="k">    </span><span class="nb">read</span> -p <span class="s2">&quot;You&#39;re about to push master, is that what you intended? [y|n] &quot;</span> -n 1 -r &lt; /dev/tty
-</span><span class="line">    <span class="nb">echo</span>
-</span><span class="line"><span class="nb">    </span><span class="k">if </span><span class="nb">echo</span> <span class="nv">$REPLY</span> | grep -E <span class="s1">&#39;^[Yy]$&#39;</span> &gt; /dev/null
-</span><span class="line">    <span class="k">then</span>
-</span><span class="line"><span class="k">        </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line">    <span class="k">fi</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>1 <span class="c"># push will not execute</span>
-</span><span class="line"><span class="k">else</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line"><span class="k">fi</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class="line">  <span class="n">fixtures</span> <span class="ss">:all</span>
+</span><span class="line">  <span class="no">Capybara</span><span class="o">.</span><span class="n">javascript_driver</span> <span class="o">=</span> <span class="ss">:poltergeist</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test/features/do_some_test.rb</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">feature</span> <span class="s1">&#39;Do something&#39;</span> <span class="k">do</span>
+</span><span class="line">  <span class="n">scenario</span> <span class="s1">&#39;anybody can do something&#39;</span> <span class="k">do</span>
+</span><span class="line">    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 </div>
 
@@ -206,12 +251,12 @@
   
 
 
-<time datetime="2014-09-16T08:01:00-07:00" pubdate data-updated="true">Sep 16<span>th</span>, 2014</time>
+<time datetime="2014-09-17T18:01:00-07:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/git/'>Git</a>
+    <a class='category' href='/blog/categories/bdd/'>BDD</a>, <a class='category' href='/blog/categories/rails/'>Rails,</a>
   
 </span>
 
@@ -220,7 +265,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD/" >Tweet</a>
   
   
   
@@ -229,10 +274,10 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/09/15/Back-to-School/" title="Previous Post: Back to School">&laquo; Back to School</a>
+        <a class="basic-alignment left" href="/blog/2014/09/16/git-push-confirm/" title="Previous Post: Ask before pushing">&laquo; Ask before pushing</a>
       
       
-        <a class="basic-alignment right" href="/blog/2014/09/17/Rails-BDD/" title="Next Post: Rails BDD cheats">Rails BDD cheats &raquo;</a>
+        <a class="basic-alignment right" href="/blog/2014/10/05/Metaprogramming/" title="Next Post: Ruby Metaprogramming in Action">Ruby Metaprogramming in Action &raquo;</a>
       
     </p>
   </footer>
@@ -300,8 +345,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/';
-        var disqus_url = 'http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/';
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/09/17/Rails-BDD/';
         var disqus_script = 'embed.js';
       
     (function () {
