@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="SVM is much easier to implement than our previous regressions because it is already been coded in the package scikit learn (sklearn). All that is &hellip;">
+  <meta name="description" content="Let’s start pointing to the best tutorial I have found in the Internet “A Gentle Introduction to Support Vector Machines in Biomedicine” by Alexander &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,347 +111,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/13/Kaggle-Digit-SVM/">Kaggle Digit OCR: SVM (Top 5)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-13T18:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>SVM is much easier to implement than our previous regressions because it is already been coded in the package <a href="http://scikit-learn.org/stable/modules/svm.html">scikit learn</a> (sklearn). All that is needed is to tweak the hyperparameters to achieve a high accuracy.</p>
-
-<p>My data set is divided as before, 30.000 images for training and 12.000 for evaluation. SVM works best with scaled input so my Xs have been pre-processed so all pixel values are in the range {0,1}, and each feature has zero mean and unit variance. For this we also use sklearn preprocessing utilities.</p>
-
-<p>I have tried two non-linear approaches gaussian and 4<sup>th</sup> degreee polynomial, to see how they compare to the most rudimentary linear approach of past runs.</p>
-
-<h2 id="gaussian-kernel">gaussian kernel</h2>
-
-<p>For the Kaggle digit recognition competition I have employed a Gaussian kernel (RBF) with a sigma equal to 0.001. The safety margin constant C is set to 14. Both parameters were found after a few trail and error runs. SVM is pretty slow so the trick is to use very small training/eval sets (2000 images) to zero in the coeficients. Later on we can better the result with the whole sets.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm rbf on test data</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
-</span><span class="line"><span class="n">predictions</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<blockquote><p>The accuracy on the evaluation set is 96.55% and on the test set (Kaggle) is 96,91%.</p></blockquote>
-
-<p>The result beat the previous 2-regressions approach (93.6%) by a high margin.</p>
-
-<h2 id="polynomial-kernel">polynomial kernel</h2>
-
-<p>4<sup>th</sup> degreee : $(\gamma \langle x, x’\rangle + r)^4$ with a hyperparameter r of 0.38, and a regularization constant C of 8.3. The hyperparameters were found using the StratifiedKFold and GridSearchCV from the scikit package from which we can also produce a heatmap.</p>
-
-<p><img src="/images/kaggle_ocr/choose_params_svm.png" title="searching for hyperparams" /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm call</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The accuracy on the evaluation set is 97.9%. </p>
-
-<h2 id="twerking-the-training-data">twerking the training data</h2>
-
-<p>But I am not done. I want to try a crazy idea I just found, Virtual SVM! </p>
-
-<p>Kudos to <a href="http://www.jetgoodson.com/blogged.php?ident=49">Jet Goodson</a> and his clever way to put this Virtual SVM to work. It is based on the paper <a href="http://www.cs.berkeley.edu/~malik/cs294/decoste-scholkopf.pdf">Training Invariant Support Vector Machines</a> by Dennis DeCoste and Bernhard Scholkopf.</p>
-
-<p>The trick is that when you run an SVM you get as a byproduct a set of Support Vectors, which are nothing but the subset of the training examples that the SVM actually bases its decisions on. Those are the training examples that define the hyperplanes.</p>
-
-<p><code>clf.support_vectors_</code> gives us a matrix of support vectors, which in our case are around 10,000. And <code>clf.support_</code> gives an array with the index of the training examples that are the support vectors. We can check this:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>python console</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">support_</span>
-</span><span class="line"><span class="c"># array([    5,    69,   146, ..., 41962, 41992, 41999], dtype=int32)</span>
-</span><span class="line"><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">xt</span><span class="p">[</span><span class="mi">5</span><span class="p">,:],</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>So if we want to artificially create new examples from the old ones (moving, blurring, etc.), we should only modify the ones that count. In order to modify the image, since I am a newbie, I’ll just move the image to each side [N,S,W,E] a tiny bit (one pixel), and rotate 10 degrees clockwise and counter-clockwise. </p>
-
-<p>For every image of the support vectors set I can get an additional 6 twerked images. This totals a new training set of around 10.000 x 7 = 70.000 images. This is a stretch for a  SVM but nothing compared that to 42.000 x 7 = 294.000 of directly applying the transformations to the training set.</p>
-
-<blockquote><p>The accuracy on the evaluation set is 98.225% and on the test set (Kaggle): 98.086%.</p></blockquote>
-
-<p><a href="http://scipy-lectures.github.io/advanced/image_processing/index.html">Important resource</a> to start understanding how to manipulate images in python.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Twerk SVM for test set</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">twerk</span><span class="p">(</span><span class="n">x_old_set</span><span class="p">,</span> <span class="n">y_old_set</span><span class="p">):</span>
-</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">    <span class="n">x_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
-</span><span class="line">    <span class="n">y_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,))</span>
-</span><span class="line">    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># add the original one</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">x</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
-</span><span class="line">        <span class="n">y</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># move north 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">27</span><span class="p">:,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="c">#x_new_set[j] = np.roll(x, 2*k[0], k[1]).flatten()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move south 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move left 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move right 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">27</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># rotate 10 degrees</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># rotate -10 degrees</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">    <span class="k">return</span> <span class="p">[</span><span class="n">x_new_set</span><span class="p">,</span> <span class="n">y_new_set</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">prep_submit</span><span class="p">():</span>
-</span><span class="line">    <span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">x_support</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span>
-</span><span class="line">    <span class="n">y_support</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">clf</span><span class="o">.</span><span class="n">support_</span><span class="p">])</span>
-</span><span class="line">    <span class="p">[</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">]</span><span class="o">=</span> <span class="n">twerk</span><span class="p">(</span><span class="n">x_support</span><span class="p">,</span> <span class="n">y_support</span><span class="p">)</span>
-</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
-</span><span class="line">    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">28001</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
-</span><span class="line">    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions_svm.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="last-experiment">last experiment</h2>
-
-<p>For SVM the size of the training set makes a difference. I am going to try to run it all on the 70,000 images, the training set plus the testing set with the added predictions from the best run. </p>
-
-<p>This is totally endogamy and an article of faith no-no but I figured:</p>
-
-<ul>
-  <li>since I am already geting 98% right, if at least I can reinforce the good ones, the better performance from that reinforcement of the good ones may be enough to counteract the added errors from that 2% wrongly labeled.</li>
-  <li>it is great way to confirm the article of faith.</li>
-</ul>
-
-<p>With twerking et all, we do much worse, the new Kaggle rating is 97.95%</p>
-
-<h2 id="no-seriously-the-last-one">no, seriously, the last one</h2>
-
-<p>I thought: why 28x28 and not bigger? Or smaller? The difference is the amount of padding around the image. I have read that the samples are already pretty centered and aligned, so why not give more importance to the center of the picture and less as we go out? What would happen if we initially crop the image from 28x28 to 20x20? It seems that those 4 pixel bands are pretty much empty. Maybe focusing in the inner image we can better train the model.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>croping the images</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line"><span class="n">new_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">400</span><span class="p">))</span>
-</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">    <span class="n">old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
-</span><span class="line">    <span class="n">new_x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">old</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line"><span class="n">x</span> <span class="o">=</span> <span class="n">new_x</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Doing the same as before (re-optimizing hyper params =&gt; {C= 2.6, r= 0.34}, twerking as before, etc) we get:</p>
-
-<blockquote><p>Accuracy on evaluation set: 98.7%<br />Score on the test set (Kaggle): 98.87%.</p></blockquote>
-
-<p>It is a huge jump of almost a percentage point only based on munging the input!</p>
-
-<p>The new position is 80 out of 1956 participants (as of today), in the top 5%! Consider that my first trial a few days ago (a simple linear softmax model) placed me at position 1,654, in the bottom 15%.</p>
-
-<h2 id="conclusion">conclusion</h2>
-
-<p>Again, once reached the plateau of the model it is very difficult to raise the bar.</p>
-
-<p>The key is to be creative and look for out-of-the-box approaches.</p>
-
-<p>The single most important aspect is to know the data, visualize in different ways to understand it and to analyze correctly where the model fails.
-Finally, I suspect that, with a bit of further image manipulation, the accuracy can be raised a bit more. I’ll leave this to a future competition.</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/13/iPython-EC2/">iPython Notebook on EC2</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-13T09:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have found two wonderful resources for all things Python and ML:</p>
-
-<h2 id="ipython-notebooks">iPython (notebooks)</h2>
-
-<p>Like a console session of python but with the ability to:</p>
-
-<p><img class="right" src="http://ipython.org/_static/IPy_header.png" width="400" title="iPython" /></p>
-
-<ul>
-  <li>interact with the terminal,</li>
-  <li>edit the running program as it goes</li>
-  <li>embed visualization plots, text and md in general</li>
-  <li>create small scripts for each task</li>
-</ul>
-
-<h2 id="running-ml-on-ec2">running ML on EC2</h2>
-
-<p>Instead of hogging up your laptop rely on Amazon EC2 and iPython Notebook. Locally have all your heavy script and then make them run in your EC2 instance in the cloud. A freaking mess for newbies like me if it was not for tutorials like the ones below.</p>
-
-<p>Things to remember:</p>
-
-<ol>
-  <li>
-    <p>connect to the instance with the instance public DNS (EC2 dashboard) from wherever you have the appropriate certificate for this instance.
- <code>ssh -i MyPyNoteBook.pem ubuntu@xxx.xxx.xxx.xxx</code></p>
-  </li>
-  <li>
-    <p>start the ipython notebook server on the instance
- <code>ubuntu@ip-xxx-xx-xx-xxx:~$ ipython notebook inline --profile=nbserver</code>
- You can use unix’s screen to detach (and close the terminal window), and reattach later with <code>screen -ls</code> and <code>screen -r ID-chorizo</code>.
- It will be faulty because you are connecting from itself. No problemo, say yes to all and get out of w3c or similar (q?).</p>
-  </li>
-  <li>
-    <p>open the notebook on the public dns, dont worry about security concerns.
- <code>https://ec2-xxx-xxx-xxx-xxx.us-somewhere-9.compute.amazonaws.com:zzzz/#notebooks</code></p>
-  </li>
-</ol>
-
-<p>Tutorials:</p>
-
-<ul>
-  <li><a href="https://gist.github.com/iamatypeofwalrus/5183133/raw/36a6aa7b1f79bbe18b1a32a78fde42a8eb3aec9a/roll_ipython_in_aws.md">original I followed</a></li>
-  <li><a href="http://nbviewer.ipython.org/urls/raw.github.com/Unidata/tds-python-workshop/master/ipython-notebook-server.ipynb">another to review</a></li>
-</ul>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -603,6 +262,366 @@ p^{(i)} \|\theta\| <= -1 \mbox{ if } y^{(i)} = 0
 <p>The simplification of $\theta_0 = 0$ only means that the decision boundary (and also the $\theta$ vector) passes through the origin.</p>
 
 <p>DEVELOPING……</p>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/08/SVM-Theory1/">SVM: Derivation From Logit</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-08T09:02:00-07:00" pubdate data-updated="true">Oct 8<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Compared to both logistic regression and neural networks, a Support Vector Machine (SVM) sometimes gives a cleaner way for learning non-linear functions.</p>
+
+<p>The logistic regression hypothesis and cost functions for a single example are:</p>
+
+<script type="math/tex; mode=display">
+h_{\theta}(x) = \frac{1}{ 1  + e^{ -(\theta)^T x } } = g(z) \mbox{ where } z = \theta^T x
+\\
+J_{\theta}(x) = -(\log h_{\theta}(x) + (1-y) \log(1 - h-{\theta}(x)))
+</script>
+
+<p>Looking at the sigmoid activation function, how does logistic regression work?</p>
+
+<p><img class="center" src="/images/oct13/sigmoid.png" width="400" height="400" title="sigmoid activation function" /></p>
+
+<p>If we have an example x where y = 1, we hope that h(x) is close to 1. For that to happen $z = θ^T x$ must be much larger than 0. If we look at the cost function, we see that only the first term works (for y = 1).  So a single example with y = 1 will have a z » 0, and its cost contribution will be very small.</p>
+
+<div style="text-align:center">
+<img src="/images/oct13/term1.png" width="400" height="400" title="sigmoid activation function" />
+<img src="/images/oct13/term2.png" width="400" height="400" title="sigmoid activation function" />
+</div>
+
+<p>Similarly if y = 0, we need h to be close to 0, for which z needs to be very negative. And in the cost function now only the second term is active. So a single example with y = 0 will have a z « 0, and its cost contribution will be very big.</p>
+
+<p>SVM just takes the above cost functions and simplifies them with straight lines in the following manner:</p>
+
+<div style="text-align:center">
+<img src="/images/oct13/term1b.png" width="400" height="400" title="sigmoid activation function" />
+<img src="/images/oct13/term2b.png" width="400" height="400" title="sigmoid activation function" />
+</div>
+
+<p>We call this simplified cost curves $cost<em>1$ and $cost</em>2$. The key is that SVM does not outputs probabilities like before, but still classifies pretty well. Actually, for learning non linearly, it gives us a cleaner and efficient approach.</p>
+
+<p>So finding the parameters from the cost function in logit:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} \frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (-\log h_\theta(x^{(i)})) + (1-y^{(i)}) (-\log (1-h_\theta(x^{(i)})))\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
+
+<p>becomes:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} \frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
+
+<p>Since we don’t care about probabilities, only classification results, as we search for the minimizing parameters we neither care about multiplying constants. So by convention, SVM notation:</p>
+
+<ul>
+  <li>gets rid of constant 1/m.</li>
+  <li>use C = 1/$\lambda$ instead of $\lambda$.</li>
+</ul>
+
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
+
+<p>So we have that if $\theta^T x &gt;= 1 =&gt; h_{\theta}(x) = 1$.</p>
+
+<p>Consider that in logistic regression we were classifying as y = 1 if z was positive. SVM needs it to be &gt;= 1. In a sense, SVM wants to be more sure and moves the goalpost by adding an extra safety margin.</p>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/07/Kaggle-Digit-2-regress/">Kaggle Digit OCR: 2 Step Regression</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-07T09:02:00-07:00" pubdate data-updated="true">Oct 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Based on the previous posts we are going to extend our softmax model so we classify the handwritten images by using logistic regressions in two steps:</p>
+
+<ol>
+  <li>
+    <p>First we run our Softmax (multivariate logistic regression) classifier as before.</p>
+  </li>
+  <li>
+    <p>When classifying a particular image, if the first choice has less than 99% probability and the second choice has more than 1%, then we run a logistic regression between those two top choices to make sure we pick the right one. These limits are completely arbitrary, pretty irrelevant and stated to make the concept clearer.</p>
+  </li>
+</ol>
+
+<p>This means computing the 784+1 parameters of the logystic regression 43 times, which is quite hair-raising but not heart-stopping (30 mins in my old mac).</p>
+
+<p>So if it is very clear we go softmax, but if there is a doubt we rely on a more accurate logistic regression between the top two softmax choices. </p>
+
+<blockquote><p>The new accuracy from Kaggle is 93.64%.</p></blockquote>
+
+<p>Here is the modified code:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>kaggle 2 step regression model</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+<span class="line-number">60</span>
+<span class="line-number">61</span>
+<span class="line-number">62</span>
+<span class="line-number">63</span>
+<span class="line-number">64</span>
+<span class="line-number">65</span>
+<span class="line-number">66</span>
+<span class="line-number">67</span>
+<span class="line-number">68</span>
+<span class="line-number">69</span>
+<span class="line-number">70</span>
+<span class="line-number">71</span>
+<span class="line-number">72</span>
+<span class="line-number">73</span>
+<span class="line-number">74</span>
+<span class="line-number">75</span>
+<span class="line-number">76</span>
+<span class="line-number">77</span>
+<span class="line-number">78</span>
+<span class="line-number">79</span>
+<span class="line-number">80</span>
+<span class="line-number">81</span>
+<span class="line-number">82</span>
+<span class="line-number">83</span>
+<span class="line-number">84</span>
+<span class="line-number">85</span>
+<span class="line-number">86</span>
+<span class="line-number">87</span>
+<span class="line-number">88</span>
+<span class="line-number">89</span>
+<span class="line-number">90</span>
+<span class="line-number">91</span>
+<span class="line-number">92</span>
+<span class="line-number">93</span>
+<span class="line-number">94</span>
+<span class="line-number">95</span>
+<span class="line-number">96</span>
+<span class="line-number">97</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">math</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+</span><span class="line">
+</span><span class="line"><span class="kn">import</span> <span class="nn">sys</span>
+</span><span class="line"><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s">&#39;../../.&#39;</span> <span class="p">)</span> <span class="c"># regression modules address</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Logysoft</span> <span class="kn">as</span> <span class="nn">soft</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Logysterical</span> <span class="kn">as</span> <span class="nn">logit</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">KaggleTop2</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span> <span class="o">=</span> <span class="mi">10</span>              <span class="c"># N. of possible values of Y (labels)</span>
+</span><span class="line">        <span class="c"># load data files</span>
+</span><span class="line">        <span class="n">training_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/train.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="line">        <span class="n">testing_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/test.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">yt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># evaluation set</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">ye</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yt</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># testing set</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">testing_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">optimize_logit_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># extract the right images from the set</span>
+</span><span class="line">        <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/train.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="n">data_t</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="p">:]</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">data_a</span> <span class="o">=</span> <span class="n">data_t</span><span class="p">[</span><span class="n">data_t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">a</span><span class="p">]</span>
+</span><span class="line">        <span class="n">data_b</span> <span class="o">=</span> <span class="n">data_t</span><span class="p">[</span><span class="n">data_t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">b</span><span class="p">]</span>
+</span><span class="line">        <span class="n">data_ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">data_a</span><span class="p">,</span> <span class="n">data_b</span><span class="p">])</span>
+</span><span class="line">        <span class="n">xt</span> <span class="o">=</span> <span class="n">data_ab</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+</span><span class="line">        <span class="n">yt</span> <span class="o">=</span> <span class="n">data_ab</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int8&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="n">yt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">yt</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># Perform logistic regression</span>
+</span><span class="line">        <span class="n">xt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">xt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)),</span> <span class="n">xt</span><span class="p">])</span>
+</span><span class="line">        <span class="n">yt2</span> <span class="o">=</span> <span class="n">yt</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yt2</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">a</span><span class="p">:</span>
+</span><span class="line">                <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">                <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">ini_thetas</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">xt2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">        <span class="n">L</span> <span class="o">=</span> <span class="mf">1e+5</span>
+</span><span class="line">        <span class="n">opt_thetas</span> <span class="o">=</span> <span class="n">logit</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">ini_thetas</span><span class="p">,</span> <span class="n">xt2</span><span class="p">,</span> <span class="n">yt2</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">opt_thetas</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">test_model_submit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="n">logit_thetas</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">soft_thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/submit_optimized_thetas.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+</span><span class="line">        <span class="n">soft_thetas</span> <span class="o">=</span> <span class="n">soft_thetas</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">        <span class="n">h</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">soft_thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">)</span>
+</span><span class="line">        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+</span><span class="line">            <span class="p">[</span><span class="n">ml_1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c"># 1st and 2nd model choices</span>
+</span><span class="line">            <span class="n">p1</span><span class="p">,</span><span class="n">p2</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:][</span><span class="n">ml_1</span><span class="p">],</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:][</span><span class="n">ml_2</span><span class="p">]</span>
+</span><span class="line">            <span class="n">right_order</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">ml_1</span> <span class="o">&gt;</span> <span class="n">ml_2</span><span class="p">:</span>
+</span><span class="line">                <span class="n">right_order</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class="line">                <span class="n">s</span> <span class="o">=</span> <span class="sb">`ml_2`</span><span class="o">+</span><span class="sb">`ml_1`</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">s</span> <span class="o">=</span> <span class="sb">`ml_1`</span><span class="o">+</span><span class="sb">`ml_2`</span>
+</span><span class="line">
+</span><span class="line">            <span class="k">if</span> <span class="n">p1</span><span class="o">&lt;</span><span class="mf">0.99</span> <span class="ow">and</span> <span class="n">p2</span><span class="o">&gt;</span><span class="mf">0.01</span><span class="p">:</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">logit_thetas</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">logit_thetas</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize_logit_for</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">                <span class="n">l_t</span> <span class="o">=</span> <span class="n">logit_thetas</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+</span><span class="line">                <span class="n">logix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">[</span><span class="n">i</span><span class="p">,:]])</span>
+</span><span class="line">
+</span><span class="line">                <span class="n">p</span> <span class="o">=</span> <span class="n">logit</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">l_t</span><span class="p">,</span> <span class="n">logix</span><span class="p">)</span>
+</span><span class="line">                <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">):</span>
+</span><span class="line">                    <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">([</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">]</span> <span class="k">if</span> <span class="n">right_order</span> <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">])</span>
+</span><span class="line">                <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">([</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">]</span> <span class="k">if</span> <span class="n">right_order</span> <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">])</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">,:]</span>
+</span><span class="line">        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions_2steps.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">
+</span><span class="line"><span class="n">k2t</span> <span class="o">=</span> <span class="n">KaggleTop2</span><span class="p">()</span>
+</span><span class="line"><span class="n">k2t</span><span class="o">.</span><span class="n">test_model_submit</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="conclusion">conclusion</h2>
+
+<p>We have gained a small improvement of 1.6%. The right direction, yet far away from the results achieved with other models. This seems to suggest a limitation for this problem of a learning function that is linear. In future posts I’ll look for models that rely on non-linear functions.</p>
+
+<p>I also wonder what would be the result of using as model logistic regression one-vs-all for each label. And how it compares to plain softmax.</p>
 
 </div>
   

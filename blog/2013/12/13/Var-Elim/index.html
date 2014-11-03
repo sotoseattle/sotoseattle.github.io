@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Given a network of random variables (Bayes of Markov) defined by a set of factors the way to do Variable Elimination is straightforward: Reduce all &hellip;">
+  <meta name="description" content="Given a network of random variables (Bayes or Markov) defined by a set of factors the way to do Variable Elimination is straightforward: Reduce all &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -139,12 +139,12 @@
   </header>
 
 
-<div class="entry-content"><p>Given a network of random variables (Bayes of Markov) defined by a set of factors the way to do Variable Elimination is straightforward:</p>
+<div class="entry-content"><p>Given a network of random variables (Bayes or Markov) defined by a set of factors the way to do Variable Elimination is straightforward:</p>
 
 <ul>
   <li>Reduce all factors by evidence and have set of factors (F)</li>
   <li>Choose the variable to eliminate (z)</li>
-  <li>Gather the factors that have z in their scope </li>
+  <li>Gather the factors that have z in their scope</li>
   <li>Multiply them together into a new factor ($\lambda$)</li>
   <li>Marginalize $\lambda$ for z to produce $\tau$</li>
   <li>The new set of factors is reduced by the factors ‘sum-producted’ plus the new one $\tau$</li>
@@ -155,7 +155,7 @@
 <p>The complexity of this algorithm depends linearly on:</p>
 
 <ul>
-  <li>the size of the model (number variables and factors), and </li>
+  <li>the size of the model (number variables and factors), and</li>
   <li>on the number of variables of the largest factor generated in the process ($tau$), whose size is in itself exponential in its scope (i.e. 9 binary vars =&gt; 2^9).</li>
 </ul>
 
@@ -253,9 +253,9 @@
 <p>Ways to find a good ordering are:</p>
 
 <ol>
-  <li>performing a greedy search using an ad-hoc cost function and at each point eliminate the node with the smallest cost. Examples: 
+  <li>performing a greedy search using an ad-hoc cost function and at each point eliminate the node with the smallest cost. Examples:
     <ul>
-      <li>min-neigbors: pick the node with the minimum number of neighbors (smallest factor), </li>
+      <li>min-neigbors: pick the node with the minimum number of neighbors (smallest factor),</li>
       <li>min-weight: considering that different variables have different cardinalities it would be better a factor of 10 binary vars than a factor of two vars but each of 100 possible values.</li>
       <li>min -fill: choose vars that create the min amount of new connections (a very good approach),</li>
       <li>weighted min-fill.</li>
