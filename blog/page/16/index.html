@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="I have spent the last few days in the Titanic competition. It is another easy, entry level, tutorial example to get a grasp of how machine learning &hellip;">
+  <meta name="description" content="No need to introduce how neurons work. The pictures below are self explanatory and better explanations can be founf in the Net. Again thanks to Prof &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,160 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/17/Neural-Net-Theory/">Neural Networks Theory: Forwards</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-17T19:02:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>No need to introduce how neurons work. The pictures below are self explanatory and better explanations can be founf in the Net. Again thanks to Prof Ng of Coursera fame for making this material so accessible easy so grasp, and to the always great reference of <a href="http://ufldl.stanford.edu/wiki/index.php/Neural_Networks">Stanford Ufldl</a>.</p>
+
+<p><img class="center" src="/images/oct13/neuron.png" title="neuron" /></p>
+
+<p><img class="center" src="/images/oct13/neuron_transmission.gif" title="neuron" /></p>
+
+<h2 id="digital-neurons">digital neurons</h2>
+
+<p>Our simplified version has the computation, transformation of input into output, being the logistic regression of the input.</p>
+
+<p><img class="left" src="/images/oct13/one_neuron.png" title="neurotic neuron alone" /></p>
+
+<p>In the picture the +1 input is another input, the $x_0$, also called the ‘bias unit’ and as we know from logistic regression, always with value one. Sometimes it is explicitly specified, sometimes it is absent from the representations, nevertheless it is always there when we compute things. This single neuron model is a.k.a. Sigmoid (logistic) activation function (where activation function was the g(z)).</p>
+
+<script type="math/tex; mode=display">
+h(x) = \frac{1}{ 1  + e^{ -\theta^T x } }
+\\
+g(z) = \frac{1}{ 1  + e^{-z}}
+</script>
+
+<p>A neural network is just a bunch of neurons connected together in layers. In the picture below, three neurons in a layer plus another neuron on layer three. Realize that the bias units of layers 1 and 2 are not drawn. The first layer is called ‘Input Layer’, the last layer is the ‘Output Layer’, and the ones between are the ‘Hidden Layers’.</p>
+
+<p><img class="center" src="/images/oct13/neural_net.png" title="neuron party" /></p>
+
+<p>More terminology: $a_i^{j}$ is the output (‘activation’) of neuron in layer j. $\Theta^{j}$ is the matrix of parameters ($\theta$) that control the function mapping from layer j to the next one (j+1).</p>
+
+<h2 id="feed-forward-propagation">feed-forward propagation</h2>
+
+<p>Let’s compute things moving starting at the input, from left to right. The computation of the outputs of layer 2 based on the inputs is:</p>
+
+<script type="math/tex; mode=display">
+a_1^{(2)} = g(\theta_{10}^{(1)}x_0 + \theta_{11}^{(1)}x_1 + \theta_{13}^{(1)}x_3) = g(z_1^{2})
+\\
+a_2^{(2)} = g(\theta_{20}^{(1)}x_0 + \theta_{21}^{(1)}x_1 + \theta_{23}^{(1)}x_3) = g(z_2^{2}
+\\
+a_3^{(2)} = g(\theta_{30}^{(1)}x_0 + \theta_{31}^{(1)}x_1 + \theta_{33}^{(1)}x_3) = g(z_3^{2}
+\\
+h_{\Theta}(x) = a_1^{(3)} = g(\theta_{10}^{(2)}a_0^{(2)} + \theta_{11}^{(2)}a_1^{(2)} + \theta_{12}^{(2)}a_2^{(2)} + \theta_{13}^{(2)}a_3^{(2)} ) = g(z_1^{3}
+</script>
+
+<p>So because we have 3 input units (plus the bias one) and 3 hidden units, the $\Theta^{1}$ would have shape (3,4). Similarly, $\Theta^{2}$ maps from 3 hidden units (plus bias one) to 1 output unit, so the shape is (1,4). Things to consider:</p>
+
+<ul>
+  <li>in the example, $x_i$ are the inputs and work exactly like given $a_{input}$</li>
+  <li>as bias units, $a^{1} = x_0 = 1$</li>
+  <li>number of params matrices = layers - 1.</li>
+  <li>shape of params matrix = out layer size x in layer size [+ bias].</li>
+</ul>
+
+<p>The above equations, vectorized become:</p>
+
+<script type="math/tex; mode=display">
+z^{2} = \Theta^{(1)} x = \Theta^{(1)} a^{(1)}
+\\
+a^{(2)} = g(z^{(2)})
+</script>
+
+<p>Where x is a vector (4,1), and $z^{(2)}$ is (3,1).</p>
+
+<script type="math/tex; mode=display">
+z^{3} = \Theta^{(3)} a^{(2)}
+\\
+a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
+</script>
+
+<p>And $z^{(3)}$ is a vector a scalar because $\Theta^{(3)} . a^{(2)}$ is (1,4) x (4,1).</p>
+
+<p>The key to understand is that we are just applying logistic regression to each neuron based on features that are the activation inputs from previous layers. It is obvious in the last unit, and is easy to generalize from it backwards. </p>
+
+<p>Another take: In the old logistic regression we had some features from which we compute a set of parameters and then predict the hypothesis function. Now, we can create a new set of features based on the initial features, and use these new features to compute the logistic regression prediction. Is just applying the same logit in a chained manner. The new features will be a set of different, derived, more nuances and more complex features than the initial ones. </p>
+
+<p>The more to the right the layer, the more complex the features because of more manipulation. It is very illustrative the example of Prof. Ng replicating the function XNOR with just three neurons to appreciate how it is possible to create very complex features by applying simple functions to each unit, so they compound the complexity along the way.</p>
+
+<p><img class="center" src="/images/oct13/x1xnorx2.png" title="compounded complexity" /></p>
+
+<p>The code couldn’t be simpler.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>feed forward</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1E-11</span><span class="p">))(</span><span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">sigmoid_gradient</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">feedforward</span><span class="p">(</span><span class="n">theta_matrix</span><span class="p">,</span> <span class="n">input_v</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;one layer forward computation, assumes input_v has no bias&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">m</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="n">input_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">input_v</span><span class="p">])</span>
+</span><span class="line">    <span class="n">z</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">theta_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">one_x</span><span class="p">):</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">one_x</span><span class="p">),</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">one_x</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thetas</span><span class="p">:</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="n">a</span><span class="p">])</span> <span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">a</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -559,87 +713,6 @@ Finally, I suspect that, with a bit of further image manipulation, the accuracy 
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/13/iPython-EC2/">iPython Notebook on EC2</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-13T09:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have found two wonderful resources for all things Python and ML:</p>
-
-<h2 id="ipython-notebooks">iPython (notebooks)</h2>
-
-<p>Like a console session of python but with the ability to:</p>
-
-<p><img class="right" src="http://ipython.org/_static/IPy_header.png" width="400" title="iPython" /></p>
-
-<ul>
-  <li>interact with the terminal,</li>
-  <li>edit the running program as it goes</li>
-  <li>embed visualization plots, text and md in general</li>
-  <li>create small scripts for each task</li>
-</ul>
-
-<h2 id="running-ml-on-ec2">running ML on EC2</h2>
-
-<p>Instead of hogging up your laptop rely on Amazon EC2 and iPython Notebook. Locally have all your heavy script and then make them run in your EC2 instance in the cloud. A freaking mess for newbies like me if it was not for tutorials like the ones below.</p>
-
-<p>Things to remember:</p>
-
-<ol>
-  <li>
-    <p>connect to the instance with the instance public DNS (EC2 dashboard) from wherever you have the appropriate certificate for this instance.
- <code>ssh -i MyPyNoteBook.pem ubuntu@xxx.xxx.xxx.xxx</code></p>
-  </li>
-  <li>
-    <p>start the ipython notebook server on the instance
- <code>ubuntu@ip-xxx-xx-xx-xxx:~$ ipython notebook inline --profile=nbserver</code>
- You can use unix’s screen to detach (and close the terminal window), and reattach later with <code>screen -ls</code> and <code>screen -r ID-chorizo</code>.
- It will be faulty because you are connecting from itself. No problemo, say yes to all and get out of w3c or similar (q?).</p>
-  </li>
-  <li>
-    <p>open the notebook on the public dns, dont worry about security concerns.
- <code>https://ec2-xxx-xxx-xxx-xxx.us-somewhere-9.compute.amazonaws.com:zzzz/#notebooks</code></p>
-  </li>
-</ol>
-
-<p>Tutorials:</p>
-
-<ul>
-  <li><a href="https://gist.github.com/iamatypeofwalrus/5183133/raw/36a6aa7b1f79bbe18b1a32a78fde42a8eb3aec9a/roll_ipython_in_aws.md">original I followed</a></li>
-  <li><a href="http://nbviewer.ipython.org/urls/raw.github.com/Unidata/tds-python-workshop/master/ipython-notebook-server.ipynb">another to review</a></li>
-</ul>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/17/">&larr; Older</a>
@@ -657,6 +730,10 @@ Finally, I suspect that, with a bit of further image manipulation, the accuracy 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
       </li>
     
@@ -670,10 +747,6 @@ Finally, I suspect that, with a bit of further image manipulation, the accuracy 
     
       <li class="post">
         <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
       </li>
     
   </ul>

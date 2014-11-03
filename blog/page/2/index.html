@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the Equalizer gem. We start with a basic &hellip;">
+  <meta name="description" content="Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,80 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular Into Rails</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-27T20:01:00-07:00" pubdate data-updated="true">Oct 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire it so it is served from inside a Rails application.</p>
+
+<p>The first step is to generate a new rails app (I used 4.2), for which we’ll create a controller that will coordinate the rendering of the angular app. We’ll start with a single action that points to a show template, where all the action will take place (it would substitute the index.html page of the Angular app). We call our controller StoreController.</p>
+
+<p>In app/assets/javascripts/application.js we are going to remove turbolinks, because it is repetitive functionality now that we’ll be relying on Angular and it tends to screw things up. Actually we could remove it from the Gemfile too.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class=""><span class="line"># app/assets/javascripts/application.js
+</span><span class="line">//= require jquery
+</span><span class="line">//= require jquery_ujs
+</span><span class="line">//= require angular.min
+</span><span class="line">//= require launch_store
+</span><span class="line">//= require_tree .</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>We also add a requirement for a custom js file that we’ll create, app/assets/javascripts/launch_store.js, and where we declare our Angular app as gemStore.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class=""><span class="line"># app/assets/javascripts/launch_store.js
+</span><span class="line">//= require_self
+</span><span class="line">//= require_tree ./angular_store_app
+</span><span class="line">(function(){
+</span><span class="line">  var app = angular.module("GemStore", ["StoreDirectives"]);
+</span><span class="line">})();</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/27/Wire-Angular-Rails/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -328,73 +402,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-20T11:00:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
-
-<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
-
-<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
-
-<p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
-
-<p>In essence you’ll end up using two different git repos inside both your Octopress code base. And the fun part is that both point to the same github repo!</p>
-
-<p>1.- the first can be found inside the folder _deploy:</p>
-
-<ul>
-  <li><code>rake generate</code> compiles the site from all the files in the source directory (and other resources) and places everything inside the _deploy folder.</li>
-  <li><code>rake deploy</code> pushes it (the files inside _deploy) up to GitHub, actually to the to origin/master branch.</li>
-</ul>
-
-<p>So, for example, if we have a custom domain and we want it to point to our github.io site, we need a CNAME file that we place inside the source folder. After rake generate and rake deploy, it will show up in the root of origin/master (and inside our _deploy folder)</p>
-
-<p>2.- The second git repo, you create it on the root:</p>
-
-<p>For this one we create a single branch, “source”, that holds everything (all files, source and _deploy) and we push only to origin/source. Aha!, this repo goes to the ‘source’ branch in github, the generated one goes to ‘master’. So we don’t have a master branch in this local git repo, only source, and in this way we avoid pushing it to master in origin (which already tracks the first repo!).</p>
-
-<p>Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.</p>
-
-<p>Now, I may be off base in this explanation, if so, please set me straight in the comments.</p>
-
-<p>Good luck with the Octos!</p>
-
-<p><img class="center" src="/images/Oct14/octocat_octopress.png" width="400" title="Code Fellows logo" /></p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/3/">&larr; Older</a>
@@ -412,6 +419,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
       </li>
     
@@ -425,10 +436,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Walk-through to use Devise with Angular in Rails 4.2. This is more of a jump-through than a walk-through since I am going to be more jumping around &hellip;">
+  <meta name="description" content="My Rubygem Primo is alive and kicking! Check it out at Github. In 2013 I took the online course “Probabilistic Graphical Models” (Stanford, Prof. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,53 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-02T20:17:00-08:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img class="right" src="/images/Nov14/dice.png" width="400" /></p>
+
+<p>My Rubygem Primo is alive and kicking! Check it out at <a href="https://github.com/sotoseattle/Primo">Github</a>.</p>
+
+<p>In 2013 I took the online course “Probabilistic Graphical Models” (Stanford, Prof. Daphne Koller) from <a href="https://www.coursera.org/course/pgm">Coursera.org</a>. It was complex and difficult, but a lot of fun because of all the possibilities it opens up. This gem is a liberal translation of the code I worked with in Octave throughout the course, and which later I coded in python to learn the language.</p>
+
+<p>Sincere thanks to Masahiro Tanaka for his wonderful <a href="http://masa16.github.io/narray/">NArray gem</a>, which allows me to, for example, multiply two multi-dimensional arrays element-wise in a single step, after aligning them with simple rotations of their axes (actually pretty cool).</p>
+
+<p>I have christened this working library PRIMO (Probabilistic Inference Modeling) because in Spanish it means either prime, first, cousin or dumb! :)</p>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -234,80 +281,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular Into Rails</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-27T20:01:00-07:00" pubdate data-updated="true">Oct 27<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Given an angular site of static pages, without persistent data, just the bells and whistles that Angular provides for the front end, how do we wire it so it is served from inside a Rails application.</p>
-
-<p>The first step is to generate a new rails app (I used 4.2), for which we’ll create a controller that will coordinate the rendering of the angular app. We’ll start with a single action that points to a show template, where all the action will take place (it would substitute the index.html page of the Angular app). We call our controller StoreController.</p>
-
-<p>In app/assets/javascripts/application.js we are going to remove turbolinks, because it is repetitive functionality now that we’ll be relying on Angular and it tends to screw things up. Actually we could remove it from the Gemfile too.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class=""><span class="line"># app/assets/javascripts/application.js
-</span><span class="line">//= require jquery
-</span><span class="line">//= require jquery_ujs
-</span><span class="line">//= require angular.min
-</span><span class="line">//= require launch_store
-</span><span class="line">//= require_tree .</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>We also add a requirement for a custom js file that we’ll create, app/assets/javascripts/launch_store.js, and where we declare our Angular app as gemStore.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class=""><span class="line"># app/assets/javascripts/launch_store.js
-</span><span class="line">//= require_self
-</span><span class="line">//= require_tree ./angular_store_app
-</span><span class="line">(function(){
-</span><span class="line">  var app = angular.module("GemStore", ["StoreDirectives"]);
-</span><span class="line">})();</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/27/Wire-Angular-Rails/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -323,6 +296,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
       </li>
     
@@ -336,10 +313,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
       </li>
     
   </ul>

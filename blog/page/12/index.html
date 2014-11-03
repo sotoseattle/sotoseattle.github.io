@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Given a network of random variables (Bayes or Markov) defined by a set of factors the way to do Variable Elimination is straightforward: Reduce all &hellip;">
+  <meta name="description" content="We define a Clique Tree (CT) as a structure with nodes (clusters of variables), edges (connections between them), and potentials (factors). To build &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,253 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/14/Clique-Tree/">PGN: Building Clique Trees</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-14T08:01:00-08:00" pubdate data-updated="true">Dec 14<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We define a Clique Tree (CT) as a structure with nodes (clusters of variables), edges (connections between them), and potentials (factors).</p>
+
+<p>To build a CT we need a list of factors from which we start deriving the set of all random variables and the matrix of edges between them. Then we iteratively run variable elimination in the following way:</p>
+
+<ul>
+  <li>we choose as the variable (z) to remove the first one with the least edges (min neighbors)</li>
+  <li>we separate the factors given in two sets: one with factors that include z, and another with the rest.</li>
+  <li>from the set of factors that include z:
+    <ul>
+      <li>we multiply the factors to compute the $\lambda$, </li>
+      <li>create a node/cluster in the CT with all the variables of $\lambda$</li>
+      <li>run over all pre-existing CT nodes, and check if any of the associated $\tau$s is also a factor in the lambda product. If so, create an edge between the nodes.</li>
+      <li>marginalize $\lambda$ to produce $\tau$ and record it in the CT next to the cluster created.</li>
+      <li>add $\tau$ as a factor to the unused factor list (those that did not have z)</li>
+    </ul>
+  </li>
+  <li>Update the edges by connecting all variables inside the newly minted CT node, and removing all edges from/to the eliminated variable</li>
+  <li>return the new factor list, edge matrix, and clique tree for another iteration.</li>
+</ul>
+
+<p>Here is a first draft of the process:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Clique Tree from Factor List (unrefactored)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+<span class="line-number">60</span>
+<span class="line-number">61</span>
+<span class="line-number">62</span>
+<span class="line-number">63</span>
+<span class="line-number">64</span>
+<span class="line-number">65</span>
+<span class="line-number">66</span>
+<span class="line-number">67</span>
+<span class="line-number">68</span>
+<span class="line-number">69</span>
+<span class="line-number">70</span>
+<span class="line-number">71</span>
+<span class="line-number">72</span>
+<span class="line-number">73</span>
+<span class="line-number">74</span>
+<span class="line-number">75</span>
+<span class="line-number">76</span>
+<span class="line-number">77</span>
+<span class="line-number">78</span>
+<span class="line-number">79</span>
+<span class="line-number">80</span>
+<span class="line-number">81</span>
+<span class="line-number">82</span>
+<span class="line-number">83</span>
+<span class="line-number">84</span>
+<span class="line-number">85</span>
+<span class="line-number">86</span>
+<span class="line-number">87</span>
+<span class="line-number">88</span>
+<span class="line-number">89</span>
+<span class="line-number">90</span>
+<span class="line-number">91</span>
+<span class="line-number">92</span>
+<span class="line-number">93</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Factor</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">Rvar</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">FactorOperations</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">FactorGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;graph of linked random variables derived from a list of factors&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># extract all variables. The index is the key for setting edges.</span>
+</span><span class="line">        <span class="n">cv</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="n">cv</span> <span class="o">+=</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cv</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># create the adjacency matrix of the initial factor list</span>
+</span><span class="line">        <span class="n">numVars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numVars</span><span class="p">,</span> <span class="n">numVars</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="n">connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span class="line">        <span class="n">minE</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;+inf&#39;</span><span class="p">)</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">minE</span><span class="p">:</span>
+</span><span class="line">                <span class="n">minE</span> <span class="o">=</span> <span class="n">e</span>
+</span><span class="line">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">[</span><span class="n">connections</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minE</span><span class="p">)]</span>
+</span><span class="line">
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="n">F</span> <span class="o">=</span> <span class="n">FactorGraph</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># create nodes iteratively through var elim</span>
+</span><span class="line">        <span class="n">C</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nodes&#39;</span><span class="p">:[],</span> <span class="s">&#39;edges&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))}</span>
+</span><span class="line">        <span class="n">considered_cliques</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">        <span class="k">while</span> <span class="n">considered_cliques</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="p">):</span>
+</span><span class="line">            <span class="n">z</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">firstMinNeighborVar</span><span class="p">()</span>
+</span><span class="line">            <span class="p">[</span><span class="n">F</span><span class="p">,</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eliminateVar</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class="line">            <span class="n">considered_cliques</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">eliminateVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># separate factors into two lists, those that use z (F_Cluster) and the rest</span>
+</span><span class="line">        <span class="n">F_Cluster</span><span class="p">,</span> <span class="n">F_Rest</span><span class="p">,</span> <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">                <span class="n">F_Cluster</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+</span><span class="line">                <span class="n">Cluster_vars</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="k">if</span> <span class="n">F_Cluster</span><span class="o">!=</span><span class="p">[]:</span>
+</span><span class="line">            <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Cluster_vars</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># when computing tau of new node, check if it uses other nodes&#39; taus</span>
+</span><span class="line">            <span class="n">rows</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">cols</span><span class="p">))])</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))])</span>
+</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cols</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]):</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s">&#39;tau&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
+</span><span class="line">            <span class="c"># create a new array of connecting node edges based on taus in common</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">pos</span>
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># multiply the factors in Cluster... (lambda) ...and marginalize by z (tau)</span>
+</span><span class="line">            <span class="n">tau</span> <span class="o">=</span> <span class="n">F_Cluster</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
+</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">tau</span><span class="o">.</span><span class="n">variables</span> <span class="o">!=</span> <span class="p">[</span><span class="n">z</span><span class="p">]:</span>
+</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># add to unused factor list the resulting tau ==&gt; new factor list with var eliminated</span>
+</span><span class="line">            <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tau</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">            <span class="c"># update the edges (connect all vars inside new cluster, &amp; disconnect the eliminated variable)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
+</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[:,</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">
+</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s">&#39;vars&#39;</span><span class="p">:</span><span class="n">Cluster_vars</span><span class="p">,</span> <span class="s">&#39;tau&#39;</span><span class="p">:</span><span class="n">tau</span><span class="p">}]</span>
+</span><span class="line">
+</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">F_Rest</span>
+</span><span class="line">        <span class="k">return</span> <span class="p">[</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>But this is not all, we still need to prune the tree and initialize it’s potentials.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -467,321 +714,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/13/Factors-Vectorized/">Factors Vectorized</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-13T08:01:00-08:00" pubdate data-updated="true">Nov 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have vectorized the Factor implementation, getting rid of loops and using as many ndarray operations as possible. To begin with we have a basic Factor class that still holds variables, cardinalities and values. The main difference is that instead of a 1D array for the values we have an ndarray with as many dimensions as variables.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor objects</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">Factor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;Factor : CPD Conditional Probability (discrete) Distribution</span>
-</span><span class="line"><span class="sd">      var    Vector of variables in the factor, e.g. [1 2 3] =&gt; X1, X2, X3. always ordered by id</span>
-</span><span class="line"><span class="sd">      card   Vector of cardinalities of var, e.g. [2 2 2] =&gt; all binomials</span>
-</span><span class="line"><span class="sd">      val    Value table with the conditional probabilities. n dimensional array</span>
-</span><span class="line"><span class="sd">      size   Length of val array = prod(card)&#39;&#39;&#39;</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variables</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">cards</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">idx2ass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
-</span><span class="line">        <span class="sd">&#39;&#39;&#39;mapping between all combinatorial ordered assignments and a flatten vector of values&#39;&#39;&#39;</span>
-</span><span class="line">        <span class="n">t</span> <span class="o">=</span> <span class="p">[[</span><span class="n">e</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">))]</span>
-</span><span class="line">        <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">{}</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">q</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
-</span><span class="line">            <span class="n">prod</span><span class="p">,</span> <span class="n">ass</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
-</span><span class="line">                <span class="n">prod</span> <span class="o">*=</span> <span class="n">e</span>
-</span><span class="line">                <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="n">prod</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">cards</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span class="line">            <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ass</span><span class="p">)</span>
-</span><span class="line">            <span class="n">dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">q</span><span class="p">]</span>
-</span><span class="line">            <span class="n">order</span> <span class="o">+=</span> <span class="p">[</span><span class="n">key</span><span class="p">]</span>
-</span><span class="line">        <span class="k">return</span> <span class="p">[</span><span class="n">order</span><span class="p">,</span> <span class="n">dic</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">fill_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arr</span><span class="p">):</span>
-</span><span class="line">        <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx2ass</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="n">dic</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The idx2ass is a holdout from the previous version that helps us understand the assignment process, allows us to fill the values with a 1D array and, is useful when comparing with the Octave implementation for debugging purposes. This method returns two sets that can be used in many ways as idx2ass and ass2idx. Much of this code can be simplified and cleaned further.</p>
-
-<h2 id="marginalization">Marginalization</h2>
-
-<p>The key advantage of using an ndarray with variables mapped to axes (dimensions) is that marginalize becomes a trivial operation. We only need to sum up all the values of the marginalized variable.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor Reduction</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">marginalize</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">    <span class="n">new_vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">v</span> <span class="p">]</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">new_vs</span><span class="o">==</span><span class="p">[]:</span>
-</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error: Resultant factor has empty scope&quot;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">new_vs</span><span class="p">)</span>
-</span><span class="line">    <span class="n">pos_m</span> <span class="o">=</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">pos_m</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-<p>For example, for a factor with two random variables (v1, v2), reducing on v2 means selecting the axis for v2 and for each row of v1, adding up all columns of v2.</p>
-
-<p><img class="center" src="/images/nov13/margin.png" /></p>
-
-<h2 id="conditioning">Conditioning</h2>
-
-<p>Also trivial, we modify the ndarray values by </p>
-
-<ul>
-  <li>focusing on the observed variable axis and leaving all other axis untouched</li>
-  <li>for the selected axis, setting to 0. all cells that are not in the observation column</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Conditioning on evidence</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">,</span> <span class="n">norma</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-</span><span class="line">    <span class="n">M</span> <span class="o">=</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">cond_var</span> <span class="ow">in</span> <span class="n">evidence</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">cond_var</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">cond_var</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">a</span> <span class="o">+=</span> <span class="p">[[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">totCard</span><span class="p">())</span> <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="n">evidence</span><span class="p">[</span><span class="n">cond_var</span><span class="p">]]]</span>
-</span><span class="line">                <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">a</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">)]</span>
-</span><span class="line">            <span class="n">M</span><span class="p">[</span><span class="n">a</span><span class="p">]</span><span class="o">=</span><span class="mf">0.</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">M</span><span class="p">)</span> <span class="k">if</span> <span class="n">norma</span> <span class="k">else</span> <span class="n">M</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Conditioning renormalizes at the end to ensure proper probabilities. </p>
-
-<h2 id="multiplication">Multiplication</h2>
-
-<p>The difficult one. Given two factors I modify each one by:</p>
-
-<ul>
-  <li>adding all the variables of the resulting multiplication factor (Union of all variables, sorted by id)</li>
-  <li>each added variable inserts a new axis in the right order</li>
-  <li>we expand the values ndarray on each new axis by repeating a number of times equal to the cardinality of the axi’s variable.</li>
-</ul>
-
-<p>Continuing with the graphic example, to expand our previous factor (variables v1 and v2) by another variable (v3) we would start with the 2D values along axes v1, v2. Then we add a third dimension for v3.</p>
-
-<p><img class="center" src="/images/nov13/multiply1.png" /></p>
-
-<p>And then we repeat the 2D matrix (v1,v2) along the v3 axis. In our case v1 and v2 have cardinality 2 and v3 has cardinality 3 so we repeat the 2D matrix twice more along the v3 axis.</p>
-
-<p><img class="center" src="/images/nov13/multiply2.png" /></p>
-
-<p>At the end of the process we have two ndarrays that represent the same variables, aligned and of the same shape. To multiply we only need to multiply elementwise. Convince yourself with the following example:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>basic example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="text"><span class="line">factor_1(v1) with values [1,2] =&gt; expand to [[1,1][2,2]] inserting v2 and resulting in (v1, v2)
-</span><span class="line">factor_2(v2) with values [3,4] =&gt; expand to [[3,4][3,4]] inserting v1 and resulting in (v1, v2)
-</span><span class="line">
-</span><span class="line">factor_1_expanded x factor_2_expanded = factor_product
-</span><span class="line">[1, 1]            x [3, 4]            = [3, 4]
-</span><span class="line">[2, 2]              [3, 4]              [6, 8]
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>We end by renormalizing to ensure proper probabilities.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor product</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">realign</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">chaos</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;realign by swapping its axes&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">order</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chaos</span><span class="p">))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
-</span><span class="line">        <span class="n">have_here</span> <span class="o">=</span> <span class="n">chaos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">        <span class="n">should_be</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">        <span class="n">index_of_missing_should</span> <span class="o">=</span> <span class="n">chaos</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">should_be</span><span class="p">)</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">have_here</span> <span class="o">!=</span> <span class="n">should_be</span><span class="p">:</span>
-</span><span class="line">            <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">index_of_missing_should</span><span class="p">)</span>
-</span><span class="line">            <span class="n">chaos</span><span class="p">[</span><span class="n">index_of_missing_should</span><span class="p">]</span> <span class="o">=</span>  <span class="n">have_here</span>
-</span><span class="line">            <span class="n">chaos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">should_be</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">M</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">new_axes</span><span class="p">(</span><span class="n">whole</span><span class="p">,</span> <span class="n">partial</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;list of new axis needed for partial to become whole&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">whole</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">partial</span><span class="p">:</span>
-</span><span class="line">            <span class="n">sol</span> <span class="o">+=</span> <span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span class="line">            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">sol</span> <span class="o">+=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sol</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">expand_rvars</span><span class="p">(</span><span class="n">whole</span><span class="p">,</span> <span class="n">fA</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;expand a factor to new dimensions by inserting new axes and repeating values along them&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">whole</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">chorizo</span> <span class="o">=</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-</span><span class="line">    <span class="n">order</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-</span><span class="line">    <span class="n">qt</span> <span class="o">=</span> <span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">]</span> <span class="c"># [0,1,3,2] indexes of fA.vars vs order [0,1,2,3]</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">qt</span><span class="o">!=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">qt</span><span class="p">)):</span>                      <span class="c"># if not equal, we need to realign before proceeding</span>
-</span><span class="line">        <span class="n">chorizo</span> <span class="o">=</span> <span class="n">realign</span><span class="p">(</span><span class="n">chorizo</span><span class="p">,</span> <span class="n">qt</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="n">new_axes</span><span class="p">(</span><span class="n">whole</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>                <span class="c"># see which new axis we need</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">e</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>                             <span class="c"># insert new axes and fill values</span>
-</span><span class="line">            <span class="n">chorizo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">chorizo</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
-</span><span class="line">            <span class="n">chorizo</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">chorizo</span><span class="p">,</span> <span class="n">whole</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">totCard</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">chorizo</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">fB</span><span class="p">,</span> <span class="n">norma</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;expanding factors to the whole set of variables, then we can multiply element-wise&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">allVars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">fB</span><span class="o">.</span><span class="n">variables</span><span class="p">)))</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">allVars</span><span class="p">)</span>
-</span><span class="line">    <span class="n">FA</span> <span class="o">=</span> <span class="n">expand_rvars</span><span class="p">(</span><span class="n">allVars</span><span class="p">,</span> <span class="n">fA</span><span class="p">)</span>
-</span><span class="line">    <span class="n">FB</span> <span class="o">=</span> <span class="n">expand_rvars</span><span class="p">(</span><span class="n">allVars</span><span class="p">,</span> <span class="n">fB</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">FA</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">FB</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">norma</span><span class="p">:</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>As always this code is a first pass that needs cleaning and refactoring (most probably I can still simplify the subprocesses for the expansion of factors).</p>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/13/">&larr; Older</a>
@@ -799,6 +731,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
       </li>
     
@@ -812,10 +748,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a>
       </li>
     
   </ul>
