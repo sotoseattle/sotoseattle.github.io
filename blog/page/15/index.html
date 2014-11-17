@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="The next few days I’ll be going over the Probabilistic Graphical Networks course I did in Coursera. I am not going to go to heavy on theory because &hellip;">
+  <meta name="description" content="[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,348 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/03/Genetic-BN/">Genetic Bayesian Network (I)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-03T08:01:00-08:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<p>As a first exercise I am going to create the typical genetic Bayesian network. Given a family tree, for each member of the family we are going to have two nodes, one for the person’s genotype, and another for her phenotype. The template would be:</p>
+
+<p><img class="center" src="/images/nov13/template.png" width="500" title="Template for Genetic Bayesian Network" /></p>
+
+<h2 id="phenotype-factor">phenotype Factor</h2>
+<p>The Phenotype of a person will depend on her Genotype, so there is a single link between both nodes. The factor that describes this relationship (probability of trait present given the genotype) will be a function that computes the probability of each possible assignment. </p>
+
+<p>The phenotype can be either present (val 0) or not (val 1) with a cardinality of 2.</p>
+
+<p>In the simplest case the genotype has 2 alleles and each one can be dominant (A) or recessive (a). The presence of the dominant allele (A) determines the presence of the trait. </p>
+
+<p>This means a total of 3 possible allele combinations: AA, Aa==aA, aa. For example, given a genotype x_3, the conditional probabilities of phenotype x_1 showing up are:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: left"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">p(x_1 | x_3)</td>
+      <td style="text-align: right">AA</td>
+      <td style="text-align: right">Aa</td>
+      <td style="text-align: right">aa</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">present</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">absent</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: right">0</td>
+      <td style="text-align: right">1</td>
+      <td style="text-align: left"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br />
+In a fast and dirty way the above becomes:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor for phenotype given genotype in Mendellian manner</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">geno</span>  <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class="line"><span class="n">pheno</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">Factor_phenotype_given_genotype_Mendelian</span><span class="p">(</span><span class="n">isDominant</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">,</span> <span class="n">phenoVar</span><span class="p">):</span>
+</span><span class="line">    <span class="n">varis</span> <span class="o">=</span> <span class="p">[</span><span class="n">phenoVar</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">]</span> <span class="c"># written like in cond prob order</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">isDominant</span><span class="p">:</span>
+</span><span class="line">        <span class="n">valus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+</span><span class="line">    <span class="k">else</span><span class="p">:</span>
+</span><span class="line">        <span class="n">valus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">varis</span><span class="p">)</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">valus</span><span class="p">))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Generalizing the previous case we can determine probabilities for the presence of the trait. For this we supply an alphaList that tells us the probability of presenting the trait if certain genotype is present. For example, continuing the previous example, and alphaList of [0.8, 0.6, 0.1] that correlates with genotypes [AA, Aa, aa], means that if the AA is present, the probability of having the trait is 80%.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor for phenotype given genotype and probabilities</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">Factor_phenotype_given_genotype_Not_Mendelian</span><span class="p">(</span><span class="n">alphaList</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">,</span> <span class="n">phenoVar</span><span class="p">):</span>
+</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">phenoVar</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">])</span> <span class="c"># written like in cond prob order</span>
+</span><span class="line">    <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">idx2ass</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+</span><span class="line">    <span class="n">arr</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">alphaList</span><span class="p">)):</span>
+</span><span class="line">        <span class="n">v</span> <span class="o">=</span> <span class="n">alphaList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class="line">        <span class="n">k</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>  <span class="c"># trait present</span>
+</span><span class="line">        <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class="line">        <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">v</span>    <span class="c"># trait absent</span>
+</span><span class="line">    <span class="n">ff</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="genotype-factor-without-inheritance">genotype Factor without inheritance</h2>
+
+<p>The simplest Factor for genotype is the one that does not depend on inheritance and instead depends solely on the frequency of the alleles showing up in the general population. </p>
+
+<p>We consider these probabilities to be independent. As a result, the probability of a genotype is the product of the frequencies of its constituent alleles.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor Genotype given Alleles frequency (in general population)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line">    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">            <span class="n">sol</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">count</span>
+</span><span class="line">            <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">sol</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">Factor_genotype_given_allele_freqs</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">):</span>
+</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">genoVar</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">numAlleles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">)</span>
+</span><span class="line">    <span class="n">numGenotypes</span> <span class="o">=</span> <span class="n">genoVar</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span>
+</span><span class="line">    <span class="n">chocho</span> <span class="o">=</span> <span class="n">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">            <span class="n">key</span> <span class="o">=</span> <span class="n">chocho</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)))]</span>
+</span><span class="line">            <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">alleleFreqs</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">*</span><span class="n">alleleFreqs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="genotype-factor-without-inheritance-1">genotype Factor without inheritance</h2>
+
+<p>Finally, the probabilities of having a certain genotype based on the genotypes of the parents:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor Genotype given Parents Genotypes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">numGenos</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">numAlleles</span><span class="o">*</span><span class="p">(</span><span class="n">numAlleles</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">Factor_genotype_given_parents_genes</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">,</span> <span class="n">genKid</span><span class="p">,</span> <span class="n">genDad</span><span class="p">,</span> <span class="n">genMom</span><span class="p">):</span>
+</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">genKid</span><span class="p">,</span> <span class="n">genDad</span><span class="p">,</span> <span class="n">genMom</span><span class="p">])</span>
+</span><span class="line">    <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">idx2ass</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+</span><span class="line">    <span class="n">chocho</span> <span class="o">=</span> <span class="n">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
+</span><span class="line">    <span class="n">kid</span> <span class="o">=</span> <span class="n">chocho</span>
+</span><span class="line">    <span class="n">dad</span> <span class="o">=</span> <span class="n">chocho</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span><span class="line">    <span class="n">mom</span> <span class="o">=</span> <span class="n">chocho</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span><span class="line">    <span class="n">arr</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">dad_gen</span> <span class="ow">in</span> <span class="n">dad</span><span class="p">:</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">mom_gen</span> <span class="ow">in</span> <span class="n">mom</span><span class="p">:</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">kid_gen</span> <span class="ow">in</span> <span class="n">kid</span><span class="p">:</span>
+</span><span class="line">                <span class="n">hits</span> <span class="o">=</span> <span class="mf">0.</span>
+</span><span class="line">                <span class="k">for</span> <span class="n">chuchu</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">dad_gen</span><span class="p">,</span> <span class="n">mom_gen</span><span class="p">):</span>
+</span><span class="line">                    <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chuchu</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">(</span><span class="n">kid_gen</span><span class="p">):</span>
+</span><span class="line">                        <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">                <span class="n">hits</span> <span class="o">=</span> <span class="n">hits</span><span class="o">/</span><span class="mf">4.</span>
+</span><span class="line">                <span class="n">arr</span><span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="n">kid</span><span class="p">[</span><span class="n">kid_gen</span><span class="p">],</span> <span class="n">dad</span><span class="p">[</span><span class="n">dad_gen</span><span class="p">],</span> <span class="n">mom</span><span class="p">[</span><span class="n">mom_gen</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">hits</span>
+</span><span class="line">    <span class="n">ff</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="building-the-genetic-network">building the genetic network</h2>
+
+<p>Self explanatory. For a given family tree we create the variables and factors associated to each person/node.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>putting it all together</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">geneticNetwork</span><span class="p">(</span><span class="n">pedigree</span><span class="p">,</span> <span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">alphaList</span><span class="p">):</span>
+</span><span class="line">    <span class="n">PHENOTYPE_CARD</span> <span class="o">=</span> <span class="mi">2</span> <span class="c"># present or absent</span>
+</span><span class="line">    <span class="n">numAlleles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">)</span>
+</span><span class="line">    <span class="n">numG</span> <span class="o">=</span> <span class="n">numGenos</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">varList</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># first we create all variables</span>
+</span><span class="line">    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pedigree</span><span class="p">:</span>
+</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">numG</span><span class="p">)</span>
+</span><span class="line">        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_pheno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">PHENOTYPE_CARD</span><span class="p">)</span>
+</span><span class="line">        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># and now the factors</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pedigree</span><span class="p">:</span>
+</span><span class="line">        <span class="n">kid_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
+</span><span class="line">        <span class="n">kid_ph</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_pheno&#39;</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">dad_gn</span><span class="p">,</span> <span class="n">mom_gn</span> <span class="o">=</span> <span class="n">pedigree</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">dad_gn</span> <span class="ow">and</span> <span class="n">mom_gn</span><span class="p">:</span>
+</span><span class="line">            <span class="n">dad_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">dad_gn</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
+</span><span class="line">            <span class="n">mom_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">mom_gn</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
+</span><span class="line">            <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor_genotype_given_parents_genes</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">,</span> <span class="n">dad_gn</span><span class="p">,</span> <span class="n">mom_gn</span><span class="p">)</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor_genotype_given_allele_freqs</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">)</span>
+</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_geno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ff</span>
+</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_pheno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor_phenotype_given_genotype_Not_Mendelian</span><span class="p">(</span><span class="n">alphaList</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">,</span> <span class="n">kid_ph</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">return</span> <span class="n">varList</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># this is fugly</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">modify_Factor_by_evidence</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
+</span><span class="line">    <span class="n">factor</span> <span class="o">=</span> <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span>
+</span><span class="line">    <span class="n">randvar</span> <span class="o">=</span> <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span>
+</span><span class="line">    <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="p">{</span><span class="n">randvar</span><span class="p">:</span><span class="n">ass</span><span class="p">})</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">build_joint_cpd</span><span class="p">():</span>
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="bp">None</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">GN</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span><span class="line">        <span class="n">b</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">GN</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s">&#39;factor_geno&#39;</span><span class="p">],</span> <span class="n">GN</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s">&#39;factor_pheno&#39;</span><span class="p">])</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">a</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
+</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">b</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">a</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -740,83 +1082,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/22/Neurotic-Titanic/">Neurotic Titanic</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-22T21:02:00-07:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have spent the last 13th submissions to beat my previous position (77<sup>th</sup> with 81.81% accuracy) without result. I tried concocting and adding new features, combining them in weird ways, estimating the missing values to the highest accuracy possible. All to no avail.</p>
-
-<p>I have tried not only screwing with the SVM, but Neural Networks with the code of previous posts. The Neural Nets work great but tend to overfit tremendously. I get 84-88% in CV only to get 75-80% on the Kaggle test set. The overfitting got me thinking about ways to simplify so the model could generalize better. This is what I have learn:</p>
-
-<h2 id="less-features-are-better-than-more">less features are better than more</h2>
-
-<p>From my previous like 10 features I have realized that we get the same results with less. Actually, the title level alone will give you 79% accuracy on the cross validation set. Then you can experiment adding new features to see how well you do and realize that in order of incremental power come: family (as Parch + SibSp), Fare paid, Pclass, overseer, charisma (binAge * Pclass), Port_Q (embarked on Queenssomething), ….</p>
-
-<p>After the first 5 you don’t add much more and a bit further you star to add noise and lose generalization power. This means that things like Age, Sex or Embarked port are not even considered!</p>
-
-<h2 id="simpler-beats-complex-sometimes">simpler beats complex (sometimes)</h2>
-
-<p>I tried to simplify as much as possible the features. First I only use 5 (‘title_level’, ‘family’, ‘Fare’, ‘Pclass’, ‘overseer’). Then I tried to simplify them:</p>
-
-<p>I started estimating the correct Age (as bin) with a SVM and then with a Neural Network. The SVM got 68% right on CV, and the NN north of 90%. The problem is that Age is not key, the title already incorporates all the age information that is relevant. So out it went.</p>
-
-<p>The same with Sex. Title already incorporates the info. Adding Sex, in this case, only confuses things.</p>
-
-<p>On title I aggregate it to just [‘mr’, ‘mrs’, ‘mss’, ‘master’, ‘rev’, ‘major’, ‘sir’, ‘col’, ‘capt’, ‘the countess’]. The less the merrier.</p>
-
-<p>Family went from a sum of relatives to 3 classes, [traveling alone, 1 relative, more than 1 relative on board].</p>
-
-<p>Overseer, was a bit more built up. essentially for each passenger I look for other relatives and companions that survived. For women, if the survivor was older give 10 points, if not get just 1. For men, if the survivor was a man older by 20 years give 10 points, if not get 1. Any other way get -1. The idea already explained that in a crisis we gather with who we know, and that the elder look after the younger (up to a point).</p>
-
-<p>By the way, I have been trying avoid 0 values, in the suspicion (material or not) that zeros are traps from which is difficult to escape (when most we do is multiply stuff).</p>
-
-<h2 id="svm-or-nn--why-not-both">SVM or NN =&gt; why not both?</h2>
-
-<p>With the above simplifications either SVM or NN got stuck under 80%. There was no way to move the dial so I tried a crazy approach: run them both (with optimized hyperparameters) and then:</p>
-
-<ul>
-  <li>commit when both agree,</li>
-  <li>when they disagree on the outcome, choose the one with the highest assigned probability (yes, SVM can estimate the probability too!)</li>
-</ul>
-
-<p>Stupidly simple, and with great results. With my latest iteration, number 26, I landed on the 57 spot of 7,035 participants (as of now).</p>
-
-<blockquote><p>Score on the test set (Kaggle): 82.775%.</p></blockquote>
-
-<p>The NN alone (submission 27) is a big network with three hidden layers and overfits the data to death (Kaggle 80.38%). The SVM alone does not get past 80% either. But both of them working together work wonders. I am sure more could be extracted from this approach, but I need to get going and I should try a new competition and learn a new model.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/16/">&larr; Older</a>
@@ -834,6 +1099,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
       </li>
     
@@ -847,10 +1116,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
       </li>
     
   </ul>

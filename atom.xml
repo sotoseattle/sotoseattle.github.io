@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-13T09:19:35-08:00</updated>
+  <updated>2014-11-17T15:45:28-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,96 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Code Retreat Reflections]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat/"/>
+    
+    <updated>2014-11-17T20:17:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat</id>
+    
+    <content type="html"><![CDATA[<p>Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning experience.</p>
+
+<p>One of the goals of the exercise is to get one out of his coding comfort-zone. Like thrown into a dark room we stretch the arms to ‘feel’ and ‘see’ what is next, when I was taken out of my way of thinking, when confronted with a curve ball to code (zombie cells?) or when I had to pair in a different language, I was forced to stretch my arms and use short bursts of tests as the only way to gain ground and advance.</p>
+
+<p><img class="left" src="http://sotoseattle.github.io/images/Nov14/Game_of_life_pulsar.gif" width="200" />
+“Game of life pulsar” by JokeySmurf <a href="http://commons.wikimedia.org/wiki/File:Game_of_life_pulsar.gif#mediaviewer/File:Game_of_life_pulsar.gif">Licensed under Public domain via Wikimedia Commons</a></p>
+
+<p>The pair experience was happily horrifying, God I need to work on that! Adding ping-pong style to it, raised the stakes to the level of Hunger Games.</p>
+
+<p>Nevertheless, I spent the next day working on the Game of Life, trying to code it from the point of view of the 4 Principles of Simple Design and thinking about the process.</p>
+
+<p>My unfinished code is <a href="https://github.com/sotoseattle/CodeRetreat">here</a> and these notes are my reflections on the process.</p>
+
+<h3 id="learning-to-fly">Learning to Fly</h3>
+
+<p>First and foremost I not only started every iteration writing the tests, but tried to write them from the most general point of view, avoiding referring to implementation details. This is extremely difficult for two reasons:</p>
+
+<p>First, unconsciously, when I pose a testing question / requirement I already have an implicit idea of how to answer it. Visualizing how things should work, even if only in the end point (as seen by customer or objects), does not happen in a vacuum. As soon as one starts to think about it, the mind starts to consider alternatives: data structures, algorithms, etc, from past experience. Furthermore, when you write the details of the test you are specifying the objects to use and the methods to call.</p>
+
+<p>I want to keep the questions as open-ended as possible, so later on the code can answer as it sees fit, from the trenches in the battlefield and not directed by an armchair admiral.</p>
+
+<p>Second, if the test is too general, too abstract, too high altitude, it ends up encompassing way too much functionality, which requires to implement too many things in too many places in order to pass the test. Therefore I need to get down from the high chair and make more concrete, low level requirements. But this in turn, (i.e. calling a specific intermediary method in my test) is already steering and making me think of concrete implementation details!</p>
+
+<p>There is great tension between these forces, between flying high without getting lost in space, and flying low and hitting the rooftops.
+<!--more-->
+### Gravity Pull</p>
+
+<p>Another difficulty I have experienced. By passing tests and only passing them, without regard for the overall design from the get go, I tend to find myself thinking in a tunnel, with a narrow scope of the problem (pass the test). Like doing white-board challenges, way too close to what I am writing in the white-board, unable to see and play with the whole picture.</p>
+
+<p>This narrowing is like a gravitational pull. Happens without being aware. The way to fight it was through the refactoring phase. Then I could step back, or fly to a higher altitude and look at the code in its entirety, check how the pieces work together, and try to give them a more consistent and natural feel.</p>
+
+<h3 id="writing-test-miss-conception">Writing Test Miss-conception</h3>
+
+<p>Initially I though that the tests were going to be written in stone, once written they would remain essentially the same (not considering small refactorings to input/output as we add features). I was wrong. I have found myself refactoring tests as much as code. What I though should belong to Cell ended up in a Location object, and that forced the test itself to change. Tests were written, deleted, moved, and refactored continuously. Tests became Code.</p>
+
+<h3 id="advance-retreat-pivot-repeat-somersault-wtf">Advance, Retreat, Pivot, Repeat, Somersault, WTF</h3>
+
+<p>Imagine the situation: you have a test to pass so you start coding to find out that you are going to need some intermediate methods. What do you do, retreat and write test for these intermediate methods? Or plunge ahead and implement them to pass the original? Which means you will need to write tests for that interim method a posteriori? I have found that the process is not clear cut or linear, and that you need to keep a loose attitude about it, making compromises, keeping the writing of your test and methods in fluid motion.</p>
+
+<p>The same happens if, in the middle of the process, you want to explore a line of thought. You may want to play in the sandbox and not write a test a priori about something that may not be used or whose utility is more about writing an idea into code so a better one emerges or it clarifies a whole concept.</p>
+
+<h3 id="emergence">Emergence</h3>
+
+<p>One of the main things I wanted to evaluate in the first place was the ability of the process to allow good code to emerge naturally.</p>
+
+<p>I started only considering living cells that live and die because of the proximity of other cells. The key being that I did not consider locations where new cells would emerge, that feature was left for later.</p>
+
+<p>Through the iterative process I ended up differentiating between Location and Cell, so the cell attends only to its biological imperatives and the location encapsulates all the geographical functionality (coordinates). This allowed me to have a minimal controller of the game that only kept track of living cells. Later on I added a new class, a Chart, to visualize a group of locations (of the living cells).</p>
+
+<p>Now, for the fun part. Given this code at this stage, the result of the aforementioned process. Where I have taken good care of keeping things encapsulated, apart, to each according to his responsibilities and capabilities. How hard would it be to add the functionality of certain locations becoming populated by new cells due to proximity of other living cells?</p>
+
+<h3 id="close-but-no-cigar">Close, but no cigar!</h3>
+
+<p>Well, no. It didn’t save me the pain of a big refactoring.</p>
+
+<p>Once I had to consider spawning locations the whole design fell to pieces. I was tracking living cells and the Cell class had responsibility over knowing its neighbors. Now that I needed to find a way to encompass both, tracking already living cells and looking for fertile locations where new cells could come to life, I saw that keeping track of and analyzing locations could achieve both things in a single stroke.</p>
+
+<p>I could see 3 ways to go about it:</p>
+
+<ol>
+  <li>Topologically, considering only locations, like a potential field.</li>
+  <li>Biologically, with a graph made of cells, which I traverse to decide if I create new ones in neighboring spaces.</li>
+  <li>Topo for spawning locations and bio for living cells. May make the most natural sense, since spawning locations and living cells are different things, but I cannot see it being worth the extra level of complexity. A more complex setting could make me choose this route.</li>
+</ol>
+
+<p>On one hand, this high level understanding of the design could have been taken head-on from the start, saving me the extra miles walked down the cell path, to only retrace and re-code it as location based.</p>
+
+<p>On the other hand, this process allowed me to never get stuck because of the complexity of the problem. I was always able to advance, even if it meant taking 2 steps forward and one back. If time is not a constraint this way feels natural and it flows.</p>
+
+<p>Another benefit was that I could always relay on the test previously written. This is an immense aid and a boost to the confidence that the new route (big refactoring) works.</p>
+
+<p>A final benefit is that the continuous refactoring ends up making the whole language more natural, the code minimized code and me having a deeper understanding of how everything works. The fact that I was building and breaking things continuously forced me to be always make things as clear and small as possible, so I wouldn’t get lost with all the commotion.</p>
+
+<h3 id="disclaimer">Disclaimer</h3>
+
+<p>The code was left unfinished. The GOL class should have a method ‘play’, a way to set the initial state of living cells from a text file (for example), and a way to visualize the evolution of the game in a fixed referenced window. The chart class itself, which visualizes the board, is messy and would benefit from refactoring.</p>
+
+<p>Absolutely more tests are needed. I still need to work on really covering all possible scenarios for each class. I started strong but I have the feeling that I dropped the ball a bit by the end.</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -2767,466 +2857,6 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
 <p>Our Gibbs way of sampling creates an MC (derived itself from the PGM) that is regular, and therefore it has the same stationary distribution as the distribution of our PGM. So, in the long run, I can find/collect new states/assignments that show up with probability equal to the joint distribution of the PGM. </p>
 
 <p>Finally, as another aside, for a Markov Network, another sufficient condition is that if all factors are positive, the Gibbs chain is regular. Beware, that being regular does not mean it is efficient and mixes.</p>
-
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Loopy Belief Propagation (III)]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/02/08/LBP-3/"/>
-    
-    <updated>2014-02-08T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/02/08/LBP-3</id>
-    
-    <content type="html"><![CDATA[<p>These are different approaches to improve convergence and accuracy of the marginals.</p>
-
-<h2 id="smoothing-messages">1. Smoothing Messages</h2>
-
-<p>Very easy to implement. When we compute every new message, instead of updating the delta, we update with smoothing: <code>coef*(new delta) + (1-coef)*(prev stored delta)</code>. This slows convergence in one hand but also avoids big jumps in the beliefs, giving time to achieve convergence at a more controlled pace. Trying for different coeficients I did not improve the marginals.</p>
-
-<h2 id="tree-reparametrization">2. Tree Reparametrization</h2>
-
-<p>Also easy to implement. Instead of using BFS for message scheduling of all nodes, we find a set of trees in the graph so all edges are covered. It is better if we have spanning trees (as long as possible). Then we propagate like with Clique Trees, only twice, forward and backward. The easiest way to get trees from a graph is using Depth First Search (DFS). Still, I don’t know how to get the minimum set of trees that encompass the whole graph, and I had to do it by hand :( Here is an example of 2 trees that span the grid:</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/TRP.png" width="500" title="Trees for LBP" /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>DFS</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">DFS_Paths</span><span class="p">:</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">G</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">s</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># only the forward path, add backwards</span>
-</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span> <span class="c"># start only at designated root</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-</span><span class="line">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="n">w</span><span class="p">])</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">pathTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
-</span><span class="line">            <span class="k">return</span> <span class="bp">None</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
-</span><span class="line">            <span class="n">x</span> <span class="o">=</span> <span class="n">v</span>
-</span><span class="line">            <span class="k">while</span> <span class="n">x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
-</span><span class="line">                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-</span><span class="line">                <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
-</span><span class="line">            <span class="k">return</span> <span class="n">path</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>When I run on indiscriminate sets of trees I converge to the bad marginals. But if I use two trees, one long spanning DFS tree plus a manually computed one for the missed edges, I get somewhat better results (sqr error from 0.99 to 0.75):</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.723905954527</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.728300716867</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.592195736634</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.835859875384</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.911873353528</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.900624901637</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.8791687735</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.927292899198</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.905241175589</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<h2 id="residual-belief-propagation">3. Residual Belief Propagation</h2>
-
-<p>This last effort is based on the fact that not all messgaes have the same importance. Some change the beliefs a great deal, while others are less important. It is easy to look at the way messages achieve convergence, andd see that not all reach equilibrium at the same time. The same happens with the betas.</p>
-
-<p>What I did was implement a priority queue, and as compute each message I store it in the queue with a key that measures how much the message changed. Since all messages are univariate (check cluster graph and realize that there are only pairwise potentials), each message has two values (p, 1-p). The measure I use is the abs of the difference in p. The first pass (BFS) goes through all edges and computes all messages, but starting with the second pass, we compute only the messages that change beyond a tolerance and ordered so the more important run first. </p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibrate with RBP</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">()</span>
-</span><span class="line">    <span class="n">q</span> <span class="o">=</span> <span class="n">PriorityQueue</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">    <span class="n">cycles</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">while</span> <span class="n">keep_going</span><span class="p">:</span>
-</span><span class="line">        <span class="n">cycles</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
-</span><span class="line">            <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">            <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">            <span class="n">messages</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">            <span class="n">prev_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">            <span class="n">new_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">
-</span><span class="line">            <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">new_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_res</span><span class="p">,</span> <span class="n">prev_res</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">):</span>
-</span><span class="line">                <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="nb">abs</span><span class="p">(</span><span class="n">mag</span><span class="p">):[</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">]})</span>
-</span><span class="line">                <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">cycles</span><span class="o">&gt;</span><span class="mi">1000</span><span class="p">:</span>
-</span><span class="line">            <span class="o">...</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</span><span class="line">            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c"># because it is a minQ</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;Cycles:&#39;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="s">&#39;Messages passed&#39;</span><span class="p">,</span> <span class="n">messages</span>
-</span><span class="line">    <span class="c"># compute the beliefs</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>This way we only need 3 cycles and 104 messages. The first cycle goes through all 48 edges. the second also computes 48 messages but in a different order (prioritized by heuristic importance), and the third only comutes 8 messages. The results are even better:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.614445509854</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.632046274666</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.592793285825</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.699814842287</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.759645004711</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.749109157114</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.739850591712</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.822523867844</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.848549594174</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Square distance error is 0.42. If instead of using the BSF as the initial path, we compute all messages and create an initial path based on a priority queue as before, the error can be taken further down to 0.33.</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.399020732163</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.378280542986</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.443100330486</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.465753424658</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.641605971227</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.662337662338</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.641605971227</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.770344431088</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.719502074689</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>And finally, if instead of prioritizing the queue based on the importance of the messages we do it based on how each new message changes the marginalized belief of the receiving node we lower the error further to 0.24, although we need to cycle 13 times and pass 296 messages.</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.444436529385</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.605683356431</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.494869086601</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.562421013105</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.692305538097</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.64302214095</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.682604471501</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.745950622502</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.748513253977</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Code to compute the magnitude based on belief change</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
-</span><span class="line">    <span class="n">beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">to_w</span><span class="p">])</span>
-</span><span class="line">    <span class="n">past_beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">affected_var</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">beta</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">to_w</span><span class="p">]:</span>
-</span><span class="line">        <span class="n">posX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">posX</span><span class="p">]</span>
-</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> <span class="c">#### NORMALIZING</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">if</span> <span class="n">affected_var</span><span class="o">!=</span><span class="p">[]:</span>
-</span><span class="line">        <span class="n">past_beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">past_beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">    <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">mag</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Nevertheless, although it gives good results for a 9 node Ising grid, the more the nodes the worse it works. The RBP is the best approach found and I am sure that with a better designed key for the queue (to show which messages should be prioritized) bigger grids can also be optimized.</p>
 
 ]]></content>
     

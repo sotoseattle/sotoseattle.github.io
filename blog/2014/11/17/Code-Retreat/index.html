@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>SotoSeattle</title>
+  <title>Code Retreat Reflections - SotoSeattle</title>
   <meta name="author" content="Javier Soto">
 
   
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://sotoseattle.github.io">
+  <link rel="canonical" href="http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="" rel="alternate" title="SotoSeattle" type="application/atom+xml">
@@ -109,18 +109,15 @@
 </nav>
   <div id="main">
     <div id="content">
-      <div class="blog-index">
+      <div>
+<article class="hentry" role="article">
   
-  
-  
-    <article>
-      
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a></h1>
-      
-      
+      <h1 class="entry-title">Code Retreat Reflections</h1>
+    
+  
     
       <p class="meta">
         
@@ -142,7 +139,7 @@
   </header>
 
 
-  <div class="entry-content"><p>Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning experience.</p>
+<div class="entry-content"><p>Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning experience.</p>
 
 <p>One of the goals of the exercise is to get one out of his coding comfort-zone. Like thrown into a dark room we stretch the arms to ‘feel’ and ‘see’ what is next, when I was taken out of my way of thinking, when confronted with a curve ball to code (zombie cells?) or when I had to pair in a different language, I was forced to stretch my arms and use short bursts of tests as the only way to gain ground and advance.</p>
 
@@ -166,29 +163,71 @@
 <p>Second, if the test is too general, too abstract, too high altitude, it ends up encompassing way too much functionality, which requires to implement too many things in too many places in order to pass the test. Therefore I need to get down from the high chair and make more concrete, low level requirements. But this in turn, (i.e. calling a specific intermediary method in my test) is already steering and making me think of concrete implementation details!</p>
 
 <p>There is great tension between these forces, between flying high without getting lost in space, and flying low and hitting the rooftops.
+<!--more-->
+### Gravity Pull</p>
+
+<p>Another difficulty I have experienced. By passing tests and only passing them, without regard for the overall design from the get go, I tend to find myself thinking in a tunnel, with a narrow scope of the problem (pass the test). Like doing white-board challenges, way too close to what I am writing in the white-board, unable to see and play with the whole picture.</p>
+
+<p>This narrowing is like a gravitational pull. Happens without being aware. The way to fight it was through the refactoring phase. Then I could step back, or fly to a higher altitude and look at the code in its entirety, check how the pieces work together, and try to give them a more consistent and natural feel.</p>
+
+<h3 id="writing-test-miss-conception">Writing Test Miss-conception</h3>
+
+<p>Initially I though that the tests were going to be written in stone, once written they would remain essentially the same (not considering small refactorings to input/output as we add features). I was wrong. I have found myself refactoring tests as much as code. What I though should belong to Cell ended up in a Location object, and that forced the test itself to change. Tests were written, deleted, moved, and refactored continuously. Tests became Code.</p>
+
+<h3 id="advance-retreat-pivot-repeat-somersault-wtf">Advance, Retreat, Pivot, Repeat, Somersault, WTF</h3>
+
+<p>Imagine the situation: you have a test to pass so you start coding to find out that you are going to need some intermediate methods. What do you do, retreat and write test for these intermediate methods? Or plunge ahead and implement them to pass the original? Which means you will need to write tests for that interim method a posteriori? I have found that the process is not clear cut or linear, and that you need to keep a loose attitude about it, making compromises, keeping the writing of your test and methods in fluid motion.</p>
+
+<p>The same happens if, in the middle of the process, you want to explore a line of thought. You may want to play in the sandbox and not write a test a priori about something that may not be used or whose utility is more about writing an idea into code so a better one emerges or it clarifies a whole concept.</p>
+
+<h3 id="emergence">Emergence</h3>
+
+<p>One of the main things I wanted to evaluate in the first place was the ability of the process to allow good code to emerge naturally.</p>
+
+<p>I started only considering living cells that live and die because of the proximity of other cells. The key being that I did not consider locations where new cells would emerge, that feature was left for later.</p>
+
+<p>Through the iterative process I ended up differentiating between Location and Cell, so the cell attends only to its biological imperatives and the location encapsulates all the geographical functionality (coordinates). This allowed me to have a minimal controller of the game that only kept track of living cells. Later on I added a new class, a Chart, to visualize a group of locations (of the living cells).</p>
+
+<p>Now, for the fun part. Given this code at this stage, the result of the aforementioned process. Where I have taken good care of keeping things encapsulated, apart, to each according to his responsibilities and capabilities. How hard would it be to add the functionality of certain locations becoming populated by new cells due to proximity of other living cells?</p>
+
+<h3 id="close-but-no-cigar">Close, but no cigar!</h3>
+
+<p>Well, no. It didn’t save me the pain of a big refactoring.</p>
+
+<p>Once I had to consider spawning locations the whole design fell to pieces. I was tracking living cells and the Cell class had responsibility over knowing its neighbors. Now that I needed to find a way to encompass both, tracking already living cells and looking for fertile locations where new cells could come to life, I saw that keeping track of and analyzing locations could achieve both things in a single stroke.</p>
+
+<p>I could see 3 ways to go about it:</p>
+
+<ol>
+  <li>Topologically, considering only locations, like a potential field.</li>
+  <li>Biologically, with a graph made of cells, which I traverse to decide if I create new ones in neighboring spaces.</li>
+  <li>Topo for spawning locations and bio for living cells. May make the most natural sense, since spawning locations and living cells are different things, but I cannot see it being worth the extra level of complexity. A more complex setting could make me choose this route.</li>
+</ol>
+
+<p>On one hand, this high level understanding of the design could have been taken head-on from the start, saving me the extra miles walked down the cell path, to only retrace and re-code it as location based.</p>
+
+<p>On the other hand, this process allowed me to never get stuck because of the complexity of the problem. I was always able to advance, even if it meant taking 2 steps forward and one back. If time is not a constraint this way feels natural and it flows.</p>
+
+<p>Another benefit was that I could always relay on the test previously written. This is an immense aid and a boost to the confidence that the new route (big refactoring) works.</p>
+
+<p>A final benefit is that the continuous refactoring ends up making the whole language more natural, the code minimized code and me having a deeper understanding of how everything works. The fact that I was building and breaking things continuously forced me to be always make things as clear and small as possible, so I wouldn’t get lost with all the commotion.</p>
+
+<h3 id="disclaimer">Disclaimer</h3>
+
+<p>The code was left unfinished. The GOL class should have a method ‘play’, a way to set the initial state of living cells from a text file (for example), and a way to visualize the evolution of the game in a fixed referenced window. The chart class itself, which visualizes the board, is messy and would benefit from refactoring.</p>
+
+<p>Absolutely more tests are needed. I still need to work on really covering all possible scenarios for each class. I started strong but I have the feeling that I dropped the ball a bit by the end.</p>
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/11/17/Code-Retreat/">Read on &rarr;</a>
-    </footer>
-  
 
 
-    </article>
-  
-  
-    <article>
+  <footer>
+    <p class="meta">
       
-  <header>
   
-    
-      <h1 class="entry-title"><a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a></h1>
+
+<span class="byline author vcard">Posted by <span class="fn">Javier Soto</span></span>
+
       
-      
-    
-      <p class="meta">
-        
 
 
 
@@ -200,105 +239,44 @@
   
 
 
-<time datetime="2014-11-02T20:17:00-08:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2014</time>
-        
-      </p>
+<time datetime="2014-11-17T20:17:00-08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ruby/'>Ruby</a>
+  
+</span>
+
+
+    </p>
     
-  </header>
-
-
-  <div class="entry-content"><p><img class="right" src="/images/Nov14/dice.png" width="400" /></p>
-
-<p>My Rubygem Primo is alive and kicking! Check it out at <a href="https://github.com/sotoseattle/Primo">Github</a>.</p>
-
-<p>In 2013 I took the online course “Probabilistic Graphical Models” (Stanford, Prof. Daphne Koller) from <a href="https://www.coursera.org/course/pgm">Coursera.org</a>. It was complex and difficult, but a lot of fun because of all the possibilities it opens up. This gem is a liberal translation of the code I worked with in Octave throughout the course, and which later I coded in python to learn the language.</p>
-
-<p>Sincere thanks to Masahiro Tanaka for his wonderful <a href="http://masa16.github.io/narray/">NArray gem</a>, which allows me to, for example, multiply two multi-dimensional arrays element-wise in a single step, after aligning them with simple rotations of their axes (actually pretty cool).</p>
-
-<p>I have christened this working library PRIMO (Probabilistic Inference Modeling) because in Spanish it means either prime, first, cousin or dumb! :)</p>
-
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat/" data-via="" data-counturl="http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat/" >Tweet</a>
+  
+  
+  
 </div>
-  
-  
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
     
-      <h1 class="entry-title"><a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise Into Angular + Rails</a></h1>
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/02/Primo-Lives/" title="Previous Post: Primo Lives!">&laquo; Primo Lives!</a>
       
       
-    
-      <p class="meta">
-        
+    </p>
+  </footer>
+</article>
 
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-30T16:17:00-07:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
-
-<p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>
-
-<p>Include in your Gemfile devise and bundle. We request at least version 4.3.1 because of some troubles with previous versions and Rails 4.2.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 3.4.1&#39;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Run the generator and follow the config steps suggested by the gem.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise:install
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Make devise respond to json by adding the following to your application.rb:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">config</span><span class="o">.</span><span class="n">to_prepare</span> <span class="k">do</span>
-</span><span class="line">  <span class="no">DeviseController</span><span class="o">.</span><span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
 
 </div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/30/Devise-Angular-Rails/">Read on &rarr;</a>
-    </footer>
-  
 
-
-    </article>
-  
-  <div class="pagination">
-    
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
-    
-    <a href="/blog/archives">Blog Archives</a>
-    
-  </div>
-</div>
 <aside class="sidebar">
   
     <section>
@@ -335,6 +313,7 @@
   
 </aside>
 
+
     </div>
   </div>
   <footer role="contentinfo"><p>
@@ -351,7 +330,10 @@
       var disqus_shortname = 'sotoseattle';
       
         
-        var disqus_script = 'count.js';
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat/';
+        var disqus_url = 'http://sotoseattle.github.io/blog/2014/11/17/Code-Retreat/';
+        var disqus_script = 'embed.js';
       
     (function () {
       var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;

@@ -118,6 +118,172 @@
   <header>
   
     
+      <h1 class="entry-title"><a href="/blog/2013/11/06/GBN4/">Genetic Bayesian Network (IV)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-06T08:01:00-08:00" pubdate data-updated="true">Nov 6<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
+
+<h2 id="example-revisited-decoupled-bn-for-cystic-fibrosis">example revisited: decoupled BN for cystic fibrosis</h2>
+
+<p><img class="center" src="/images/nov13/decoup_cysticBN.png" title="Template for Decoupled Genetic Bayesian Network" /></p>
+
+<p>Let’s run our previous example through our decoupled model with a twist. Now instead of two possible alleles (F and f) we are going to have 3: (F, f, n) with the following probabilities to develop CF. Everything else runs similarly as before.</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+      <th style="text-align: center"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">genotype</td>
+      <td style="text-align: center">FF</td>
+      <td style="text-align: center">Ff</td>
+      <td style="text-align: center">Fn</td>
+      <td style="text-align: center">ff</td>
+      <td style="text-align: center">fn</td>
+      <td style="text-align: center">nn</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">prob CF</td>
+      <td style="text-align: center">80%</td>
+      <td style="text-align: center">60%</td>
+      <td style="text-align: center">10%</td>
+      <td style="text-align: center">50%</td>
+      <td style="text-align: center">5%</td>
+      <td style="text-align: center">1%</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>building decoupled network</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># family tree and input data</span>
+</span><span class="line"><span class="n">family_tree</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Ira&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Robin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span>
+</span><span class="line"><span class="c">#family_tree[&#39;Aaron&#39;] = [None, None]</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Rene&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;James&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ira&#39;</span><span class="p">,</span> <span class="s">&#39;Robin&#39;</span><span class="p">]</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Eva&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ira&#39;</span><span class="p">,</span> <span class="s">&#39;Robin&#39;</span><span class="p">]</span>
+</span><span class="line"><span class="c">#family_tree[&#39;Sandra&#39;] = [&#39;Aaron&#39;, &#39;Eva&#39;]</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Jason&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;James&#39;</span><span class="p">,</span> <span class="s">&#39;Rene&#39;</span><span class="p">]</span>   <span class="c"># to speed things up</span>
+</span><span class="line"><span class="n">family_tree</span><span class="p">[</span><span class="s">&#39;Benito&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;James&#39;</span><span class="p">,</span> <span class="s">&#39;Rene&#39;</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line"><span class="n">frequency_of_alleles_in_general_population</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+</span><span class="line"><span class="n">probability_of_trait_based_on_genotype</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line"><span class="n">TRAIT_PRESENT</span><span class="p">,</span> <span class="n">TRAIT_ABSENT</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+</span><span class="line"><span class="n">F</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># building the network</span>
+</span><span class="line"><span class="n">GN</span> <span class="o">=</span> <span class="n">geneticNetwork</span><span class="p">(</span><span class="n">family_tree</span><span class="p">,</span> <span class="n">frequency_of_alleles_in_general_population</span><span class="p">,</span> <span class="n">probability_of_trait_based_on_genotype</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In an initial state, without more information, the probability for Benito developing Cystic Fibrosis is 35.54%.</p>
+
+<p>Now, his grandfather Ira had the ailment, (the trait was present as expressed in phenotype and suffered the disease), and so the chances of Benito being in the same situation raises to 39.01%.</p>
+
+<p>Furthermore, his mother did a genetic test prior to having children and knows that she has a genotype Ff. Now the probability has risen again to 51.47%.</p>
+
+<p>Finally, we do know that aunt Eva developed Cystic Fibrosis. This gives us more information about the probability of James inheriting bad genes from Ira, and so the probability of Benito developing Cystic Fibrosis raises again to 54.10%.</p>
+
+<p>Finally consider that with the unvectorized version of the Factor code I could not run the whole family tree because of memory and time constraints, which forced me to comment out some nodes to run the example in a smaller pedigree tree. Now, commenting out 2 nodes of the family tree (Aaron and Sandra) it still takes quite a few minutes to run it, and the whole CPD has 20 random variables (matrix dimensions) and 204 million cells (different assignments, each one with a probability).</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>conditioning and inferring</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># Evidence conditioning</span>
+</span><span class="line"><span class="n">modify_Factor_by_evidence</span><span class="p">(</span><span class="s">&#39;Ira&#39;</span><span class="p">,</span>  <span class="s">&#39;pheno&#39;</span><span class="p">,</span> <span class="n">TRAIT_PRESENT</span><span class="p">)</span>
+</span><span class="line"><span class="n">modify_Factor_by_evidence</span><span class="p">(</span><span class="s">&#39;Rene&#39;</span><span class="p">,</span> <span class="s">&#39;geno1&#39;</span><span class="p">,</span> <span class="n">F</span><span class="p">)</span>
+</span><span class="line"><span class="n">modify_Factor_by_evidence</span><span class="p">(</span><span class="s">&#39;Rene&#39;</span><span class="p">,</span> <span class="s">&#39;geno2&#39;</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+</span><span class="line"><span class="n">modify_Factor_by_evidence</span><span class="p">(</span><span class="s">&#39;Eva&#39;</span><span class="p">,</span>  <span class="s">&#39;pheno&#39;</span><span class="p">,</span> <span class="n">TRAIT_PRESENT</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># lets try first the whole kahuna CPD and compute the prob of developing CF</span>
+</span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="n">build_joint_cpd</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># marginalizing</span>
+</span><span class="line"><span class="n">target</span> <span class="o">=</span> <span class="n">GN</span><span class="p">[</span><span class="s">&#39;Benito&#39;</span><span class="p">][</span><span class="s">&#39;var_pheno&#39;</span><span class="p">]</span>
+</span><span class="line"><span class="n">lista</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="n">target</span><span class="p">]</span>
+</span><span class="line"><span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lista</span><span class="p">:</span>
+</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">print</span> <span class="s">&#39;probability of Benito showing ailment&#39;</span><span class="p">,</span> <span class="mf">100.</span><span class="o">*</span><span class="n">a</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;%&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
       <h1 class="entry-title"><a href="/blog/2013/11/05/GBN3/">Genetic Bayesian Network (III)</a></h1>
       
       
@@ -514,348 +680,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/03/Genetic-BN/">Genetic Bayesian Network (I)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-03T08:01:00-08:00" pubdate data-updated="true">Nov 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>[UPDATE] I have updated a posteriori the code to include the vectorized version of Factor manipulations, which is incredibly faster and will be explained in a later post.</p>
-
-<p>As a first exercise I am going to create the typical genetic Bayesian network. Given a family tree, for each member of the family we are going to have two nodes, one for the person’s genotype, and another for her phenotype. The template would be:</p>
-
-<p><img class="center" src="/images/nov13/template.png" width="500" title="Template for Genetic Bayesian Network" /></p>
-
-<h2 id="phenotype-factor">phenotype Factor</h2>
-<p>The Phenotype of a person will depend on her Genotype, so there is a single link between both nodes. The factor that describes this relationship (probability of trait present given the genotype) will be a function that computes the probability of each possible assignment. </p>
-
-<p>The phenotype can be either present (val 0) or not (val 1) with a cardinality of 2.</p>
-
-<p>In the simplest case the genotype has 2 alleles and each one can be dominant (A) or recessive (a). The presence of the dominant allele (A) determines the presence of the trait. </p>
-
-<p>This means a total of 3 possible allele combinations: AA, Aa==aA, aa. For example, given a genotype x_3, the conditional probabilities of phenotype x_1 showing up are:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: left"> </th>
-      <th style="text-align: right"> </th>
-      <th style="text-align: right"> </th>
-      <th style="text-align: right"> </th>
-      <th style="text-align: left"> </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">p(x_1 | x_3)</td>
-      <td style="text-align: right">AA</td>
-      <td style="text-align: right">Aa</td>
-      <td style="text-align: right">aa</td>
-      <td style="text-align: left"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: left">present</td>
-      <td style="text-align: right">1</td>
-      <td style="text-align: right">1</td>
-      <td style="text-align: right">0</td>
-      <td style="text-align: left"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: left">absent</td>
-      <td style="text-align: right">0</td>
-      <td style="text-align: right">0</td>
-      <td style="text-align: right">1</td>
-      <td style="text-align: left"> </td>
-    </tr>
-  </tbody>
-</table>
-
-<p><br />
-In a fast and dirty way the above becomes:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor for phenotype given genotype in Mendellian manner</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">geno</span>  <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</span><span class="line"><span class="n">pheno</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">Factor_phenotype_given_genotype_Mendelian</span><span class="p">(</span><span class="n">isDominant</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">,</span> <span class="n">phenoVar</span><span class="p">):</span>
-</span><span class="line">    <span class="n">varis</span> <span class="o">=</span> <span class="p">[</span><span class="n">phenoVar</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">]</span> <span class="c"># written like in cond prob order</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">isDominant</span><span class="p">:</span>
-</span><span class="line">        <span class="n">valus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
-</span><span class="line">    <span class="k">else</span><span class="p">:</span>
-</span><span class="line">        <span class="n">valus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">varis</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">valus</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Generalizing the previous case we can determine probabilities for the presence of the trait. For this we supply an alphaList that tells us the probability of presenting the trait if certain genotype is present. For example, continuing the previous example, and alphaList of [0.8, 0.6, 0.1] that correlates with genotypes [AA, Aa, aa], means that if the AA is present, the probability of having the trait is 80%.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor for phenotype given genotype and probabilities</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">Factor_phenotype_given_genotype_Not_Mendelian</span><span class="p">(</span><span class="n">alphaList</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">,</span> <span class="n">phenoVar</span><span class="p">):</span>
-</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">phenoVar</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">])</span> <span class="c"># written like in cond prob order</span>
-</span><span class="line">    <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">idx2ass</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
-</span><span class="line">    <span class="n">arr</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">alphaList</span><span class="p">)):</span>
-</span><span class="line">        <span class="n">v</span> <span class="o">=</span> <span class="n">alphaList</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">        <span class="n">k</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">))</span>  <span class="c"># trait present</span>
-</span><span class="line">        <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-</span><span class="line">        <span class="n">arr</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">v</span>    <span class="c"># trait absent</span>
-</span><span class="line">    <span class="n">ff</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="genotype-factor-without-inheritance">genotype Factor without inheritance</h2>
-
-<p>The simplest Factor for genotype is the one that does not depend on inheritance and instead depends solely on the frequency of the alleles showing up in the general population. </p>
-
-<p>We consider these probabilities to be independent. As a result, the probability of a genotype is the product of the frequencies of its constituent alleles.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor Genotype given Alleles frequency (in general population)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">            <span class="n">sol</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">)]</span> <span class="o">=</span> <span class="n">count</span>
-</span><span class="line">            <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sol</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">Factor_genotype_given_allele_freqs</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">genoVar</span><span class="p">):</span>
-</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">genoVar</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">numAlleles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">)</span>
-</span><span class="line">    <span class="n">numGenotypes</span> <span class="o">=</span> <span class="n">genoVar</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span>
-</span><span class="line">    <span class="n">chocho</span> <span class="o">=</span> <span class="n">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">            <span class="n">key</span> <span class="o">=</span> <span class="n">chocho</span><span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)))]</span>
-</span><span class="line">            <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">alleleFreqs</span><span class="p">[</span><span class="n">row</span><span class="p">]</span><span class="o">*</span><span class="n">alleleFreqs</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="genotype-factor-without-inheritance-1">genotype Factor without inheritance</h2>
-
-<p>Finally, the probabilities of having a certain genotype based on the genotypes of the parents:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Factor Genotype given Parents Genotypes</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">numGenos</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">):</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">numAlleles</span><span class="o">*</span><span class="p">(</span><span class="n">numAlleles</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">Factor_genotype_given_parents_genes</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">,</span> <span class="n">genKid</span><span class="p">,</span> <span class="n">genDad</span><span class="p">,</span> <span class="n">genMom</span><span class="p">):</span>
-</span><span class="line">    <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">genKid</span><span class="p">,</span> <span class="n">genDad</span><span class="p">,</span> <span class="n">genMom</span><span class="p">])</span>
-</span><span class="line">    <span class="n">order</span><span class="p">,</span> <span class="n">dic</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">idx2ass</span><span class="p">(</span><span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
-</span><span class="line">    <span class="n">chocho</span> <span class="o">=</span> <span class="n">genes2Alleles</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
-</span><span class="line">    <span class="n">kid</span> <span class="o">=</span> <span class="n">chocho</span>
-</span><span class="line">    <span class="n">dad</span> <span class="o">=</span> <span class="n">chocho</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-</span><span class="line">    <span class="n">mom</span> <span class="o">=</span> <span class="n">chocho</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-</span><span class="line">    <span class="n">arr</span> <span class="o">=</span> <span class="n">ff</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">dad_gen</span> <span class="ow">in</span> <span class="n">dad</span><span class="p">:</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">mom_gen</span> <span class="ow">in</span> <span class="n">mom</span><span class="p">:</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">kid_gen</span> <span class="ow">in</span> <span class="n">kid</span><span class="p">:</span>
-</span><span class="line">                <span class="n">hits</span> <span class="o">=</span> <span class="mf">0.</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">chuchu</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">dad_gen</span><span class="p">,</span> <span class="n">mom_gen</span><span class="p">):</span>
-</span><span class="line">                    <span class="k">if</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">chuchu</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">(</span><span class="n">kid_gen</span><span class="p">):</span>
-</span><span class="line">                        <span class="n">hits</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">                <span class="n">hits</span> <span class="o">=</span> <span class="n">hits</span><span class="o">/</span><span class="mf">4.</span>
-</span><span class="line">                <span class="n">arr</span><span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">index</span><span class="p">((</span><span class="n">kid</span><span class="p">[</span><span class="n">kid_gen</span><span class="p">],</span> <span class="n">dad</span><span class="p">[</span><span class="n">dad_gen</span><span class="p">],</span> <span class="n">mom</span><span class="p">[</span><span class="n">mom_gen</span><span class="p">]))]</span> <span class="o">=</span> <span class="n">hits</span>
-</span><span class="line">    <span class="n">ff</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">ff</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="building-the-genetic-network">building the genetic network</h2>
-
-<p>Self explanatory. For a given family tree we create the variables and factors associated to each person/node.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>putting it all together</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">geneticNetwork</span><span class="p">(</span><span class="n">pedigree</span><span class="p">,</span> <span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">alphaList</span><span class="p">):</span>
-</span><span class="line">    <span class="n">PHENOTYPE_CARD</span> <span class="o">=</span> <span class="mi">2</span> <span class="c"># present or absent</span>
-</span><span class="line">    <span class="n">numAlleles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">)</span>
-</span><span class="line">    <span class="n">numG</span> <span class="o">=</span> <span class="n">numGenos</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">varList</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># first we create all variables</span>
-</span><span class="line">    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pedigree</span><span class="p">:</span>
-</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">numG</span><span class="p">)</span>
-</span><span class="line">        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_pheno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">PHENOTYPE_CARD</span><span class="p">)</span>
-</span><span class="line">        <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># and now the factors</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">pedigree</span><span class="p">:</span>
-</span><span class="line">        <span class="n">kid_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
-</span><span class="line">        <span class="n">kid_ph</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_pheno&#39;</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">dad_gn</span><span class="p">,</span> <span class="n">mom_gn</span> <span class="o">=</span> <span class="n">pedigree</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">dad_gn</span> <span class="ow">and</span> <span class="n">mom_gn</span><span class="p">:</span>
-</span><span class="line">            <span class="n">dad_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">dad_gn</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
-</span><span class="line">            <span class="n">mom_gn</span> <span class="o">=</span> <span class="n">varList</span><span class="p">[</span><span class="n">mom_gn</span><span class="p">][</span><span class="s">&#39;var_geno&#39;</span><span class="p">]</span>
-</span><span class="line">            <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor_genotype_given_parents_genes</span><span class="p">(</span><span class="n">numAlleles</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">,</span> <span class="n">dad_gn</span><span class="p">,</span> <span class="n">mom_gn</span><span class="p">)</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">ff</span> <span class="o">=</span> <span class="n">Factor_genotype_given_allele_freqs</span><span class="p">(</span><span class="n">alleleFreqs</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">)</span>
-</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_geno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ff</span>
-</span><span class="line">        <span class="n">varList</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_pheno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor_phenotype_given_genotype_Not_Mendelian</span><span class="p">(</span><span class="n">alphaList</span><span class="p">,</span> <span class="n">kid_gn</span><span class="p">,</span> <span class="n">kid_ph</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">return</span> <span class="n">varList</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># this is fugly</span>
-</span><span class="line"><span class="k">def</span> <span class="nf">modify_Factor_by_evidence</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
-</span><span class="line">    <span class="n">factor</span> <span class="o">=</span> <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span>
-</span><span class="line">    <span class="n">randvar</span> <span class="o">=</span> <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;var_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span>
-</span><span class="line">    <span class="n">GN</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="s">&#39;factor_&#39;</span><span class="o">+</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">factor</span><span class="p">,</span> <span class="p">{</span><span class="n">randvar</span><span class="p">:</span><span class="n">ass</span><span class="p">})</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">build_joint_cpd</span><span class="p">():</span>
-</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="bp">None</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">GN</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-</span><span class="line">        <span class="n">b</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">GN</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s">&#39;factor_geno&#39;</span><span class="p">],</span> <span class="n">GN</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s">&#39;factor_pheno&#39;</span><span class="p">])</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">a</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
-</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">b</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">a</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/15/">&larr; Older</a>
@@ -873,6 +697,10 @@ In a fast and dirty way the above becomes:</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
       </li>
     
@@ -886,10 +714,6 @@ In a fast and dirty way the above becomes:</p>
     
       <li class="post">
         <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a>
       </li>
     
   </ul>
