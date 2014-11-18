@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-17T15:45:28-08:00</updated>
+  <updated>2014-11-18T09:49:04-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,124 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[4 Principles of Simple Design Reflections]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/11/18/4-PSD/"/>
+    <updated>2014-11-18T10:17:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/11/18/4-PSD</id>
+    <content type="html"><![CDATA[<p>Following my previous post I have been thinking about the 4 Principles of Simple Design, their meaning and their applications to the little coding exercise of the Game of Life. These principles are:</p>
+
+<ol>
+  <li>Code pases tests =&gt; test drive development</li>
+  <li>Code reveals intent =&gt; can be read and understood, expressive</li>
+  <li>DRY =&gt; more in terms of knowledge than code</li>
+  <li>Code is simple, minimal =&gt; the least code to do/express the most</li>
+</ol>
+
+<p>I really like the idea of priorities, of never violating higher level principles. So if you can compress a complex method into a single clever line, you don’t do it if it becomes less readable, if it becomes confusing and difficult to understand. So first and foremost, pass the tests, make sure the code does what is supposed to do, that it adds value. Then make it accessible, etc. And find compromises among the principles never losing sight of where the priorities stand.</p>
+
+<p>A big lesson learned is not to be afraid of throwing away code. You lose semi-working code, but you gain insight about the problem and the code. In the end, the balance is positive. The code is better.</p>
+
+<p>I find it impressive that if you follow the path, the result is really clean, simple and expressive code.</p>
+
+<p>I find it interesting that if you follow the path, your code may already solve many of the subsequent challenges of Code Retreats. Things like:</p>
+
+<ul>
+  <li>small methods</li>
+  <li>no conditionals</li>
+  <li>no naked data structures</li>
+  <li>no primitive classes</li>
+</ul>
+
+<p>Here are the main classes of my Game of Life so far:
+<!--more--></p>
+
+<p>```ruby
+class GOL
+  attr_reader :world</p>
+
+<p>def initialize
+    @world = World.new
+  end</p>
+
+<p>def add(another_living_cell_location)
+    @world.add(another_living_cell_location)
+  end</p>
+
+<p>def remove(living_cell_location)
+    @world.delete(living_cell_location)
+  end</p>
+
+<p>def tick
+    will_die   = @world.unsustainable_locations
+    will_spawn = @world.germinal_locations
+    tock(will_die, will_spawn)
+  end</p>
+
+<p>private</p>
+
+<p>def tock(dead_cells, born_cells)
+    dead_cells.each { |cell| remove(cell) }
+    born_cells.each { |cell| add(cell) }
+  end
+end</p>
+
+<p>class World &lt; Set
+  alias_method :number_of_living_cells, :size</p>
+
+<p>def unsustainable_locations
+    select { |loc| !survives?(loc) }
+  end</p>
+
+<p>def germinal_locations
+    potential_perimeter.select { |loc| fertile?(loc) }
+  end</p>
+
+<p>private</p>
+
+<p>def potential_perimeter
+    possible_locations = Set.new
+    each { |loc| possible_locations |= loc.adjacents }
+    possible_locations.subtract self
+  end</p>
+
+<p>def fertile?(location)
+    alive_nearby(location) == 3
+  end</p>
+
+<p>def survives?(location)
+    alive_nearby(location).between?(2, 3)
+  end</p>
+
+<p>def alive_nearby(location)
+    location.adjacents.count { |loc| include?(loc) }
+  end
+end</p>
+
+<p>Location = Struct.new(:x, :y) do
+  def ==(other)
+    to_a == other.to_a
+  end
+  alias_method :eql?, :==</p>
+
+<p>def adjacents
+    perimeter_coordinates.map { |coords| Location.new(*coords) }
+  end</p>
+
+<p>protected</p>
+
+<p>def perimeter_coordinates
+    [x + 1, x, x - 1].product([y - 1, y, y + 1]) - [[x, y]]
+  end</p>
+
+<p>def hash
+    to_a.hash
+  end
+end
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Code Retreat Reflections]]></title>

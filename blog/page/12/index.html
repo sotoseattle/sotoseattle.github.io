@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="The goal is to assign the factors from the initial factor list to the cliques (nodes) in the Clique Tree. We do it in two steps. First, we create &hellip;">
+  <meta name="description" content="After a long vacation I have decided to step back and redo the code to include graph algorithims. These ideas come from the Algorithms course I took &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,232 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/16/Graph_algorithms/">Graph Algorithim</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-16T08:01:00-08:00" pubdate data-updated="true">Jan 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>After a long vacation I have decided to step back and redo the code to include graph algorithims. These ideas come from the Algorithms course I took from Princeton University through Coursera.</p>
+
+<p>Both, Markov networks and Clique Trees can be better manipulated in a graph structure. Benefits are the ability to query the graph about itself (does it have loops?, find efficient paths between two points, etc) and perform efficient searches. But the real reason is that I hate to use the structures inherited from the Octave code, they are too weird and ugly, with huge sparse matrices and disconnected data sub-structures. I can hold everything inside a graph in a more intuitive manner and the data is associated to the natural nodes or its edges.</p>
+
+<p>I use a basic structure for the simplest graph of all, the undirected graph. It holds a list of nodes that will hold variables in a set form, and a list of edges for each node that tells us to which other nodes it connects to.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Undirected Graph</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">UndGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;Undirected Graph. We keep edges in a vertex indexed adjacency list</span>
+</span><span class="line"><span class="sd">       From Princeton Coursera Algorithms Class&#39;&#39;&#39;</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable_groups</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">variable_groups</span><span class="p">)</span>  <span class="c"># total vertices</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>        <span class="c"># edges</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>        <span class="c"># variables</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variable_groups</span><span class="p">):</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">addEdge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="sd">&#39;&#39;&#39;adds edge between vertices v and w&#39;&#39;&#39;</span>
+</span><span class="line">        <span class="k">if</span> <span class="p">(</span><span class="n">v</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">v</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">w</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">w</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">):</span>
+</span><span class="line">            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error: nodes out of bounds in graph&quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">v</span><span class="o">==</span><span class="n">w</span><span class="p">:</span>
+</span><span class="line">            <span class="k">return</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">w</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]:</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">index_var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+</span><span class="line">                <span class="k">return</span> <span class="n">i</span>
+</span><span class="line">        <span class="k">return</span> <span class="bp">None</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">connectAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodeList</span><span class="p">):</span> <span class="c"># a utility method that comes up frequently</span>
+</span><span class="line">        <span class="n">abc</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nodeList</span><span class="p">)</span>
+</span><span class="line">        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">abc</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">abc</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">abc</span><span class="p">:</span>
+</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="n">s</span> <span class="o">=</span> <span class="sb">`self.V`</span> <span class="o">+</span> <span class="s">&quot; vertices</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">):</span>
+</span><span class="line">            <span class="n">s</span> <span class="o">+=</span> <span class="s">&quot;[&quot;</span><span class="o">+</span><span class="sb">`i`</span><span class="o">+</span><span class="s">&quot;] &quot;</span> <span class="o">+</span> <span class="sb">`list(v)`</span> <span class="o">+</span> <span class="s">&quot;: &quot;</span> <span class="o">+</span> <span class="sb">`[list(self.box[e]) for e in self.adj[i]]`</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">s</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>We also include a decoupled class for the Breadth First Search Algorithim. A search method useful in itself but that will be come handy, later on, for finding a correct message propagation path along a clique tree.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Breadth First Search</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">from</span> <span class="nn">UndGraph</span> <span class="kn">import</span> <span class="n">UndGraph</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">BFS_Paths</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;Breadth First Search Algorithm. Decoupling the DAG from its processing</span>
+</span><span class="line"><span class="sd">       From Princeton Coursera Algorithms Class&#39;&#39;&#39;</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">G</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">s</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s">&quot;inf&quot;</span><span class="p">)]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">bfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">        <span class="n">queue</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">]</span>
+</span><span class="line">        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+</span><span class="line">            <span class="n">v</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+</span><span class="line">                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">                    <span class="n">queue</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+</span><span class="line">        <span class="c"># the reverse way of discovery is the way to pass messages</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">pathTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+</span><span class="line">            <span class="k">return</span> <span class="bp">None</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+</span><span class="line">            <span class="n">x</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class="line">            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">distTo</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+</span><span class="line">                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+</span><span class="line">                <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+</span><span class="line">            <span class="k">return</span> <span class="n">path</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -289,253 +515,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/14/Clique-Tree/">PGN: Building Clique Trees</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-14T08:01:00-08:00" pubdate data-updated="true">Dec 14<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>We define a Clique Tree (CT) as a structure with nodes (clusters of variables), edges (connections between them), and potentials (factors).</p>
-
-<p>To build a CT we need a list of factors from which we start deriving the set of all random variables and the matrix of edges between them. Then we iteratively run variable elimination in the following way:</p>
-
-<ul>
-  <li>we choose as the variable (z) to remove the first one with the least edges (min neighbors)</li>
-  <li>we separate the factors given in two sets: one with factors that include z, and another with the rest.</li>
-  <li>from the set of factors that include z:
-    <ul>
-      <li>we multiply the factors to compute the $\lambda$, </li>
-      <li>create a node/cluster in the CT with all the variables of $\lambda$</li>
-      <li>run over all pre-existing CT nodes, and check if any of the associated $\tau$s is also a factor in the lambda product. If so, create an edge between the nodes.</li>
-      <li>marginalize $\lambda$ to produce $\tau$ and record it in the CT next to the cluster created.</li>
-      <li>add $\tau$ as a factor to the unused factor list (those that did not have z)</li>
-    </ul>
-  </li>
-  <li>Update the edges by connecting all variables inside the newly minted CT node, and removing all edges from/to the eliminated variable</li>
-  <li>return the new factor list, edge matrix, and clique tree for another iteration.</li>
-</ul>
-
-<p>Here is a first draft of the process:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Clique Tree from Factor List (unrefactored)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-<span class="line-number">57</span>
-<span class="line-number">58</span>
-<span class="line-number">59</span>
-<span class="line-number">60</span>
-<span class="line-number">61</span>
-<span class="line-number">62</span>
-<span class="line-number">63</span>
-<span class="line-number">64</span>
-<span class="line-number">65</span>
-<span class="line-number">66</span>
-<span class="line-number">67</span>
-<span class="line-number">68</span>
-<span class="line-number">69</span>
-<span class="line-number">70</span>
-<span class="line-number">71</span>
-<span class="line-number">72</span>
-<span class="line-number">73</span>
-<span class="line-number">74</span>
-<span class="line-number">75</span>
-<span class="line-number">76</span>
-<span class="line-number">77</span>
-<span class="line-number">78</span>
-<span class="line-number">79</span>
-<span class="line-number">80</span>
-<span class="line-number">81</span>
-<span class="line-number">82</span>
-<span class="line-number">83</span>
-<span class="line-number">84</span>
-<span class="line-number">85</span>
-<span class="line-number">86</span>
-<span class="line-number">87</span>
-<span class="line-number">88</span>
-<span class="line-number">89</span>
-<span class="line-number">90</span>
-<span class="line-number">91</span>
-<span class="line-number">92</span>
-<span class="line-number">93</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">Factor</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">Rvar</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">FactorOperations</span>
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">FactorGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;graph of linked random variables derived from a list of factors&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># extract all variables. The index is the key for setting edges.</span>
-</span><span class="line">        <span class="n">cv</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="n">cv</span> <span class="o">+=</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cv</span><span class="p">)))</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># create the adjacency matrix of the initial factor list</span>
-</span><span class="line">        <span class="n">numVars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">numVars</span><span class="p">,</span> <span class="n">numVars</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int32&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="n">connections</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-</span><span class="line">        <span class="n">minE</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;+inf&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">e</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">e</span> <span class="o">&lt;</span> <span class="n">minE</span><span class="p">:</span>
-</span><span class="line">                <span class="n">minE</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allVars</span><span class="p">[</span><span class="n">connections</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">minE</span><span class="p">)]</span>
-</span><span class="line">
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="n">F</span> <span class="o">=</span> <span class="n">FactorGraph</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># create nodes iteratively through var elim</span>
-</span><span class="line">        <span class="n">C</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;nodes&#39;</span><span class="p">:[],</span> <span class="s">&#39;edges&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">))}</span>
-</span><span class="line">        <span class="n">considered_cliques</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">        <span class="k">while</span> <span class="n">considered_cliques</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="p">):</span>
-</span><span class="line">            <span class="n">z</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">firstMinNeighborVar</span><span class="p">()</span>
-</span><span class="line">            <span class="p">[</span><span class="n">F</span><span class="p">,</span><span class="n">C</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eliminateVar</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-</span><span class="line">            <span class="n">considered_cliques</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">eliminateVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># separate factors into two lists, those that use z (F_Cluster) and the rest</span>
-</span><span class="line">        <span class="n">F_Cluster</span><span class="p">,</span> <span class="n">F_Rest</span><span class="p">,</span> <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Cluster</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
-</span><span class="line">                <span class="n">Cluster_vars</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">F_Cluster</span><span class="o">!=</span><span class="p">[]:</span>
-</span><span class="line">            <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Cluster_vars</span><span class="p">)))</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># when computing tau of new node, check if it uses other nodes&#39; taus</span>
-</span><span class="line">            <span class="n">rows</span><span class="p">,</span><span class="n">cols</span> <span class="o">=</span> <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="n">cols</span><span class="p">))])</span>
-</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">))])</span>
-</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">cols</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">n</span><span class="p">,</span><span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]):</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s">&#39;tau&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">pos</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">=</span><span class="mi">1</span>
-</span><span class="line">            <span class="c"># create a new array of connecting node edges based on taus in common</span>
-</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">pos</span>
-</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;edges&#39;</span><span class="p">][:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># multiply the factors in Cluster... (lambda) ...and marginalize by z (tau)</span>
-</span><span class="line">            <span class="n">tau</span> <span class="o">=</span> <span class="n">F_Cluster</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">tau</span><span class="o">.</span><span class="n">variables</span> <span class="o">!=</span> <span class="p">[</span><span class="n">z</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># add to unused factor list the resulting tau ==&gt; new factor list with var eliminated</span>
-</span><span class="line">            <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tau</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># update the edges (connect all vars inside new cluster, &amp; disconnect the eliminated variable)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">vi</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">vj</span> <span class="ow">in</span> <span class="n">Cluster_vars</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vi</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">vj</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">),:]</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">edges</span><span class="p">[:,</span> <span class="n">F</span><span class="o">.</span><span class="n">allVars</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">
-</span><span class="line">            <span class="n">C</span><span class="p">[</span><span class="s">&#39;nodes&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[{</span><span class="s">&#39;vars&#39;</span><span class="p">:</span><span class="n">Cluster_vars</span><span class="p">,</span> <span class="s">&#39;tau&#39;</span><span class="p">:</span><span class="n">tau</span><span class="p">}]</span>
-</span><span class="line">
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">F_Rest</span>
-</span><span class="line">        <span class="k">return</span> <span class="p">[</span><span class="n">F</span><span class="p">,</span> <span class="n">C</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-<p>But this is not all, we still need to prune the tree and initialize it’s potentials.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/13/">&larr; Older</a>
@@ -553,6 +532,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
       </li>
     
@@ -566,10 +549,6 @@
     
       <li class="post">
         <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
   </ul>

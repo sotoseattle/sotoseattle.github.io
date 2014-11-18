@@ -9,11 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Interestingly enough JS is class-less yet everything is an object. There are 3 ways to instantiate an object: 1
-2
-3
-var newObject = {};
-var newObject &hellip;">
+  <meta name="description" content="This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the Equalizer gem. We start with a basic &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -115,6 +111,73 @@ var newObject &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
+
+<p>We start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
+</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>We create an ad-hoc tree that we wire in the following manner.</p>
+
+<p><img class="center" src="/images/Oct14/binary_tree.png" width="300" /></p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -332,65 +395,6 @@ var newObject &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-17T20:00:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>My fellow students at Code Fellows and I have made public a set of templates under the name of “<a href="https://github.com/Backgrounders">Backgrounders</a>” that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. It is publicly available in GitHub.</p>
-
-<p>We hope this small public source contribution help others as a reference when dealing with background workers. Following is my contribution to the common effort:</p>
-
-<hr />
-
-<p><br /></p>
-
-<h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
-
-<p>This is a template for how to set up Rails 4.2 with background jobs from Sidekiq using Redis.</p>
-
-<p>In a nutshell, when we create a background jobs we pass an object with the data to use to the worker. In most cases, we pass a Model object (i.e. ActiveRecord), so make things simpler we just pass the id of the object to the worker, and Rails and Sidekiq take care of everything for us (finding it in the database, serializing and de-serializing it).</p>
-
-<p>In this template we have taken a different route. Instead of passing an existing Model object we pass an ad-hoc one, created in the spot and stored in a hash that we pass to the worked in json format. Then, it is up to us to tell the worker how to  de-serialize it, reconstituting the original hash from the json string, to be able to operate on the data passed.</p>
-
-<p>All this will become more clear with an example.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/17/Backgrounders/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -408,6 +412,10 @@ var newObject &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
       </li>
     
@@ -421,10 +429,6 @@ var newObject &hellip;">
     
       <li class="post">
         <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/27/Wire-Angular-Rails/">Wiring Angular into Rails</a>
       </li>
     
   </ul>
