@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2014-11-18T09:49:04-08:00</updated>
+  <updated>2014-11-22T17:21:36-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -124,11 +124,6 @@
 <span class="line-number">74</span>
 <span class="line-number">75</span>
 <span class="line-number">76</span>
-<span class="line-number">77</span>
-<span class="line-number">78</span>
-<span class="line-number">79</span>
-<span class="line-number">80</span>
-<span class="line-number">81</span>
 </pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">GOL</span>
 </span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:world</span>
 </span><span class="line">
@@ -191,11 +186,6 @@
 </span><span class="line"><span class="k">end</span>
 </span><span class="line">
 </span><span class="line"><span class="no">Location</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:x</span><span class="p">,</span> <span class="ss">:y</span><span class="p">)</span> <span class="k">do</span>
-</span><span class="line">  <span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-</span><span class="line">    <span class="nb">to_a</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">to_a</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line">  <span class="n">alias_method</span> <span class="ss">:eql?</span><span class="p">,</span> <span class="ss">:==</span>
-</span><span class="line">
 </span><span class="line">  <span class="k">def</span> <span class="nf">adjacents</span>
 </span><span class="line">    <span class="n">perimeter_coordinates</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">coords</span><span class="o">|</span> <span class="no">Location</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">*</span><span class="n">coords</span><span class="p">)</span> <span class="p">}</span>
 </span><span class="line">  <span class="k">end</span>
