@@ -1,0 +1,67 @@
+==================================================================
+https://keybase.io/sotoseattle
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of http://sotoseattle.com
+  * I am sotoseattle (https://keybase.io/sotoseattle) on keybase.
+  * I have a public key with fingerprint BF4B D1BA F980 1712 9332  410F 8D7F 3BCC A6D6 427E
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "bf4bd1baf98017129332410f8d7f3bcca6d6427e",
+            "host": "keybase.io",
+            "key_id": "8d7f3bcca6d6427e",
+            "kid": "0101f29562c1159d8cef43f016c803cec01a71902f23b83383fd255df02cabc9564a0a",
+            "uid": "e2954da445fd682fb0b9a6ca70cb2200",
+            "username": "sotoseattle"
+        },
+        "service": {
+            "hostname": "sotoseattle.com",
+            "protocol": "http:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1420646683,
+    "expire_in": 157680000,
+    "prev": "dcbccd52310d667b7cb5eb2e05fd3105b8febd429c586a371a11f3710edf1d33",
+    "seqno": 4,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.1
+Comment: https://keybase.io/crypto
+
+yMIRAnicbVJbSFRRFB3LUicERc3ML6+VkmLn3PdMCIJifURQSaIU0z0vvahzp5nr
+C01KxSKUwkQqKhwhoiD6UEumgp6GimBRFmMQIkUkFSEIgkrnSn3V+dmctdda56zN
+fpG40eWOScR1mR/G4j7GTD4trXeV3a3IbBGQRZoFb4tQQ9cLM/1VNBgImn5b8AqI
+yYhAZDCPDqAGRY8kiTIETCcakxDGhkpUWdSokC9UWyFHwW2QEaIFpsUxfvGZhKP/
+4desNwAEkIkeRRUxhIqH6JgyWWIAqlgHEqYYQEODHiAyUUK6JOkSI6KiEAZEbCDM
+hbIBDG5Xv25HuZVMDFlWGFF1kSGAPIaKDQ1gJIoAOMQQDfqNOsrZIcu2QtSw7Voq
+nMoXeKPBxNSZghPmX1IBtuq4QyDIIWzV8ma1bQe8jtZuDjjkRop8f2x8yPQTPkwu
+aKDBkGn5BS/kTGybji+URaDKqqpL+QJtCphB6jMdhqKpOuDHeYY2cEuC+dyIIkoQ
+EFXVkIaRQpFIAY/IMQXpjCIiix6s6KohadCAkPECKGGQSJLgBDvptwSvzL9pVDmR
+zCq/YdcHeepnT47FumLcrs2bNjjr4HInJP1dkkhP3Gp65NbFSHFRd0bJo8N7y6+k
+/Fp2j/a1pSWVTGH3rvTh7e2XE6ZPvwc4PFDaF/1xsLXn/GRRQm/h4/4LZ9YGs968
+DGQnv+5sujYz+jacd+/BjoKlcNrWnNj2wfKed2ePJu8ZmyMrE/MxLulhNJLXqq3O
+ZkWqFqrV+NLl/jKTfa2bVn2bc0fiZ0Hm/tWc+OHPq632/M3vE1tGFjKKZ1YSgksn
+ovWNlZcW+2d3/+yMah03Ds18uXp8oDU3u+KI3nZOGEotTAYZV5UO3+HCjK6p03f2
+7axMTbpfnv1q/PntrsVoiuS1kmPhmanu8Hw22HagZHz+21DByvXwwhoq752Z+/Qb
+yZEpNQ==
+=NmQb
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/sotoseattle
+
+==================================================================
