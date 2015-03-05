@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2015-03-05T12:35:57-08:00</updated>
+  <updated>2015-03-05T12:41:08-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Seattle Ruby Game Of Life]]></title>
-    <link href="http://sotoseattle.github.io/blog/2015/03/01/Seattlerb-GoL/"/>
-    <updated>2015-03-01T10:00:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2015/03/01/Seattlerb-GoL</id>
+    <link href="http://sotoseattle.github.io/blog/2015/03/04/Seattlerb-GoL/"/>
+    <updated>2015-03-04T10:00:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2015/03/04/Seattlerb-GoL</id>
     <content type="html"><![CDATA[<p><img class="right" src="/images/mar15/wheel.png" width="250"></p>
 
 <p>Last Tuesday the Seattle Ruby group organized a workshop to code Conway’s Game of Life. It was a first (at least in a long time), and I think it was a success. People were engaged and everybody was focused coding away in the 45 minutes we had. We even had a Wheel of Misfortune so people could add randomized constraints in case the problem was too easy.</p>
