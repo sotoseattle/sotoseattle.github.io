@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Seattle Ruby Game Of Life"
-date: 2015-03-01 10:00
+date: 2015-03-04 10:00
 comments: true
 categories: Ruby
 ---
