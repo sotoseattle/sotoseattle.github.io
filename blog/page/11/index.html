@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Since our clique tree is an undirected graph we can use the BFS (Breadth First Search) algorithm to give us a correct path for belief propagation. &hellip;">
+  <meta name="description" content="And now we revisit our revised Decoupled Genetic Network for cystic fibrosis and instead of infering marginals by computing the overal factor product &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -118,7 +118,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/01/19/Message-Passing/">Message Passing for Belief Propagation</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/01/22/Gene-Clique-2/">Gene Net Decoupled & BP Inference</a></h1>
       
       
     
@@ -135,21 +135,25 @@
   
 
 
-<time datetime="2014-01-19T08:01:00-08:00" pubdate data-updated="true">Jan 19<span>th</span>, 2014</time>
+<time datetime="2014-01-22T08:01:00-08:00" pubdate data-updated="true">Jan 22<span>nd</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Since our clique tree is an undirected graph we can use the BFS (Breadth First Search) algorithm to give us a correct path for belief propagation. This will be the reversed order in which nodes are discovered in BFS. The only two caveats to consider are:</p>
+  <div class="entry-content"><p>And now we revisit our revised <a href="/blog/2013/11/06/GBN4">Decoupled Genetic Network</a> for cystic fibrosis and instead of infering marginals by computing the overal factor product over all the variables (which we saw even more exhaustive and intensive than the basic network), we will build the associated clique tree and use Belief Propagation.</p>
 
-<ul>
-  <li>we need to start from a leaf of the tree (which has only one neighboring node)</li>
-  <li>the path given is the forward path, a correct backward path can be derived from reversing the forward one.</li>
-</ul>
+<p>Our initial network was:</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Message Passing Path</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<p><img class="center" src="/images/nov13/decoup_cysticBN.png" width="600" title="Template for Decoupled Genetic Bayesian Network" /></p>
+
+<p>The clique tree looks like this:
+<img class="center" src="/images/jan14/cystic_decoup_BN_clique.png" width="600" title="Clique Tree for Decoupled Genetic Bayesian Network" /></p>
+
+<p>As before, we observe some variables and the code correctly computes the exact marginals for all phenotype variables in under a second. Consider that before the computer took minutes to compute it.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Running Inference Engine</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
@@ -172,29 +176,33 @@
 <span class="line-number">21</span>
 <span class="line-number">22</span>
 <span class="line-number">23</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">computePath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="n">start</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># choose an arbitrary leaf</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-</span><span class="line">                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
-</span><span class="line">                <span class="k">break</span>
-</span><span class="line">        <span class="n">forward</span> <span class="o">=</span> <span class="n">BFS_Paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">discoveryPath</span>
-</span><span class="line">        <span class="n">forward</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="c"># we dont need the last node</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="p">[</span><span class="n">F</span><span class="p">,</span> <span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">geneticNetwork</span><span class="p">(</span><span class="n">family_tree</span><span class="p">,</span> <span class="n">frequency_of_alleles_in_general_population</span><span class="p">,</span> <span class="n">probability_of_trait_based_on_genotype</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">from_v</span> <span class="ow">in</span> <span class="n">forward</span><span class="p">:</span>
-</span><span class="line">            <span class="c"># every node in the path is ensured to have received all necessary incoming messages</span>
-</span><span class="line">            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
-</span><span class="line">            <span class="n">marked</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">            <span class="n">potentials</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">marked</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span>
-</span><span class="line">            <span class="n">to_v</span> <span class="o">=</span> <span class="n">potentials</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">            <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_v</span><span class="p">])</span>
+</span><span class="line"><span class="n">cc</span> <span class="o">=</span> <span class="n">CliqueTree</span><span class="o">.</span><span class="n">CliqueTree</span><span class="p">(</span><span class="n">F</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="n">edges</span> <span class="o">=</span> <span class="n">temp</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">temp</span><span class="p">):</span>
-</span><span class="line">            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">edges</span>
+</span><span class="line"><span class="c"># for fun lets reduce some evidence</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">17</span><span class="p">]:</span><span class="mi">0</span><span class="p">})</span> <span class="c"># Ira shows pheno</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">6</span><span class="p">]:</span><span class="mi">0</span><span class="p">})</span>  <span class="c"># rene has gen1 F</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">7</span><span class="p">]:</span><span class="mi">1</span><span class="p">})</span>  <span class="c"># rene has gen2 f</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">5</span><span class="p">]:</span><span class="mi">0</span><span class="p">})</span> <span class="c"># Eva shows pheno</span>
+</span><span class="line">
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># compute exact marginals for phenotypes</span>
+</span><span class="line"><span class="n">phenos_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span>
+</span><span class="line"><span class="n">probs</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phenos_nodes</span><span class="p">:</span>
+</span><span class="line">    <span class="n">belief</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class="line">    <span class="n">genes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v1</span> <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="n">belief</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v1</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_p&quot;</span><span class="p">)]</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">belief</span><span class="p">)</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">genes</span><span class="p">:</span>
+</span><span class="line">        <span class="n">f</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span class="line">    <span class="n">probs</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line"><span class="k">print</span> <span class="n">probs</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="p">{</span><span class="s">&#39;Jason_p&#39;</span><span class="p">:</span> <span class="mf">0.54095556127444155</span><span class="p">,</span> <span class="s">&#39;James_p&#39;</span><span class="p">:</span> <span class="mf">0.47255963793489481</span><span class="p">,</span> <span class="s">&#39;Ira_p&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;Rene_p&#39;</span><span class="p">:</span> <span class="mf">0.59999999999999998</span><span class="p">,</span> <span class="s">&#39;Benito_p&#39;</span><span class="p">:</span> <span class="mf">0.54095556127444155</span><span class="p">,</span> <span class="s">&#39;Robin_p&#39;</span><span class="p">:</span> <span class="mf">0.42462267673013965</span><span class="p">,</span> <span class="s">&#39;Eva_p&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 </div>
   
@@ -209,7 +217,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/01/18/Clique-Tree-As-Graph/">Clique Tree as Graph</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/01/21/Gene-Clique-1/">Gene Network & BP Inference</a></h1>
       
       
     
@@ -226,16 +234,154 @@
   
 
 
-<time datetime="2014-01-18T08:01:00-08:00" pubdate data-updated="true">Jan 18<span>th</span>, 2014</time>
+<time datetime="2014-01-21T08:01:00-08:00" pubdate data-updated="true">Jan 21<span>st</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Now, armed with the graph code, we can recode the Clique Tree construction algorithm. The code is greatly simplified although it works along the same conceptual lines as before. We only need to add a method to compact the tree since some nodes are being voided when pruning.</p>
+  <div class="entry-content"><p>We revisit our initial <a href="/blog/2013/11/04/GBN2">Genetic Network</a> for cystic fibrosis and instead of infering marginals by computing the overal factor product over all the variables (which we saw was exhaustive and intensive), we will build the associated clique tree and use Belief Propagation.</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Clique Tree</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<p>Our initial network was:</p>
+
+<p><img class="center" src="/images/nov13/cysticBN.png" width="600" title="Template for Genetic Bayesian Network" /></p>
+
+<p>And its built factors were:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>All Factors of Genetic Net</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">v</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;rene_g&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;rene_p&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line"><span class="o">...</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;james_g&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;james_p&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line"><span class="o">...</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;robin_g&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class="line"><span class="n">v</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="s">&#39;robin_p&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">f</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="mi">18</span>
+</span><span class="line"><span class="c"># Robin</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">17</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">16</span><span class="p">]])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">16</span><span class="p">]])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mf">0.81</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># James</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">12</span><span class="p">]])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">12</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">14</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">16</span><span class="p">]])</span>
+</span><span class="line"><span class="n">f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+</span><span class="line"><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The clique tree for belief propagation is built in a single line:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Voilá</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">cc</span> <span class="o">=</span> <span class="n">CliqueTree</span><span class="o">.</span><span class="n">CliqueTree</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>And looks like this:
+<img class="center" src="/images/jan14/cystic_BN_clique.png" width="600" title="Clique Tree for Genetic Bayesian Network" /></p>
+
+<p>As an example, the following code states the observations and correctly computes the exact marginals for all phenotype variables in under a second.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Reduce and Compute</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">15</span><span class="p">]:</span><span class="mi">0</span><span class="p">})</span> <span class="c"># Ira shows pheno</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="mi">0</span><span class="p">})</span>  <span class="c"># Rene has gen FF</span>
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">cc</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="p">{</span><span class="n">v</span><span class="p">[</span><span class="mi">12</span><span class="p">]:</span><span class="mi">1</span><span class="p">})</span> <span class="c"># James has gen Ff</span>
+</span><span class="line">
+</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line"><span class="n">phenos_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">]</span>
+</span><span class="line"><span class="n">probs</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">phenos_nodes</span><span class="p">:</span>
+</span><span class="line">	<span class="n">belief</span> <span class="o">=</span> <span class="n">cc</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class="line">	<span class="n">genes</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">belief</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;_p&quot;</span><span class="p">)]</span>
+</span><span class="line">	<span class="n">f</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">belief</span><span class="p">)</span>
+</span><span class="line">	<span class="n">f</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">genes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class="line">	<span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span class="line">	<span class="n">probs</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line"><span class="k">print</span> <span class="n">probs</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="p">{</span><span class="s">&#39;jason_p&#39;</span><span class="p">:</span> <span class="mf">0.69999999999999996</span><span class="p">,</span> <span class="s">&#39;ira_p&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s">&#39;james_p&#39;</span><span class="p">:</span> <span class="mf">0.59999999999999998</span><span class="p">,</span> <span class="s">&#39;rene_p&#39;</span><span class="p">:</span> <span class="mf">0.80000000000000004</span><span class="p">,</span> <span class="s">&#39;benito_p&#39;</span><span class="p">:</span> <span class="mf">0.69999999999999996</span><span class="p">,</span> <span class="s">&#39;robin_p&#39;</span><span class="p">:</span> <span class="mf">0.24155844155844158</span><span class="p">,</span> <span class="s">&#39;eva_p&#39;</span><span class="p">:</span> <span class="mf">0.40720779220779224</span><span class="p">,</span> <span class="s">&#39;aaron_p&#39;</span><span class="p">:</span> <span class="mf">0.19700000000000001</span><span class="p">,</span> <span class="s">&#39;sandra_p&#39;</span><span class="p">:</span> <span class="mf">0.30061363636363636</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/20/Calibration/">Calibration of Clique Tree</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-20T08:01:00-08:00" pubdate data-updated="true">Jan 20<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Beforehand we built the clique tree (with all its nodes, edges and initialized potentials) and a sensible propagation schedule. Now, we follow the schedule and compute for each edge the message ($\delta_{ij}$) passed between nodes $C_i$ and $C_j$. After just two passes, once forward and once backwards, we are guaranteed to have achieved calibration over the junction tree. At this moment all the necessary $\delta$ are now computed and we can compute the beliefs ($\beta$) in each node as the product of the initial potential and all its incomming messages. Having achieved calibration the exact marginals of all variables coincide independently on which belief/node we marginalize.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibration</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
 <span class="line-number">3</span>
 <span class="line-number">4</span>
@@ -280,276 +426,53 @@
 <span class="line-number">43</span>
 <span class="line-number">44</span>
 <span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-<span class="line-number">57</span>
-<span class="line-number">58</span>
-<span class="line-number">59</span>
-<span class="line-number">60</span>
-<span class="line-number">61</span>
-<span class="line-number">62</span>
-<span class="line-number">63</span>
-<span class="line-number">64</span>
-<span class="line-number">65</span>
-<span class="line-number">66</span>
-<span class="line-number">67</span>
-<span class="line-number">68</span>
-<span class="line-number">69</span>
-<span class="line-number">70</span>
-<span class="line-number">71</span>
-<span class="line-number">72</span>
-<span class="line-number">73</span>
-<span class="line-number">74</span>
-<span class="line-number">75</span>
-<span class="line-number">76</span>
-<span class="line-number">77</span>
-<span class="line-number">78</span>
-<span class="line-number">79</span>
-<span class="line-number">80</span>
-<span class="line-number">81</span>
-<span class="line-number">82</span>
-<span class="line-number">83</span>
-<span class="line-number">84</span>
-<span class="line-number">85</span>
-<span class="line-number">86</span>
-<span class="line-number">87</span>
-<span class="line-number">88</span>
-<span class="line-number">89</span>
-<span class="line-number">90</span>
-<span class="line-number">91</span>
-<span class="line-number">92</span>
-<span class="line-number">93</span>
-<span class="line-number">94</span>
-<span class="line-number">95</span>
-<span class="line-number">96</span>
-<span class="line-number">97</span>
-<span class="line-number">98</span>
-<span class="line-number">99</span>
-<span class="line-number">100</span>
-<span class="line-number">101</span>
-<span class="line-number">102</span>
-<span class="line-number">103</span>
-<span class="line-number">104</span>
-<span class="line-number">105</span>
-<span class="line-number">106</span>
-<span class="line-number">107</span>
-<span class="line-number">108</span>
-<span class="line-number">109</span>
-<span class="line-number">110</span>
-<span class="line-number">111</span>
-<span class="line-number">112</span>
-<span class="line-number">113</span>
-<span class="line-number">114</span>
-<span class="line-number">115</span>
-<span class="line-number">116</span>
-<span class="line-number">117</span>
-<span class="line-number">118</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">	<span class="o">...</span>
+</span><span class="line">	<span class="c"># clone an initialized adj structure for message propagation</span>
+</span><span class="line">	<span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)]</span>
 </span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">CliqueTree</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">([])</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">mssg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
+</span><span class="line">    <span class="c"># collect all mssg arriving at v</span>
+</span><span class="line">    <span class="n">mess</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">    <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">to_w</span><span class="p">:</span>
+</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">from_v</span><span class="p">)</span>
+</span><span class="line">            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
+</span><span class="line">            <span class="n">mess</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="c"># create induced markov net from list of factors</span>
-</span><span class="line">        <span class="n">F</span> <span class="o">=</span> <span class="n">IndMarkovNet</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
+</span><span class="line">    <span class="c"># take the the initial Psi (and log if needed)</span>
+</span><span class="line">    <span class="n">d</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">from_v</span><span class="p">])</span>
+</span><span class="line">    <span class="n">d</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="c"># create nodes iteratively through var elimination</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># wee need this to hold the taus as we compute</span>
-</span><span class="line">        <span class="n">considered_cliques</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">        <span class="k">while</span> <span class="n">considered_cliques</span> <span class="o">&lt;</span> <span class="n">F</span><span class="o">.</span><span class="n">V</span><span class="p">:</span>
-</span><span class="line">            <span class="n">z</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">firstMinNeighborVar</span><span class="p">()</span>
-</span><span class="line">            <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eliminateVar</span><span class="p">(</span><span class="n">F</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-</span><span class="line">            <span class="n">considered_cliques</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">        <span class="n">F</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="p">[]</span>
+</span><span class="line">    <span class="c"># multiply/sum by incoming messages</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">mess</span><span class="p">:</span>
+</span><span class="line">        <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="c"># prune, compact and initialize resulting tree</span>
-</span><span class="line">        <span class="n">keepPruning</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">        <span class="k">while</span> <span class="n">keepPruning</span><span class="p">:</span>
-</span><span class="line">            <span class="n">keepPruning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pruneNode</span><span class="p">()</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">compactTree</span><span class="p">()</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">initializePotentials</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
+</span><span class="line">    <span class="c"># marginalized to setsep vars</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">to_w</span><span class="p">]):</span>
+</span><span class="line">            <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">d</span>
 </span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">eliminateVar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">F</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># separate factors into two lists, those that use z (F_Cluster) and the rest</span>
-</span><span class="line">        <span class="n">F_Cluster</span><span class="p">,</span> <span class="n">F_Rest</span><span class="p">,</span> <span class="n">Cluster_vars</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Cluster</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
-</span><span class="line">                <span class="n">Cluster_vars</span> <span class="o">+=</span> <span class="n">f</span><span class="o">.</span><span class="n">variables</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">f</span><span class="p">]</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">    <span class="c"># compute messages</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">():</span>
+</span><span class="line">        <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
+</span><span class="line">        <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
 </span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">F_Cluster</span><span class="o">!=</span><span class="p">[]:</span>
-</span><span class="line">            <span class="c"># add a node to clique tree with the variables involved</span>
-</span><span class="line">            <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">Cluster_vars</span><span class="p">))</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="p">[])</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># when computing tau of new node, check if it uses other nodes&#39; taus and connect</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position</span><span class="p">):</span>
-</span><span class="line">                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
-</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># multiply the factors in Cluster... (lambda) ...and marginalize by z (tau)</span>
-</span><span class="line">            <span class="n">tau</span> <span class="o">=</span> <span class="n">F_Cluster</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">F_Cluster</span><span class="p">:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">tau</span><span class="o">.</span><span class="n">variables</span> <span class="o">!=</span> <span class="p">[</span><span class="n">z</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">tau</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">tau</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">tau</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># update the edges of F (connect all vars inside new factor, &amp; disconnect the eliminated variable)</span>
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">connectAll</span><span class="p">([</span><span class="n">F</span><span class="o">.</span><span class="n">index_var</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">position</span><span class="p">]])</span>
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">index_var</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">
-</span><span class="line">            <span class="c"># add to unused factor list the resulting tau ==&gt; new factor list with var eliminated</span>
-</span><span class="line">            <span class="n">F_Rest</span> <span class="o">+=</span> <span class="p">[</span><span class="n">tau</span><span class="p">]</span>
-</span><span class="line">            <span class="n">F</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">F_Rest</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">F</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">pruneNode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="sd">&#39;&#39;&#39;Start with a node (A), scan through its neighbors to find one that is a superset of variables (B). </span>
-</span><span class="line"><span class="sd">           Add edges between B and all of A&#39;s other neighbors and cut off all edges from A.&#39;&#39;&#39;</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">nodeA</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">):</span>
-</span><span class="line">            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-</span><span class="line">                <span class="n">nodeB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">nodeA</span> <span class="ow">and</span> <span class="n">nodeA</span> <span class="o">&lt;</span> <span class="n">nodeB</span><span class="p">:</span>
-</span><span class="line">                    <span class="c"># connect nodeB to other nodeA&#39;s neighbors</span>
-</span><span class="line">                    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-</span><span class="line">                        <span class="k">if</span> <span class="n">j</span><span class="o">!=</span><span class="n">e</span><span class="p">:</span>
-</span><span class="line">                            <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">e</span><span class="p">)</span>
-</span><span class="line">                    <span class="c"># disconnect child</span>
-</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-</span><span class="line">                    <span class="k">return</span> <span class="bp">True</span>
-</span><span class="line">        <span class="k">return</span> <span class="bp">False</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">compactTree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="sd">&#39;&#39;&#39;compacts the clique tree after prunning to remove null nodes&#39;&#39;&#39;</span>
-</span><span class="line">        <span class="n">translatable</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">translatable</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">counter</span>
-</span><span class="line">                <span class="n">counter</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">newV</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">translatable</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-</span><span class="line">        <span class="n">nodes</span><span class="p">,</span> <span class="n">lnk</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">newV</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">newV</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">translatable</span><span class="p">:</span>
-</span><span class="line">            <span class="n">nodes</span><span class="p">[</span><span class="n">translatable</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span class="line">            <span class="n">lnk</span><span class="p">[</span><span class="n">translatable</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">translatable</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">translatable</span><span class="p">]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="n">newV</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">box</span> <span class="o">=</span> <span class="n">nodes</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">adj</span> <span class="o">=</span> <span class="n">lnk</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">initializePotentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># create factors initialized to ones</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="n">fu</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
-</span><span class="line">            <span class="n">fu</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">fu</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># ... and now brutishly (FIFO) we assign the factors</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span><span class="p">:</span>
-</span><span class="line">            <span class="n">notUsed</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">):</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)):</span>
-</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">fu</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-</span><span class="line">                    <span class="n">notUsed</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">                    <span class="k">break</span>  <span class="c"># to use only once</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">notUsed</span><span class="p">:</span>
-</span><span class="line">                <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="s">&#39;factor not used in any clique!&#39;</span><span class="p">,</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span>
-</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">    <span class="c"># compute the beliefs</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
+</span><span class="line">        <span class="n">belief</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class="line">            <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
+</span><span class="line">            <span class="n">belief</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">belief</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">belief</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
 
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/17/Induced-Markov-Net/">Induced Markov Network</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-17T08:01:00-08:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>As the first step to build the clique tree we need to create an induced Markov graph from the factors given. We moralize by connecting all the variables in each factor (and therefore losing conditional independences in the process).</p>
-
-<p>We also include a small method to return an optimal node from the graph for variable elimination. In this case we look for the first node in the graph that has the lowest number of neighboring nodes. Similar methods can be coded for different criteria depending on the way we want to build a clique tree through variable elimination.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Induced Markov Network</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">IndMarkovNet</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;Induced Markov Network as an undirected graph of linked random variables</span>
-</span><span class="line"><span class="sd">       derived from a list of factors&#39;&#39;&#39;</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="n">set_vars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">IndMarkovNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">([[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">set_vars</span><span class="p">])</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">connectAll</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">index_var</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="n">minino</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">),</span> <span class="bp">None</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="mi">0</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">&lt;</span><span class="n">minino</span><span class="p">:</span>
-</span><span class="line">                <span class="n">minino</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="n">i</span>
-</span><span class="line">        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">pos</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
 </div>
   
   
@@ -574,23 +497,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
       </li>
     
       <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
       </li>
     
   </ul>

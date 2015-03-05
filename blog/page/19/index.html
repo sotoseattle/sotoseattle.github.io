@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Based on the previous posts we are going to extend our softmax model so we classify the handwritten images by using logistic regressions in two steps &hellip;">
+  <meta name="description" content="I have found two wonderful resources for all things Python and ML: iPython (notebooks) Like a console session of python but with the ability to: &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -118,7 +118,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2013/10/07/Kaggle-Digit-2-regress/">Kaggle Digit OCR: 2 Step Regression</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/10/13/iPython-EC2/">iPython Notebook on EC2</a></h1>
       
       
     
@@ -135,234 +135,57 @@
   
 
 
-<time datetime="2013-10-07T09:02:00-07:00" pubdate data-updated="true">Oct 7<span>th</span>, 2013</time>
+<time datetime="2013-10-13T09:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Based on the previous posts we are going to extend our softmax model so we classify the handwritten images by using logistic regressions in two steps:</p>
+  <div class="entry-content"><p>I have found two wonderful resources for all things Python and ML:</p>
+
+<h2 id="ipython-notebooks">iPython (notebooks)</h2>
+
+<p>Like a console session of python but with the ability to:</p>
+
+<p><img class="right" src="http://ipython.org/_static/IPy_header.png" width="400" title="iPython" /></p>
+
+<ul>
+  <li>interact with the terminal,</li>
+  <li>edit the running program as it goes</li>
+  <li>embed visualization plots, text and md in general</li>
+  <li>create small scripts for each task</li>
+</ul>
+
+<h2 id="running-ml-on-ec2">running ML on EC2</h2>
+
+<p>Instead of hogging up your laptop rely on Amazon EC2 and iPython Notebook. Locally have all your heavy script and then make them run in your EC2 instance in the cloud. A freaking mess for newbies like me if it was not for tutorials like the ones below.</p>
+
+<p>Things to remember:</p>
 
 <ol>
   <li>
-    <p>First we run our Softmax (multivariate logistic regression) classifier as before.</p>
+    <p>connect to the instance with the instance public DNS (EC2 dashboard) from wherever you have the appropriate certificate for this instance.
+ <code>ssh -i MyPyNoteBook.pem ubuntu@xxx.xxx.xxx.xxx</code></p>
   </li>
   <li>
-    <p>When classifying a particular image, if the first choice has less than 99% probability and the second choice has more than 1%, then we run a logistic regression between those two top choices to make sure we pick the right one. These limits are completely arbitrary, pretty irrelevant and stated to make the concept clearer.</p>
+    <p>start the ipython notebook server on the instance
+ <code>ubuntu@ip-xxx-xx-xx-xxx:~$ ipython notebook inline --profile=nbserver</code>
+ You can use unix’s screen to detach (and close the terminal window), and reattach later with <code>screen -ls</code> and <code>screen -r ID-chorizo</code>.
+ It will be faulty because you are connecting from itself. No problemo, say yes to all and get out of w3c or similar (q?).</p>
+  </li>
+  <li>
+    <p>open the notebook on the public dns, dont worry about security concerns.
+ <code>https://ec2-xxx-xxx-xxx-xxx.us-somewhere-9.compute.amazonaws.com:zzzz/#notebooks</code></p>
   </li>
 </ol>
 
-<p>This means computing the 784+1 parameters of the logystic regression 43 times, which is quite hair-raising but not heart-stopping (30 mins in my old mac).</p>
+<p>Tutorials:</p>
 
-<p>So if it is very clear we go softmax, but if there is a doubt we rely on a more accurate logistic regression between the top two softmax choices. </p>
-
-<blockquote><p>The new accuracy from Kaggle is 93.64%.</p></blockquote>
-
-<p>Here is the modified code:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>kaggle 2 step regression model</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-<span class="line-number">57</span>
-<span class="line-number">58</span>
-<span class="line-number">59</span>
-<span class="line-number">60</span>
-<span class="line-number">61</span>
-<span class="line-number">62</span>
-<span class="line-number">63</span>
-<span class="line-number">64</span>
-<span class="line-number">65</span>
-<span class="line-number">66</span>
-<span class="line-number">67</span>
-<span class="line-number">68</span>
-<span class="line-number">69</span>
-<span class="line-number">70</span>
-<span class="line-number">71</span>
-<span class="line-number">72</span>
-<span class="line-number">73</span>
-<span class="line-number">74</span>
-<span class="line-number">75</span>
-<span class="line-number">76</span>
-<span class="line-number">77</span>
-<span class="line-number">78</span>
-<span class="line-number">79</span>
-<span class="line-number">80</span>
-<span class="line-number">81</span>
-<span class="line-number">82</span>
-<span class="line-number">83</span>
-<span class="line-number">84</span>
-<span class="line-number">85</span>
-<span class="line-number">86</span>
-<span class="line-number">87</span>
-<span class="line-number">88</span>
-<span class="line-number">89</span>
-<span class="line-number">90</span>
-<span class="line-number">91</span>
-<span class="line-number">92</span>
-<span class="line-number">93</span>
-<span class="line-number">94</span>
-<span class="line-number">95</span>
-<span class="line-number">96</span>
-<span class="line-number">97</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">math</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line">
-</span><span class="line"><span class="kn">import</span> <span class="nn">sys</span>
-</span><span class="line"><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s">&#39;../../.&#39;</span> <span class="p">)</span> <span class="c"># regression modules address</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">Logysoft</span> <span class="kn">as</span> <span class="nn">soft</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">Logysterical</span> <span class="kn">as</span> <span class="nn">logit</span>
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">KaggleTop2</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span> <span class="o">=</span> <span class="mi">10</span>              <span class="c"># N. of possible values of Y (labels)</span>
-</span><span class="line">        <span class="c"># load data files</span>
-</span><span class="line">        <span class="n">training_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/train.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">        <span class="n">testing_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/test.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">yt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># evaluation set</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">ye</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yt</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># testing set</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">testing_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">optimize_logit_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pair</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># extract the right images from the set</span>
-</span><span class="line">        <span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/train.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="n">data_t</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:,</span> <span class="p">:]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">data_a</span> <span class="o">=</span> <span class="n">data_t</span><span class="p">[</span><span class="n">data_t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">a</span><span class="p">]</span>
-</span><span class="line">        <span class="n">data_b</span> <span class="o">=</span> <span class="n">data_t</span><span class="p">[</span><span class="n">data_t</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">b</span><span class="p">]</span>
-</span><span class="line">        <span class="n">data_ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">data_a</span><span class="p">,</span> <span class="n">data_b</span><span class="p">])</span>
-</span><span class="line">        <span class="n">xt</span> <span class="o">=</span> <span class="n">data_ab</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
-</span><span class="line">        <span class="n">yt</span> <span class="o">=</span> <span class="n">data_ab</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;int8&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="n">yt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">yt</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># Perform logistic regression</span>
-</span><span class="line">        <span class="n">xt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">xt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)),</span> <span class="n">xt</span><span class="p">])</span>
-</span><span class="line">        <span class="n">yt2</span> <span class="o">=</span> <span class="n">yt</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">yt2</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="n">a</span><span class="p">:</span>
-</span><span class="line">                <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-</span><span class="line">                <span class="n">count</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">yt2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">ini_thetas</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">xt2</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">        <span class="n">L</span> <span class="o">=</span> <span class="mf">1e+5</span>
-</span><span class="line">        <span class="n">opt_thetas</span> <span class="o">=</span> <span class="n">logit</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">ini_thetas</span><span class="p">,</span> <span class="n">xt2</span><span class="p">,</span> <span class="n">yt2</span><span class="p">,</span> <span class="n">L</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">opt_thetas</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">test_model_submit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="n">logit_thetas</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">soft_thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/submit_optimized_thetas.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
-</span><span class="line">        <span class="n">soft_thetas</span> <span class="o">=</span> <span class="n">soft_thetas</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">        <span class="n">h</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">soft_thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">)</span>
-</span><span class="line">        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">            <span class="p">[</span><span class="n">ml_1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">]</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">:][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c"># 1st and 2nd model choices</span>
-</span><span class="line">            <span class="n">p1</span><span class="p">,</span><span class="n">p2</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:][</span><span class="n">ml_1</span><span class="p">],</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:][</span><span class="n">ml_2</span><span class="p">]</span>
-</span><span class="line">            <span class="n">right_order</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">ml_1</span> <span class="o">&gt;</span> <span class="n">ml_2</span><span class="p">:</span>
-</span><span class="line">                <span class="n">right_order</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">                <span class="n">s</span> <span class="o">=</span> <span class="sb">`ml_2`</span><span class="o">+</span><span class="sb">`ml_1`</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">s</span> <span class="o">=</span> <span class="sb">`ml_1`</span><span class="o">+</span><span class="sb">`ml_2`</span>
-</span><span class="line">
-</span><span class="line">            <span class="k">if</span> <span class="n">p1</span><span class="o">&lt;</span><span class="mf">0.99</span> <span class="ow">and</span> <span class="n">p2</span><span class="o">&gt;</span><span class="mf">0.01</span><span class="p">:</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">logit_thetas</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">logit_thetas</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimize_logit_for</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">                <span class="n">l_t</span> <span class="o">=</span> <span class="n">logit_thetas</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
-</span><span class="line">                <span class="n">logix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">[</span><span class="n">i</span><span class="p">,:]])</span>
-</span><span class="line">
-</span><span class="line">                <span class="n">p</span> <span class="o">=</span> <span class="n">logit</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">l_t</span><span class="p">,</span> <span class="n">logix</span><span class="p">)</span>
-</span><span class="line">                <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">):</span>
-</span><span class="line">                    <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">([</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">]</span> <span class="k">if</span> <span class="n">right_order</span> <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">])</span>
-</span><span class="line">                <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="p">([</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_2</span><span class="p">]</span> <span class="k">if</span> <span class="n">right_order</span> <span class="k">else</span> <span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">])</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">ml_1</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
-</span><span class="line">        <span class="k">print</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">,:]</span>
-</span><span class="line">        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions_2steps.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">
-</span><span class="line"><span class="n">k2t</span> <span class="o">=</span> <span class="n">KaggleTop2</span><span class="p">()</span>
-</span><span class="line"><span class="n">k2t</span><span class="o">.</span><span class="n">test_model_submit</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="conclusion">conclusion</h2>
-
-<p>We have gained a small improvement of 1.6%. The right direction, yet far away from the results achieved with other models. This seems to suggest a limitation for this problem of a learning function that is linear. In future posts I’ll look for models that rely on non-linear functions.</p>
-
-<p>I also wonder what would be the result of using as model logistic regression one-vs-all for each label. And how it compares to plain softmax.</p>
-
+<ul>
+  <li><a href="https://gist.github.com/iamatypeofwalrus/5183133/raw/36a6aa7b1f79bbe18b1a32a78fde42a8eb3aec9a/roll_ipython_in_aws.md">original I followed</a></li>
+  <li><a href="http://nbviewer.ipython.org/urls/raw.github.com/Unidata/tds-python-workshop/master/ipython-notebook-server.ipynb">another to review</a></li>
+</ul>
 </div>
   
   
@@ -376,7 +199,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2013/10/06/OCR-Analaysis/">Kaggle Digit OCR: Softmax Analysis</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/10/09/SVM-C/">SVM: Graphical Intuition</a></h1>
       
       
     
@@ -393,281 +216,134 @@
   
 
 
-<time datetime="2013-10-06T09:03:00-07:00" pubdate data-updated="true">Oct 6<span>th</span>, 2013</time>
+<time datetime="2013-10-09T10:02:00-07:00" pubdate data-updated="true">Oct 9<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Reading this <a href="http://peekaboo-vision.blogspot.com/2012/12/another-look-at-mnist.html">post</a> I realized that we may be able to use a simple logistic regression on a 1-to-1 basis for those cases the softmax model gets wrong. </p>
+  <div class="entry-content"><p>Let’s start pointing to the best tutorial I have found in the Internet “<a href="http://webdoc.nyumc.org/nyumc/files/chibi/user-content/Final.pdf">A Gentle Introduction to Support Vector Machines in Biomedicine</a>” by Alexander Statnikov, Douglas Hardin, Isabelle Guyon and Constantin F. Aliferis.</p>
 
-<p>We extract the 970 images that we misclassified (out of the 12.000 of our validation set). Then for each image we compute the hypothesis function of each image using the optimized parameters (previously stored). </p>
+<p>And without much ado, lets begin by simplifying things. We are going to work on two dimensions so we can visualize better how SVM works. </p>
 
-<p>Let’s get as an example the 42<sup>nd</sup> image from the evaluation set:</p>
+<h2 id="the-simplest-analogy">the simplest analogy</h2>
 
-<p><img class="center" src="/images/kaggle_ocr/xe_42.png" width="400" height="400" title="Seven" /></p>
+<p>Consider that we want to classify object as houses or boats. We are given data that is represented in the pictures below. We know that all the green boxed objects are houses, and all the red circles are boats. That is our training data. Then we can ‘draw’ the shoreline with a yellow line as we realize that houses are on land (on one side of the shoreline) and boats are usually on water (on the other side of the decision boundary). The shoreline is our decision boundary, the line that separates one type of objects from the other. New objects will be asked on which side of the line they are, and depending on the answer they will be classified as boats or houses. Caveat: this is not foolproof since, for example, small catamarans could be moored on the sand and would be misclassified as houses.</p>
 
-<p>The hypothesis function of the image outputs the following probabilities for each label (0 to 9) that we have multiplied by 100: <code>[43.79, 7.6e-09, 0.37, 0.0008, 0.12, 0.44, 55.11, 0.02, 0.09, 0.02]</code></p>
+<p><img src="/images/oct13/house_boat_1.png" width="410" title="classifying houses vs boats" />
+<img src="/images/oct13/house_boat_2.png" width="410" title="classifying houses vs boats" /></p>
 
-<p>Our model mis classifies it as a 6 (highest probability of 55%) but it is really meant to be a 0. Now, realize that the second choice, the second maximum is for label 0 (with 43% probability), the right one!. Furthermore, the second choice is at a big distance from everyone else (less than 1%). So even if softmax failed, it was pretty close.</p>
+<h2 id="decision-boundary-in-svm">decision boundary in svm</h2>
 
-<p>If we could pick and choose the cases where first and second choice were close by, we could tell the model to disregard the softmax choice and instead, for that particular case, perform a logistic regression between the two choices. Generalized to all possible combinations of first and second choices we would need to compute $(n-1)n/2 = 45$ times the 784 parameters.</p>
+<p>We start with a set of points and their correct labels (north and south koreans in the border). A support vector machine constructs a decision boundary (hyper-plane or set of hyper-planes in a high or infinite dimensional space), which separate different classes. </p>
 
-<p>We can derive from the data that, of the 970 misclassified images on the evaluation set, 608 (or 62%) happen to have as second choice the true class. For example, the most frequent misclassification in this later group happens differentiating between 7 and 9, (69 times out of 608).</p>
+<p><img src="/images/oct13/korea_0.png" width="410" title="korean buffer zone" />
+<img src="/images/oct13/korea_3.png" width="410" title="one possible boundary" />
+<img src="/images/oct13/korea_1.png" width="410" title="a better boundary" />
+<img src="/images/oct13/korea_2.png" width="410" title="choosing the boundary" /></p>
 
-<p>Let’s make a small experiment and see if it is true that logit works better than softmax when figuring 7s and 9s. We,</p>
+<p>If we need to choose a border that separates the armies of both Koreas, both lines (green and black) are valid. Nevertheless, we have the intuition that the black one will give us the most robust one. Not only because we can grasp the importance of a buffer zone between the armies, but because given a new point to classify, the black boundary seems to work better (‘generalize’). Formally expressed, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points of any class (so-called functional margin), since <strong>in general the larger the margin the lower the generalization error</strong>.</p>
 
-<ul>
-  <li>extract from the training and evaluation test all images whose true label is 7 or 9. </li>
-  <li>derive the opt thetas for a simple logistic regression from the extracted training set.</li>
-  <li>compare on the extracted evaluation set the accuracy of both, softmax and logistic regression.</li>
-</ul>
+<p>From before we are looking to solve :</p>
 
-<p>Softmax gets it right 90.8% and logit 95.8%. Lets repeat it for the most conflicting pairs previously identified:</p>
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
 
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">pairs</th>
-      <th style="text-align: center">count</th>
-      <th style="text-align: center">softmax_acc(%)</th>
-      <th style="text-align: center">logit_acc(%)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center">7 vs. 9</td>
-      <td style="text-align: center">69</td>
-      <td style="text-align: center">90.8</td>
-      <td style="text-align: center">95.8</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4 vs. 9</td>
-      <td style="text-align: center">53</td>
-      <td style="text-align: center">91.3</td>
-      <td style="text-align: center">96.8</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5 vs. 8</td>
-      <td style="text-align: center">46</td>
-      <td style="text-align: center">86.6</td>
-      <td style="text-align: center">96.5</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3 vs. 5</td>
-      <td style="text-align: center">40</td>
-      <td style="text-align: center">87.6</td>
-      <td style="text-align: center">96.0</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1 vs. 8</td>
-      <td style="text-align: center">37</td>
-      <td style="text-align: center">93.5</td>
-      <td style="text-align: center">98.4</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2 vs. 8</td>
-      <td style="text-align: center">33</td>
-      <td style="text-align: center">89.4</td>
-      <td style="text-align: center">97.7</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2 vs. 3</td>
-      <td style="text-align: center">32</td>
-      <td style="text-align: center">90.2</td>
-      <td style="text-align: center">97.3</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3 vs. 8</td>
-      <td style="text-align: center">29</td>
-      <td style="text-align: center">89.6</td>
-      <td style="text-align: center">97.1</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2 vs. 7</td>
-      <td style="text-align: center">24</td>
-      <td style="text-align: center">91.0</td>
-      <td style="text-align: center">98.7</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5 vs. 6</td>
-      <td style="text-align: center">21</td>
-      <td style="text-align: center">90.2</td>
-      <td style="text-align: center">97.8</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0 vs. 6</td>
-      <td style="text-align: center">19</td>
-      <td style="text-align: center">95.8</td>
-      <td style="text-align: center">98.6</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3 vs. 9</td>
-      <td style="text-align: center">19</td>
-      <td style="text-align: center">90.0</td>
-      <td style="text-align: center">98.5</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2 vs. 6</td>
-      <td style="text-align: center">18</td>
-      <td style="text-align: center">92.9</td>
-      <td style="text-align: center">98.5</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0 vs. 5</td>
-      <td style="text-align: center">15</td>
-      <td style="text-align: center">90.4</td>
-      <td style="text-align: center">98.4</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0 vs. 2</td>
-      <td style="text-align: center">12</td>
-      <td style="text-align: center">93.0</td>
-      <td style="text-align: center">98.5</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3 vs. 7</td>
-      <td style="text-align: center">12</td>
-      <td style="text-align: center">91.2</td>
-      <td style="text-align: center">98.4</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5 vs. 9</td>
-      <td style="text-align: center">12</td>
-      <td style="text-align: center">87.1</td>
-      <td style="text-align: center">98.5</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4 vs. 6</td>
-      <td style="text-align: center">12</td>
-      <td style="text-align: center">94.4</td>
-      <td style="text-align: center">99.0</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8 vs. 9</td>
-      <td style="text-align: center">10</td>
-      <td style="text-align: center">89.2</td>
-      <td style="text-align: center">98.7</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4 vs. 5</td>
-      <td style="text-align: center">10</td>
-      <td style="text-align: center">88.8</td>
-      <td style="text-align: center">98.6</td>
-    </tr>
-  </tbody>
-</table>
+<p>As we will see soon, C influences the size of the margin. A large C is good (extra safety and distance). But as it grows, it is more sensitive to outliers (it will include them all), which may be an undesired effect. A low C makes the decision surface simpler and smoother, while a high C aims at classifying all training examples correctly. </p>
 
-<p><br /></p>
+<h2 id="now-for-something-entirely-different-vectors">Now, for something entirely different: vectors…</h2>
 
-<p>Here is the module for logistic regression:</p>
+<p>In 2D, we have two vectors u and v stated as:</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>logit module</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">math</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">scipy</span> <span class="kn">as</span> <span class="nn">sc</span>
-</span><span class="line"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># MODULE FOR LOGISTIC REGRESSION</span>
-</span><span class="line"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1E-11</span><span class="p">))(</span><span class="n">z</span><span class="p">)</span>
-</span><span class="line">    <span class="c">#return np.vectorize(lambda x: 1/(1+np.exp(-x)))(z)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;hypothesis function. probability of input x with params t&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;cost function J(theta)&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">prediction</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
-</span><span class="line">    <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="n">J</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span> <span class="o">-</span>        \
-</span><span class="line">            <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prediction</span><span class="p">))</span> <span class="o">+</span>    \
-</span><span class="line">            <span class="p">(</span><span class="n">lam</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">::],</span> <span class="mi">2</span><span class="p">)))</span><span class="o">/</span><span class="n">m</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">J</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;gradient function, first partial derivation of J(theta)&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">prediction</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
-</span><span class="line">    <span class="n">regu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">::,]</span><span class="o">*</span><span class="n">lam</span><span class="p">])</span>
-</span><span class="line">    <span class="n">grad</span> <span class="o">=</span> <span class="p">((</span><span class="n">prediction</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">regu</span><span class="p">)</span><span class="o">/</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">grad</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;derive thetas using l_bfgs algorithm&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
-</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
-</span><span class="line">        <span class="k">print</span> <span class="n">thetas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
-</span><span class="line">        <span class="k">print</span> <span class="n">f</span>
-</span><span class="line">        <span class="k">print</span> <span class="n">d</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-</span><span class="line">    <span class="n">acc</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span><span class="line">    <span class="n">m</span><span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,::])</span>
-</span><span class="line">        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">&gt;</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">p</span><span class="o">&lt;=</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
-</span><span class="line">                <span class="n">acc</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">acc</span><span class="o">/</span><span class="n">m</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<script type="math/tex; mode=display">
+u = 
+\begin{bmatrix}
+u_1 \\
+u_2
+\end{bmatrix}
+\mbox{ and }
+v = 
+\begin{bmatrix}
+v_1 \\
+v_2
+\end{bmatrix}
+</script>
+
+<p>where the u1 and u2 are the u’s components or projections along the axis. The length of u is also called the norm of u or $||u||$, and can derived from Pythagoras’ theorem. </p>
+
+<p>Let’s define also the projection of v onto u, what we call ‘p’, and which is the length of the shadow of v over u if the light is perpendicular to u. p is the projection of v onto u. It is a scalar, not a vector. </p>
+
+<p>The inner product of u and v is:</p>
+
+<script type="math/tex; mode=display">u^T . v = p . \|u\| = u_1.v_1 + u_2.v_2 = v^T . u = p^{'} . \|v\|</script>
+
+<h2 id="and-back-to-margins">…and back to margins</h2>
+
+<p>As we were saying, we needed to minimize the cost function as in:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 = min_{\theta} (C A + B)
+\end{align}
+</script>
+
+<p>Let’s imagine we choose a huge C = 100.000. To minimize that sausage we’ll need to make A as small as possible. Actually, we know that A = 0 if we can find parameters that perfectly comply with:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+ %]]></script>
+
+<p>In that case, because A==0, our minimization problem will have become:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \sum_{i=1}^m \theta_j^2
+\\
+\theta^T x^{(i)} >= 1 \mbox{ if } y^{(i)} = 1
+\\
+\theta^T x^{(i)} <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>For clarity we are going to simplify our conditions by considering $\theta_0 = 0$ which means that the decision boundary crosses the origin and that the $\theta$ vector also starts at the origin. Also, since we are in 2D, our vectors have only two features.</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} (\theta_1^2 + \theta_1^2) = \|\theta\|_2
+\end{align}
+</script>
+
+<p>So all SVM is doing is minimizing the length of the parameter vector.</p>
+
+<p>If we plot an example $x^{(i)}$ in its 2D space we can see that it can be expressed as a point in the space or as a vector. Since we also have the two components of $\theta$ we can also plot it as a vector. Then, from above, the inner product $\theta^T x^{(i)} = p^{(i)} ||\theta|| = \theta^1 x<em>1^{(i)} + \theta^2 x</em>2^{(i)}$ where p is the projection of $x^{(i)}$ into $\theta$.</p>
+
+<p>So our optimization objective becomes:</p>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+min_{\theta} \|\theta\|^2
+\\
+p^{(i)} \|\theta\| >= 1 \mbox{ if } y^{(i)} = 1
+\\
+p^{(i)} \|\theta\| <= -1 \mbox{ if } y^{(i)} = 0 
+\end{align}
+ %]]></script>
+
+<p>Article of faith: The $\theta$ vector is perpendicular to the decision boundary that separates the two classes. The idea is then, which $\theta$, or which decision boundary works best?</p>
+
+<p>The simplification of $\theta_0 = 0$ only means that the decision boundary (and also the $\theta$ vector) passes through the origin.</p>
+
+<p>DEVELOPING……</p>
+
 </div>
   
   
@@ -681,7 +357,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2013/10/06/Kaggle-Digit-OCR-Softmax/">Kaggle Digit OCR: Softmax Model</a></h1>
+      <h1 class="entry-title"><a href="/blog/2013/10/08/SVM-Theory1/">SVM: Derivation From Logit</a></h1>
       
       
     
@@ -698,362 +374,77 @@
   
 
 
-<time datetime="2013-10-06T09:02:00-07:00" pubdate data-updated="true">Oct 6<span>th</span>, 2013</time>
+<time datetime="2013-10-08T09:02:00-07:00" pubdate data-updated="true">Oct 8<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Instead of using a Random Forest as suggested I am going to start with Softmax regression.</p>
+  <div class="entry-content"><p>Compared to both logistic regression and neural networks, a Support Vector Machine (SVM) sometimes gives a cleaner way for learning non-linear functions.</p>
 
-<h2 id="datasets">datasets</h2>
+<p>The logistic regression hypothesis and cost functions for a single example are:</p>
 
-<p>The original kaggle/mnist data is therefore divided into e sets:</p>
+<script type="math/tex; mode=display">
+h_{\theta}(x) = \frac{1}{ 1  + e^{ -(\theta)^T x } } = g(z) \mbox{ where } z = \theta^T x
+\\
+J_{\theta}(x) = -(\log h_{\theta}(x) + (1-y) \log(1 - h-{\theta}(x)))
+</script>
 
-<ul>
-  <li>a training set with the first 30.000 images (xt, yt) from train.csv.</li>
-  <li>an evaluation set of the remaining 12.000 examples (xe, ye) from train.csv.</li>
-  <li>the testing set with 28.000 images (x_test) to classify from test.csv.</li>
-</ul>
+<p>Looking at the sigmoid activation function, how does logistic regression work?</p>
 
-<p>I also initialize some parameters that I may later optimize:</p>
+<p><img class="center" src="/images/oct13/sigmoid.png" width="400" height="400" title="sigmoid activation function" /></p>
 
-<ul>
-  <li>lambda, the regularization parameter (L).</li>
-  <li>number of labels (LABS = 10), digits 0 to 9.</li>
-  <li>number of features (N = 784).</li>
-  <li>thetas initialized to zeros as a matrix (10, 784)</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>class KaggleTrain initialization</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">math</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">scipy</span> <span class="kn">as</span> <span class="nn">sc</span>
-</span><span class="line"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span>
-</span><span class="line"><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
-</span><span class="line">
-</span><span class="line"><span class="kn">import</span> <span class="nn">sys</span>
-</span><span class="line"><span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="s">&#39;../../.&#39;</span> <span class="p">)</span> <span class="c"># logysoft module address</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">Logysoft</span> <span class="kn">as</span> <span class="nn">softmax</span>  <span class="c"># module with softmax utility functions</span>
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">KaggleTrain</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># initialize general parameters</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">L</span> <span class="o">=</span> <span class="mi">7</span>                  <span class="c"># lambda, regularization parameter</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span> <span class="o">=</span> <span class="mi">10</span>              <span class="c"># N. of possible values of Y (labels)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="mi">784</span>                <span class="c"># N. of features per image (28x28)</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># load data files</span>
-</span><span class="line">        <span class="n">training_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/train.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">        <span class="n">testing_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&#39;./data/kaggle/test.csv&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span class="line">        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">training_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># training set</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xt</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">30000</span><span class="p">,</span> <span class="p">:]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">yt</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">30000</span><span class="p">,</span> <span class="p">:]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">gt</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">groundTruth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">)</span>
-</span><span class="line">        <span class="c"># evaluation set</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">xe</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">ye</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="mi">30000</span><span class="p">:,</span> <span class="p">:]</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">ge</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">groundTruth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ye</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">)</span>
-</span><span class="line">        <span class="c"># testing set</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">testing_data</span><span class="o">.</span><span class="n">ix</span><span class="p">[:,:])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s">&#39;float64&#39;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="choosing-lambda-">choosing lambda ($λ$)</h2>
-
-<p>To choose the regularization parameter first we choose the range of lambdas for which to test as [1e-3, 1e-2, 1e-1, 1, 10, 100] and then we zero in in a smaller range (with minor modifications to the code).</p>
-
-<p>For each lambda we find the optimum $θ<em>{opt}$ in the training set and then compute the cost $J(θ</em>{opt})$ in the evaluation set. We choose the lambda that works best and minimizes that cost/error measure.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>choosing lambda</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">choose_lambda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;train with different regularization parameters and choose</span>
-</span><span class="line"><span class="sd">       the one that minimizes the cost in the evaluation set.&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">tinit</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># initialize some working vars</span>
-</span><span class="line">    <span class="n">rango</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1e-3</span><span class="p">,</span> <span class="mf">1e-2</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
-</span><span class="line">    <span class="n">Jt</span><span class="p">,</span> <span class="n">Je</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
-</span><span class="line">    <span class="n">bestC</span><span class="p">,</span> <span class="n">bestL</span> <span class="o">=</span> <span class="mf">1e+10</span><span class="p">,</span> <span class="mf">0.0</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># cycle through lambdas and choose the one with lowest cost</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">chosen_lambda</span> <span class="ow">in</span> <span class="n">rango</span><span class="p">:</span>
-</span><span class="line">        <span class="n">t</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> \
-</span><span class="line">            <span class="n">numLabels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="n">chosen_lambda</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">cost_t</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">j</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="n">chosen_lambda</span><span class="p">)</span>
-</span><span class="line">        <span class="n">cost_e</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">j</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="n">chosen_lambda</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">Jt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Jt</span><span class="p">,</span> <span class="n">cost_t</span><span class="p">)</span>
-</span><span class="line">        <span class="n">Je</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Je</span><span class="p">,</span> <span class="n">cost_e</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">cost_e</span> <span class="o">&lt;</span> <span class="n">bestC</span><span class="p">:</span>
-</span><span class="line">            <span class="n">bestC</span> <span class="o">=</span> <span class="n">cost_e</span>
-</span><span class="line">            <span class="n">bestL</span> <span class="o">=</span> <span class="n">chosen_lambda</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">the best lambda is&quot;</span><span class="p">,</span> <span class="n">bestL</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># plot</span>
-</span><span class="line">    <span class="n">line1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rango</span><span class="p">),</span> <span class="n">Jt</span><span class="p">)</span>
-</span><span class="line">    <span class="n">line2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">rango</span><span class="p">),</span> <span class="n">Je</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">line1</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;training&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">solid_joinstyle</span><span class="o">=</span><span class="s">&#39;round&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">line2</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;training&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">solid_joinstyle</span><span class="o">=</span><span class="s">&#39;round&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;log10(Lambda)&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;J&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span class="line">    <span class="k">pass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The code not only informs us of the best lambda available but plots the cost curves for each lambda. The blue line represents the cost (error) for each lambda value in the training set. The red line is the cost in the evaluation set and from where we choose $λ$ that minimizes the cost/error. The first chart is log10 of lambda and the second is just lambdalone.</p>
+<p>If we have an example x where y = 1, we hope that h(x) is close to 1. For that to happen $z = θ^T x$ must be much larger than 0. If we look at the cost function, we see that only the first term works (for y = 1).  So a single example with y = 1 will have a z » 0, and its cost contribution will be very small.</p>
 
 <div style="text-align:center">
-<img src="/images/kaggle_ocr/choosing_lambda_kaggle_softmax.png" width="400" height="500" title="Training Error (blue) &amp; Validation Error (red)" />
-<img src="/images/kaggle_ocr/choosing_lambda_kaggle_softmax_2.png" width="400" height="500" title="Training Error (blue) &amp; Validation Error (red)" />
+<img src="/images/oct13/term1.png" width="400" height="400" title="sigmoid activation function" />
+<img src="/images/oct13/term2.png" width="400" height="400" title="sigmoid activation function" />
 </div>
 
-<p>In our case, we choose a small lambda of 0.002. With input data that is not scaled, the same exercise leads to choosing a $λ$ of around 7.</p>
+<p>Similarly if y = 0, we need h to be close to 0, for which z needs to be very negative. And in the cost function now only the second term is active. So a single example with y = 0 will have a z « 0, and its cost contribution will be very big.</p>
 
-<h2 id="optimizing-thetas">optimizing thetas</h2>
+<p>SVM just takes the above cost functions and simplifies them with straight lines in the following manner:</p>
 
-<p>Once we have the regularization fixed we compute the optimized thetas on the training set and measure the accuracy on the evaluation set.</p>
+<div style="text-align:center">
+<img src="/images/oct13/term1b.png" width="400" height="400" title="sigmoid activation function" />
+<img src="/images/oct13/term2b.png" width="400" height="400" title="sigmoid activation function" />
+</div>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>optimize parameters and check accuracy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">check_accuracy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="sd">&#39;&#39;&#39;computes thetas on training set, saves them, and checks</span>
-</span><span class="line"><span class="sd">           accuracy on evaluation set&#39;&#39;&#39;</span>
-</span><span class="line">        <span class="n">tinit</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-</span><span class="line">        <span class="n">thetas</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
-</span><span class="line">        <span class="n">thetas</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/optimized_thetas.csv&#39;</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">h</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xe</span><span class="p">)</span>
-</span><span class="line">        <span class="n">predictions</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">        <span class="n">zeros_are_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ye</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
-</span><span class="line">        <span class="n">misses</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">zeros_are_right</span><span class="p">)</span>
-</span><span class="line">        <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">misses</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
-</span><span class="line">        <span class="k">print</span> <span class="s">&#39;accuracy:&#39;</span><span class="p">,</span> <span class="n">acc</span>
-</span><span class="line">        <span class="k">pass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>We call this simplified cost curves $cost<em>1$ and $cost</em>2$. The key is that SVM does not outputs probabilities like before, but still classifies pretty well. Actually, for learning non linearly, it gives us a cleaner and efficient approach.</p>
 
-<p>We achieve an accuracy rate of accuracy: 0.919.</p>
+<p>So finding the parameters from the cost function in logit:</p>
 
-<h2 id="learning-curves">learning curves</h2>
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} \frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (-\log h_\theta(x^{(i)})) + (1-y^{(i)}) (-\log (1-h_\theta(x^{(i)})))\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
 
-<p>Finally we plot and analyze the learning curves by repeating the exercise for different sample sizes.</p>
+<p>becomes:</p>
 
-<p>The cost (error) on the training set is represent in blue and the cost on the validation set in red. For small training sets the error is small because any curve can be made to fit few data points. The validation error is big because the simplistic model has little to do with reality. </p>
+<script type="math/tex; mode=display">
+\begin{align}
+min_{\theta} \frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
 
-<p>As we grow the sample size the training error grows (the pains of fitting all points in the curve) while the validation cost diminishes as more complex models generalize better to untrained points.</p>
-
-<p><img class="center" src="/images/kaggle_ocr/learning_kaggle_soft.png" width="600" height="500" title="Training Error (blue) &amp; Validation Error (red)" /></p>
-
-<p>A priori we see that our model does not suffer from a bout of bias. Nevertheless, since we still have room to improve in terms of accuracy we may be suffering from a bit of high variance (over fitting to the training data and lack of generalization). Ways to solve this are:</p>
+<p>Since we don’t care about probabilities, only classification results, as we search for the minimizing parameters we neither care about multiplying constants. So by convention, SVM notation:</p>
 
 <ul>
-  <li>increase $λ$. Not really since we know it was optimized and from here we will only rise the error and bias our model.</li>
-  <li>gather more training examples. Not available either in kaggle, although we could create new examples by deforming, rotating, etc the existing ones.</li>
-  <li>reduce the number of features. I tried with PCA and the results were definitively poorer, maybe because we were indiscriminately removing parameters?</li>
-  <li>get creative (more later).</li>
+  <li>gets rid of constant 1/m.</li>
+  <li>use C = 1/$\lambda$ instead of $\lambda$.</li>
 </ul>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>learning curves</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">learning_curves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="n">tinit</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-</span><span class="line">    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">    <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">30</span><span class="p">])</span><span class="o">*</span><span class="mi">1000</span>
-</span><span class="line">    <span class="n">Jt</span><span class="p">,</span> <span class="n">Je</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">sample</span><span class="p">:</span>
-</span><span class="line">        <span class="n">my_t</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m</span><span class="p">,:],</span> \
-</span><span class="line">            <span class="n">numLabels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="n">l</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">Jt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Jt</span><span class="p">,</span> <span class="n">soft</span><span class="o">.</span><span class="n">j</span><span class="p">(</span><span class="n">my_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">m</span><span class="p">,:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">))</span>
-</span><span class="line">        <span class="n">Je</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Je</span><span class="p">,</span> <span class="n">soft</span><span class="o">.</span><span class="n">j</span><span class="p">(</span><span class="n">my_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xe</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">))</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># plot (m, Jtr) and (m, Jcv)</span>
-</span><span class="line">    <span class="n">line1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">Jt</span><span class="p">)</span>
-</span><span class="line">    <span class="n">line2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">Je</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">line1</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;training&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="n">solid_joinstyle</span><span class="o">=</span><span class="s">&#39;round&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">line2</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&#39;training&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="n">solid_joinstyle</span><span class="o">=</span><span class="s">&#39;round&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Number of Examples&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Cost / Error&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</span><span class="line">    <span class="k">pass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = min_{\theta} C \left[ \sum_{i=1}^m y^{(i)} cost_1(z^{(i)}) + (1-y^{(i)}) cost_0(z^{(i)})\right] + \frac{1}{2} \sum_{i=1}^m \theta_j^2 
+\end{align}
+</script>
 
-<h2 id="submission">Submission</h2>
+<p>So we have that if $\theta^T x &gt;= 1 =&gt; h_{\theta}(x) = 1$.</p>
 
-<p>For the submission I optimized parameters for the original set of 42.000 images (not just the 30.000 examples of the training set). </p>
-
-<blockquote><p>The accuracy achieved in the Kaggle competition is 92.086%.</p></blockquote>
-
-<p>I also tried a couple of small tweaks:</p>
-
-<ul>
-  <li>Re-scaling [to range (0,1), mean normalize and feature scale] and using an optimized $λ$ of 0.002 the kaggle accuracy was a tad smaller at 91.6% </li>
-  <li>Reducing dimensions with PCA while keeping 90 to 99% of variance. The accuracy went down to 90%, proving that PCA may have been removing valuable information. PCA is not always a good recipe for high variance problems.</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>predicting on test set</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">test_model_submit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="c"># compute thetas on whole training set</span>
-</span><span class="line">    <span class="n">tinit</span> <span class="o">=</span> <span class="mf">0.005</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
-</span><span class="line">    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">xt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xe</span><span class="p">])</span>
-</span><span class="line">    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">yt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ye</span><span class="p">])</span>
-</span><span class="line">    <span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ge</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># find thetas and save them</span>
-</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">L</span><span class="p">)</span>
-</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LABS</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/submit_optimized_thetas.csv&#39;</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># compute predictions</span>
-</span><span class="line">    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">    <span class="n">h</span> <span class="o">=</span> <span class="n">soft</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="n">thetas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_test</span><span class="p">)</span>
-</span><span class="line">    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">h</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
-</span><span class="line">        <span class="n">predictions</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="p">]</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
-</span><span class="line">    <span class="k">print</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">,:]</span>
-</span><span class="line">    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
-</span><span class="line">    <span class="k">pass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="conclusion">conclusion</h2>
-
-<p>I have read that for classification problems, in practice, different algorithms often yield similar accuracy measures. Most of the time algorithm doesn’t matter as much. You can easily reach 90% recognition rate with the simplest algorithm, but every next percent is very difficult to achieve. I seem to have to struck the softmax wall.</p>
+<p>Consider that in logistic regression we were classifying as y = 1 if z was positive. SVM needs it to be &gt;= 1. In a sense, SVM wants to be more sure and moves the goalpost by adding an extra safety margin.</p>
 
 </div>
   
@@ -1079,23 +470,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
       </li>
     
       <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
       </li>
     
   </ul>

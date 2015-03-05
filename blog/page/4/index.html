@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="My fellow students at Code Fellows and I have made public a set of templates under the name of “Backgrounders” that show how to set up different &hellip;">
+  <meta name="description" content="This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the Equalizer gem. We start with a basic &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -118,7 +118,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/10/17/Backgrounders/">Backgrounders</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a></h1>
       
       
     
@@ -135,36 +135,44 @@
   
 
 
-<time datetime="2014-10-17T20:00:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2014</time>
+<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>My fellow students at Code Fellows and I have made public a set of templates under the name of “<a href="https://github.com/Backgrounders">Backgrounders</a>” that show how to set up different types of Background Jobs for delivering automatic emails with Rails. We cover the main gems: Sidekiq, Resque, and Delayed Jobs. And we have included examples for both Rails 4.1 and 4.2. It is publicly available in GitHub.</p>
+  <div class="entry-content"><p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
 
-<p>We hope this small public source contribution help others as a reference when dealing with background workers. Following is my contribution to the common effort:</p>
+<p>We start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
 
-<hr />
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
+</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
+</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
 
-<p><br /></p>
+<p>We create an ad-hoc tree that we wire in the following manner.</p>
 
-<h1 id="rails-42-mailer-with-sidekiq-kick-ass-with-rails-42imagesoct14nonsensepng">Rails 4.2 Mailer with Sidekiq <img src="/images/Oct14/nonsense.png" alt="kick ass with rails 4.2!" /></h1>
-
-<p>This is a template for how to set up Rails 4.2 with background jobs from Sidekiq using Redis.</p>
-
-<p>In a nutshell, when we create a background jobs we pass an object with the data to use to the worker. In most cases, we pass a Model object (i.e. ActiveRecord), so make things simpler we just pass the id of the object to the worker, and Rails and Sidekiq take care of everything for us (finding it in the database, serializing and de-serializing it).</p>
-
-<p>In this template we have taken a different route. Instead of passing an existing Model object we pass an ad-hoc one, created in the spot and stored in a hash that we pass to the worked in json format. Then, it is up to us to tell the worker how to  de-serialize it, reconstituting the original hash from the json string, to be able to operate on the data passed.</p>
-
-<p>All this will become more clear with an example.</p>
+<p><img class="center" src="/images/Oct14/binary_tree.png" width="300" /></p>
 
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/10/17/Backgrounders/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Read on &rarr;</a>
     </footer>
   
 
@@ -177,7 +185,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/10/05/Metaprogramming/">Ruby Metaprogramming in Action</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/10/20/JS-review/">JavaScript OO Review</a></h1>
       
       
     
@@ -194,16 +202,62 @@
   
 
 
-<time datetime="2014-10-05T08:01:00-07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2014</time>
+<time datetime="2014-10-20T14:30:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>The <a href="https://github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of Ruby metaprogramming.</p>
+  <div class="entry-content"><p>Interestingly enough JS is class-less yet everything is an object. There are 3 ways to instantiate an object:</p>
 
-<p>It is a module that when added to your class helps define equality, equivalence and inspection methods.</p>
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">prototype</span> <span class="p">);</span>
+</span><span class="line"><span class="kd">var</span> <span class="nx">newObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Object</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h3 id="the-literal-object-pattern">The Literal Object Pattern</h3>
+<p>The first one is the object literal, a self contained wrapped object with all properties held inside in key / value pairs separated by commas. Check this <a href="http://rmurphey.com/blog/2009/10/15/using-objects-to-organize-your-code/">article</a>. It is a very neat to create objects in JS, clean and encapsulated that keep the code simple and clean.</p>
+
+<p>The last one uses the Object constructor, something similar to Ruby’s BasicObject class.</p>
+
+<h3 id="the-constructor-pattern">The Constructor Pattern</h3>
+<p>Constructors are special functions. Or seen another way, by prefixing the word <code>new</code> to a function we tell JS to instantiate an Object according to the specifications defined in the function.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">function</span> <span class="nx">Car</span><span class="p">(</span><span class="nx">model</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">  <span class="k">this</span><span class="p">.</span><span class="nx">model</span> <span class="o">=</span> <span class="nx">model</span><span class="p">;</span>
+</span><span class="line">  <span class="k">this</span><span class="p">.</span><span class="nx">to_s</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s2">&quot;model: &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">mode</span><span class="p">;</span> <span class="p">}</span>
+</span><span class="line"><span class="p">}</span>
+</span><span class="line">
+</span><span class="line"><span class="kd">var</span> <span class="nx">model_T</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Car</span><span class="p">(</span><span class="s1">&#39;Ford T&#39;</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In this manner we can define what in ruby are instance variables and methods, but here they all are properties in key value pairs, independently of them being other object or functions.</p>
+
+<p>The main problem is that we are defining the ‘methods’ inside each object at instantiation time. In Ruby the behavior is held in the Class, a common repo for all instantiated objects derived from it.</p>
+
+<p>Enter the prototype, another object that is common to all JS objects. When we create an object with a constructor, everything defined in the constructor’s function is available to all instances created from it, analogous to a ruby class in terms of a common repo where all objects can go to find the methods they have.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">Car</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">to_s</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="s2">&quot;model: &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">mode</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h3 id="the-module-pattern">The Module Pattern</h3>
+
+<p>The idea behind it is to encapsulate and it resembles OO practices.</p>
+
+<blockquote><p>Variables can&#8217;t technically be declared as being public nor private and so we use function scope to simulate this concept. Within the Module pattern, variables or methods declared are only available inside the module itself thanks to closure.</p><footer><strong>Addy Osmani, Learning JavaScript Design Patterns</strong> <cite><a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript">addyosmani.com/resources/book/&hellip;</a></cite></footer></blockquote>
+
+<p>A module template that touches on private and public variables would like the following:</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
 <span class="line-number">2</span>
@@ -222,30 +276,53 @@
 <span class="line-number">15</span>
 <span class="line-number">16</span>
 <span class="line-number">17</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
-</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="kd">var</span> <span class="nx">myNamespace</span> <span class="o">=</span> <span class="p">(</span><span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
 </span><span class="line">
-</span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">myPrivateVar</span><span class="p">,</span> <span class="nx">myPrivateMethod</span><span class="p">;</span>
 </span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">)</span>
-</span><span class="line">    <span class="vi">@latitude</span><span class="p">,</span> <span class="vi">@longitude</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
+</span><span class="line">  <span class="c1">// A private counter variable</span>
+</span><span class="line">  <span class="nx">myPrivateVar</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 </span><span class="line">
-</span><span class="line"><span class="n">point_a</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-</span><span class="line"><span class="n">point_b</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line">  <span class="c1">// A private function which logs any arguments</span>
+</span><span class="line">  <span class="nx">myPrivateMethod</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">foo</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span> <span class="nx">foo</span> <span class="p">);</span>
+</span><span class="line">  <span class="p">};</span>
 </span><span class="line">
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">inspect</span>    <span class="c1"># =&gt; &quot;#&lt;GeoLocation latitude=1 longitude=2&gt;&quot;</span>
+</span><span class="line">  <span class="k">return</span> <span class="p">{</span>
 </span><span class="line">
-</span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_b</span>           <span class="c1"># =&gt; true</span>
-</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
+</span><span class="line">    <span class="c1">// A public variable</span>
+</span><span class="line">    <span class="nx">myPublicVar</span><span class="o">:</span> <span class="s2">&quot;foo&quot;</span><span class="p">,</span>
+</span><span class="line">
+</span><span class="line">    <span class="c1">// A public function utilizing privates</span>
+</span><span class="line">    <span class="nx">myPublicFunction</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">bar</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class="line">
+</span><span class="line">      <span class="c1">// Increment our private counter</span>
+</span><span class="line">      <span class="nx">myPrivateVar</span><span class="o">++</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">      <span class="c1">// Call our private method using bar</span>
+</span><span class="line">      <span class="nx">myPrivateMethod</span><span class="p">(</span> <span class="nx">bar</span> <span class="p">);</span>
+</span><span class="line">
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line">  <span class="p">};</span>
+</span><span class="line"><span class="p">})();</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Inside the module we have some internal private stuff shielded from the outside, and the module returns an object with the public API and public variables. This returned object is assigned to the myNamespace variable so we access its innards as properties of the object.</p>
+
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/05/Metaprogramming/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -257,7 +334,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/09/17/Rails-BDD/">Rails BDD Cheats</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a></h1>
       
       
     
@@ -274,90 +351,43 @@
   
 
 
-<time datetime="2014-09-17T18:01:00-07:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
+<time datetime="2014-10-20T11:00:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>As a reminder, when testing BDD style a Rails app these are helpful to have close by:</p>
+  <div class="entry-content"><p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># Rakefile</span>
-</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../config/application&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">load_tasks</span>
-</span><span class="line">
-</span><span class="line"><span class="ss">Rails</span><span class="p">:</span><span class="ss">:TestTask</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;test:features&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;test:prepare&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-</span><span class="line">  <span class="n">t</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;test/features/**/*_test.rb&#39;</span>
-</span><span class="line"><span class="k">end</span>
-</span><span class="line">
-</span><span class="line"><span class="ss">Rake</span><span class="p">:</span><span class="ss">:Task</span><span class="o">[</span><span class="s1">&#39;test:run&#39;</span><span class="o">].</span><span class="n">enhance</span> <span class="o">[</span><span class="s1">&#39;test:features&#39;</span><span class="o">]</span>
-</span><span class="line">
-</span><span class="line"><span class="n">task</span> <span class="ss">default</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test_helper.rb</span>
-</span><span class="line"><span class="c1"># ENV[&#39;RAILS_ENV&#39;] ||= &#39;test&#39;</span>
-</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
-</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;Current environment: </span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class="line">
-</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../../config/environment&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;rails/test_help&#39;</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;minitest/rails/capybara&#39;</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;capybara/poltergeist&#39;</span>
-</span><span class="line"><span class="c1"># require &#39;pry-rescue/minitest&#39;</span>
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
-</span><span class="line">  <span class="n">fixtures</span> <span class="ss">:all</span>
-</span><span class="line">  <span class="no">Capybara</span><span class="o">.</span><span class="n">javascript_driver</span> <span class="o">=</span> <span class="ss">:poltergeist</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
 
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test/features/do_some_test.rb</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
-</span><span class="line">
-</span><span class="line"><span class="n">feature</span> <span class="s1">&#39;Do something&#39;</span> <span class="k">do</span>
-</span><span class="line">  <span class="n">scenario</span> <span class="s1">&#39;anybody can do something&#39;</span> <span class="k">do</span>
-</span><span class="line">    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
+
+<p>In essence you’ll end up using two different git repos inside both your Octopress code base. And the fun part is that both point to the same github repo!</p>
+
+<p>1.- the first can be found inside the folder _deploy:</p>
+
+<ul>
+  <li><code>rake generate</code> compiles the site from all the files in the source directory (and other resources) and places everything inside the _deploy folder.</li>
+  <li><code>rake deploy</code> pushes it (the files inside _deploy) up to GitHub, actually to the to origin/master branch.</li>
+</ul>
+
+<p>So, for example, if we have a custom domain and we want it to point to our github.io site, we need a CNAME file that we place inside the source folder. After rake generate and rake deploy, it will show up in the root of origin/master (and inside our _deploy folder)</p>
+
+<p>2.- The second git repo, you create it on the root:</p>
+
+<p>For this one we create a single branch, “source”, that holds everything (all files, source and _deploy) and we push only to origin/source. Aha!, this repo goes to the ‘source’ branch in github, the generated one goes to ‘master’. So we don’t have a master branch in this local git repo, only source, and in this way we avoid pushing it to master in origin (which already tracks the first repo!).</p>
+
+<p>Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.</p>
+
+<p>Now, I may be off base in this explanation, if so, please set me straight in the comments.</p>
+
+<p>Good luck with the Octos!</p>
+
+<p><img class="center" src="/images/Oct14/octocat_octopress.png" width="400" title="Code Fellows logo" /></p>
 </div>
   
   
@@ -382,23 +412,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
       </li>
     
       <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
       </li>
     
   </ul>

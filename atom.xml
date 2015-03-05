@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2015-01-07T08:12:34-08:00</updated>
+  <updated>2015-03-05T12:35:57-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,372 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Seattle Ruby Game Of Life]]></title>
+    <link href="http://sotoseattle.github.io/blog/2015/03/01/Seattlerb-GoL/"/>
+    
+    <updated>2015-03-01T10:00:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2015/03/01/Seattlerb-GoL</id>
+    
+    <content type="html"><![CDATA[<p><img class="right" src="http://sotoseattle.github.io/images/mar15/wheel.png" width="250" /></p>
+
+<p>Last Tuesday the Seattle Ruby group organized a workshop to code Conway’s Game of Life. It was a first (at least in a long time), and I think it was a success. People were engaged and everybody was focused coding away in the 45 minutes we had. We even had a Wheel of Misfortune so people could add randomized constraints in case the problem was too easy.</p>
+
+<p>A repository was published prior to the event so people could familiarized themselves with the problem. <a href="https://github.com/SeaRbSg/workshops">Repo</a>. The following are some examples included in the common repo from some contributors:</p>
+
+<p>Lito Nicolai had an amazing implementation using matrices:</p>
+
+<!--more-->
+
+<p><br /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="nb">require</span> <span class="s1">&#39;matrix&#39;</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;./matrix_math&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">sum</span> <span class="n">l</span>
+</span><span class="line">  <span class="n">l</span><span class="o">.</span><span class="n">reduce</span> <span class="ss">:+</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">twos</span> <span class="n">grid</span>
+</span><span class="line">  <span class="n">grid</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">end</span><span class="p">}</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">threes</span> <span class="n">grid</span>
+</span><span class="line">  <span class="n">grid</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">3</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">end</span><span class="p">}</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">neighbors</span> <span class="n">grid</span>
+</span><span class="line">  <span class="n">sum</span><span class="p">(</span> <span class="o">[-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">].</span><span class="n">product</span><span class="p">(</span><span class="o">[-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">|</span> <span class="n">grid</span><span class="o">.</span><span class="n">rotate</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="p">}</span> <span class="p">)</span> <span class="o">-</span> <span class="n">grid</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">life</span> <span class="n">grid</span>
+</span><span class="line">  <span class="p">((</span><span class="n">twos</span> <span class="n">neighbors</span> <span class="n">grid</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">grid</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">threes</span> <span class="n">neighbors</span> <span class="n">grid</span><span class="p">)</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>For my part, the most simple code I could come up with was a purely functional implementation:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">module</span> <span class="nn">GOL</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">tick</span><span class="p">(</span><span class="n">living</span><span class="p">)</span>
+</span><span class="line">    <span class="n">potential</span> <span class="o">=</span> <span class="n">living</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span> <span class="n">neighbors</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">uniq</span> <span class="o">-</span> <span class="n">living</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">new_board</span> <span class="o">=</span> <span class="n">living</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">cell</span><span class="o">|</span> <span class="n">alive_around</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">living</span><span class="p">)</span><span class="o">.</span><span class="n">between?</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="p">}</span>
+</span><span class="line">    <span class="n">new_board</span> <span class="o">+=</span> <span class="n">potential</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">cell</span><span class="o">|</span> <span class="n">alive_around</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">living</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">return</span> <span class="n">new_board</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">neighbors</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+</span><span class="line">    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cell</span>
+</span><span class="line">    <span class="o">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="o">].</span><span class="n">product</span><span class="p">(</span><span class="o">[</span><span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="o">]</span><span class="p">)</span> <span class="o">-</span> <span class="o">[[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">]]</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">alive_around</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="n">board</span><span class="p">)</span>
+</span><span class="line">    <span class="n">neighbors</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span><span class="o">.</span><span class="n">count</span> <span class="p">{</span> <span class="o">|</span><span class="n">c</span><span class="o">|</span> <span class="n">board</span><span class="o">.</span><span class="n">include?</span> <span class="n">c</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Ryan Davis not only contributed with code but with a visualization library based on GOSU. See it in action as it helps visualize the code of two different approaches written by Ryan and Scott Windsor.</p>
+
+<p><br /></p>
+
+<p><img class="left" src="http://sotoseattle.github.io/images/mar15/zen_gol.gif" width="420" />
+<img class="right" src="http://sotoseattle.github.io/images/mar15/sentientmonkey_gol.gif" width="420" /></p>
+
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Article Published]]></title>
+    <link href="http://sotoseattle.github.io/blog/2015/03/01/CodeFellows/"/>
+    
+    <updated>2015-03-01T10:00:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2015/03/01/CodeFellows</id>
+    
+    <content type="html"><![CDATA[<p>Just a brief note to announce that Code Fellows has published a guest post I wrote.</p>
+
+<p>Enjoy the amazing wisdom it distills at: <a href="https://www.codefellows.org/blog/learning-rails-5-tips-to-become-an-exceptional-rails-developer">Article</a></p>
+
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Game of Life in Scheme]]></title>
+    <link href="http://sotoseattle.github.io/blog/2015/02/15/Scheme-GOL/"/>
+    
+    <updated>2015-02-15T10:00:00-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2015/02/15/Scheme-GOL</id>
+    
+    <content type="html"><![CDATA[<p><img class="right" src="http://sotoseattle.github.io/images/feb15/gol_scheme.gif" width="250" /></p>
+
+<p>I am going through the <a href="https://www.goodreads.com/book/show/475858.The_Seasoned_Schemer">Seasoned Schemer</a>, the second part of the legendary Socratic Scheme books.</p>
+
+<p>As an exercise, and coinciding with an upcoming workshop organized by Seattle Ruby, I have coded Conway’s Game of Life in Scheme. It is not perfect and only uses the syntax and concepts learned in the Scheme textbooks up to the use of letrecc (Chapter 12 I think).</p>
+
+<p>The complete code can be found in my repo at the Seattle Study Group (<a href="https://github.com/SeaRbSg/little-schemer/tree/master/sotoseattle/sandbox/game_of_life">Code</a>).</p>
+
+<p>The animated gif is a visualization of the code written.</p>
+
+<!--more-->
+<p><br /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+<span class="line-number">55</span>
+<span class="line-number">56</span>
+<span class="line-number">57</span>
+<span class="line-number">58</span>
+<span class="line-number">59</span>
+<span class="line-number">60</span>
+<span class="line-number">61</span>
+<span class="line-number">62</span>
+<span class="line-number">63</span>
+<span class="line-number">64</span>
+<span class="line-number">65</span>
+<span class="line-number">66</span>
+<span class="line-number">67</span>
+<span class="line-number">68</span>
+<span class="line-number">69</span>
+<span class="line-number">70</span>
+<span class="line-number">71</span>
+<span class="line-number">72</span>
+<span class="line-number">73</span>
+<span class="line-number">74</span>
+<span class="line-number">75</span>
+<span class="line-number">76</span>
+<span class="line-number">77</span>
+<span class="line-number">78</span>
+<span class="line-number">79</span>
+<span class="line-number">80</span>
+<span class="line-number">81</span>
+<span class="line-number">82</span>
+<span class="line-number">83</span>
+<span class="line-number">84</span>
+<span class="line-number">85</span>
+<span class="line-number">86</span>
+<span class="line-number">87</span>
+<span class="line-number">88</span>
+<span class="line-number">89</span>
+<span class="line-number">90</span>
+<span class="line-number">91</span>
+<span class="line-number">92</span>
+<span class="line-number">93</span>
+<span class="line-number">94</span>
+<span class="line-number">95</span>
+<span class="line-number">96</span>
+<span class="line-number">97</span>
+<span class="line-number">98</span>
+<span class="line-number">99</span>
+<span class="line-number">100</span>
+<span class="line-number">101</span>
+<span class="line-number">102</span>
+</pre></td><td class="code"><pre><code class="scheme"><span class="line"><span class="o">#</span><span class="nv">lang</span> <span class="nv">racket/base</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">; Cell Utility Functions ------------------------------------------------------</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">x-coord</span> <span class="nv">cell</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="nv">cell</span><span class="p">))</span>
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">y-coord</span> <span class="nv">cell</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="nv">cell</span><span class="p">)))</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">include?</span>  <span class="c1">; does a board include a specific cell?</span>
+</span><span class="line">  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cell</span> <span class="nv">list</span><span class="p">)</span>
+</span><span class="line">    <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">      <span class="p">((</span><span class="nf">==?</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">c2</span><span class="p">)</span>
+</span><span class="line">          <span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="nb">eq? </span><span class="p">(</span><span class="nf">x-coord</span> <span class="nv">cell</span><span class="p">)</span> <span class="p">(</span><span class="nf">x-coord</span> <span class="nv">c2</span><span class="p">))</span>
+</span><span class="line">               <span class="p">(</span><span class="nb">eq? </span><span class="p">(</span><span class="nf">y-coord</span> <span class="nv">cell</span><span class="p">)</span> <span class="p">(</span><span class="nf">y-coord</span> <span class="nv">c2</span><span class="p">)))))</span>
+</span><span class="line">       <span class="p">(</span><span class="nf">in?</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">l</span><span class="p">)</span>
+</span><span class="line">         <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">           <span class="p">[(</span><span class="nb">null? </span><span class="nv">l</span><span class="p">)</span> <span class="no">#f</span><span class="p">]</span>
+</span><span class="line">           <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nf">==?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">l</span><span class="p">))</span> <span class="p">(</span><span class="nf">in?</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">l</span><span class="p">)))]))))</span>
+</span><span class="line">      <span class="p">(</span><span class="nf">in?</span> <span class="nv">list</span><span class="p">))))</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">uniq</span>  <span class="c1">; remove duplicate cells in a list</span>
+</span><span class="line">  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">lat</span><span class="p">)</span>
+</span><span class="line">    <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">      <span class="p">[(</span><span class="nb">null? </span><span class="nv">lat</span><span class="p">)</span> <span class="nv">lat</span><span class="p">]</span>
+</span><span class="line">      <span class="p">[(</span><span class="nf">include?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">lat</span><span class="p">)</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">lat</span><span class="p">))</span> <span class="p">(</span><span class="nf">uniq</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">lat</span><span class="p">))]</span>
+</span><span class="line">      <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">lat</span><span class="p">)</span> <span class="p">(</span><span class="nf">uniq</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">lat</span><span class="p">)))])))</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">adj</span>  <span class="c1">; 8 adjacent neighboring cells around a cell</span>
+</span><span class="line">  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cell</span><span class="p">)</span>
+</span><span class="line">    <span class="p">(</span><span class="k">define </span><span class="nv">x</span> <span class="p">(</span><span class="nf">x-coord</span> <span class="nv">cell</span><span class="p">))</span>
+</span><span class="line">    <span class="p">(</span><span class="k">define </span><span class="nv">y</span> <span class="p">(</span><span class="nf">y-coord</span> <span class="nv">cell</span><span class="p">))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">y</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="nv">x</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="nv">x</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">y</span> <span class="o">&#39;</span><span class="p">()))</span>
+</span><span class="line">    <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">- </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">+ </span><span class="nv">y</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">()))</span> <span class="o">&#39;</span><span class="p">()))))))))))</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">n-adj-alive</span>  <span class="c1">; count the number of living neighbors around a cell</span>
+</span><span class="line">  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cell</span> <span class="nv">living</span><span class="p">)</span>
+</span><span class="line">    <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">      <span class="p">((</span><span class="nf">rec</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">n</span> <span class="nv">cells</span><span class="p">)</span>
+</span><span class="line">          <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">            <span class="p">[(</span><span class="nb">null? </span><span class="nv">cells</span><span class="p">)</span> <span class="nv">n</span><span class="p">]</span>
+</span><span class="line">            <span class="p">[(</span><span class="nf">include?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">cells</span><span class="p">)</span> <span class="nv">living</span><span class="p">)</span> <span class="p">(</span><span class="nf">rec</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">n</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">cells</span><span class="p">))]</span>
+</span><span class="line">            <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nf">rec</span> <span class="nv">n</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">cells</span><span class="p">))]))))</span>
+</span><span class="line">      <span class="p">(</span><span class="nf">rec</span> <span class="mi">0</span> <span class="p">(</span><span class="nf">adj</span> <span class="nv">cell</span><span class="p">)))))</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">; Rule 1: when a cell will remains alive after a tick of the clock ------------</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">stay-alive</span>
+</span><span class="line">  <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">    <span class="p">((</span><span class="nf">rec</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">board</span> <span class="nv">living</span> <span class="nv">new-board</span><span class="p">)</span>
+</span><span class="line">      <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">        <span class="p">((</span><span class="nf">survivors</span>
+</span><span class="line">          <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">            <span class="p">((</span><span class="nf">alive?</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cell</span><span class="p">)</span>
+</span><span class="line">              <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">                <span class="p">[(</span><span class="nb">eq? </span><span class="mi">2</span> <span class="p">(</span><span class="nf">n-adj-alive</span> <span class="nv">cell</span> <span class="nv">living</span><span class="p">))</span> <span class="no">#t</span><span class="p">]</span>
+</span><span class="line">                <span class="p">[(</span><span class="nb">eq? </span><span class="mi">3</span> <span class="p">(</span><span class="nf">n-adj-alive</span> <span class="nv">cell</span> <span class="nv">living</span><span class="p">))</span> <span class="no">#t</span><span class="p">]</span>
+</span><span class="line">                <span class="p">[</span><span class="k">else </span><span class="no">#f</span><span class="p">]))))</span>
+</span><span class="line">            <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">old</span> <span class="nv">new</span><span class="p">)</span>
+</span><span class="line">              <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">                <span class="p">[(</span><span class="nb">null? </span><span class="nv">old</span><span class="p">)</span> <span class="nv">new</span><span class="p">]</span>
+</span><span class="line">                <span class="p">[(</span><span class="nf">alive?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">old</span><span class="p">))</span> <span class="p">(</span><span class="nf">survivors</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">old</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">old</span><span class="p">)</span> <span class="nv">new</span><span class="p">))]</span>
+</span><span class="line">                <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nf">survivors</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">old</span><span class="p">)</span> <span class="nv">new</span><span class="p">)])))))</span>
+</span><span class="line">        <span class="p">(</span><span class="nf">survivors</span> <span class="nv">board</span> <span class="nv">new-board</span><span class="p">)))))</span>
+</span><span class="line">    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">board</span><span class="p">)</span>
+</span><span class="line">      <span class="p">(</span><span class="nf">rec</span> <span class="nv">board</span> <span class="nv">board</span> <span class="o">&#39;</span><span class="p">()))))</span>
+</span><span class="line">
+</span><span class="line"><span class="c1">; Rule 2: when a dead cell becomes alive after a tick of the clock ------------</span>
+</span><span class="line">
+</span><span class="line"><span class="p">(</span><span class="k">define </span><span class="nv">become-alive</span>
+</span><span class="line">  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">living</span><span class="p">)</span>
+</span><span class="line">    <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">      <span class="p">((</span><span class="nf">perimeter</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">alive</span> <span class="nv">potentials</span><span class="p">)</span>
+</span><span class="line">        <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">          <span class="p">((</span><span class="nf">cell-cons</span>
+</span><span class="line">            <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">l1</span> <span class="nv">l2</span><span class="p">)</span>
+</span><span class="line">              <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">                <span class="p">[(</span><span class="nb">null? </span><span class="nv">l1</span><span class="p">)</span> <span class="nv">l2</span><span class="p">]</span>
+</span><span class="line">                <span class="p">[(</span><span class="nf">include?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">l1</span><span class="p">)</span> <span class="nv">living</span><span class="p">)</span> <span class="p">(</span><span class="nf">cell-cons</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">l1</span><span class="p">)</span> <span class="nv">l2</span><span class="p">)]</span>
+</span><span class="line">                <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nf">cell-cons</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">l1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">l1</span><span class="p">)</span> <span class="nv">l2</span><span class="p">))]))))</span>
+</span><span class="line">          <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">            <span class="p">[(</span><span class="nb">null? </span><span class="nv">alive</span><span class="p">)</span> <span class="nv">potentials</span><span class="p">]</span>
+</span><span class="line">            <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nf">perimeter</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">alive</span><span class="p">)</span> <span class="p">(</span><span class="nf">cell-cons</span> <span class="p">(</span><span class="nf">adj</span> <span class="p">(</span><span class="nb">car </span><span class="nv">alive</span><span class="p">))</span> <span class="nv">potentials</span><span class="p">))]))))</span>
+</span><span class="line">       <span class="p">(</span><span class="nf">germinate</span>
+</span><span class="line">         <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">           <span class="p">((</span><span class="nf">rec</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">potentials</span><span class="p">)</span>
+</span><span class="line">             <span class="p">(</span><span class="nf">letrec</span>
+</span><span class="line">               <span class="p">((</span><span class="nf">raise?</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cell</span><span class="p">)</span>
+</span><span class="line">                 <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">                   <span class="p">[(</span><span class="nb">eq? </span><span class="mi">3</span> <span class="p">(</span><span class="nf">n-adj-alive</span> <span class="nv">cell</span> <span class="nv">living</span><span class="p">))</span> <span class="no">#t</span><span class="p">]</span>
+</span><span class="line">                   <span class="p">[</span><span class="k">else </span><span class="no">#f</span><span class="p">]))))</span>
+</span><span class="line">               <span class="p">(</span><span class="nf">cond</span>
+</span><span class="line">                 <span class="p">[(</span><span class="nb">null? </span><span class="nv">potentials</span><span class="p">)</span> <span class="nv">potentials</span><span class="p">]</span>
+</span><span class="line">                 <span class="p">[(</span><span class="nf">raise?</span> <span class="p">(</span><span class="nb">car </span><span class="nv">potentials</span><span class="p">))</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">potentials</span><span class="p">)</span> <span class="p">(</span><span class="nf">germinate</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">potentials</span><span class="p">)))]</span>
+</span><span class="line">                 <span class="p">[</span><span class="k">else </span><span class="p">(</span><span class="nf">germinate</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">potentials</span><span class="p">))])))))</span>
+</span><span class="line">           <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">maybe</span><span class="p">)</span>
+</span><span class="line">             <span class="p">(</span><span class="nf">rec</span> <span class="nv">maybe</span><span class="p">)))))</span>
+</span><span class="line">    <span class="p">(</span><span class="nf">germinate</span> <span class="p">(</span><span class="nf">uniq</span> <span class="p">(</span><span class="nf">perimeter</span> <span class="nv">living</span> <span class="o">&#39;</span><span class="p">()))))))</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -2602,373 +2968,6 @@ Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
 <p><br /></p>
 
 <p>Finally we compare the histogram of errors for these two methods when applied to the [1.0, 0.2] in the 16 node Ising model. Each histogram is based on 100 runs. Both have a mixing time of 10,000 and a sampling size of 70,000. Gibbs’s histogram shown in red, MHU in blue.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[MCMC ~ Metropolis Hastings]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/02/12/MCMC-MH-Theory/"/>
-    
-    <updated>2014-02-12T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/02/12/MCMC-MH-Theory</id>
-    
-    <content type="html"><![CDATA[<p>With Gibbs sampling, we changed the assigment of our variables one at a time, and after cycling though all the variables we got to new state, a complete new assignment to all variables. </p>
-
-<p>For regular chains, Gibbs sampling is a legal MCMC transition, meaning that it results in a Markov Chain with the right stationary distribution. But with high autocorrelations between variables, trying to change the value of one variable at a time tends to leave us in the same state or the same cluster of similar states, because the one variable we change at a time remains strongly constrained by its neighbors. So mixing is slow. </p>
-
-<p>We’d like to use a transition that lets us make bigger moves around the state space, but we still have to make sure our transition is a legal MCMC. The Metropolis-Hastings algorithm tries to do this. We choose the transition we actually want – one that takes large steps around the state space. Then we modify that transition, using an acceptance probability, that forces it into a legal MCMC transition. </p>
-
-<h2 id="q-and-a">Q and A</h2>
-
-<p>Our MCMC transition then has two steps. First we choose a proposed new state (x’), using our transition probabilities Q(x → x’). Then we accept that new state, with probability A(x → x’). If the transition is accepted, our new assignment is the proposed new state, but if the transition is rejected, our new assignment is the same as the old one.</p>
-
-<p>For a given proposal transition Q(x → x’), the acceptance probability is given by: </p>
-
-<script type="math/tex; mode=display">
-\begin{align}
-
-A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(x \rightarrow x')} \right]
-
-\end{align}
-</script>
-
-<p>The key is that A is determined once we know Q, so the art is in finding the right Q. One that:</p>
-
-<ul>
-  <li>
-    <p>is reversible, so if there is a positive probability of getting from x to x’, then the probability of getting from x’ to x is also positive.</p>
-  </li>
-  <li>
-    <p>allows us to go far away places, but without getting so far away that the probability of acceptances becomes too low, because then we won’t move at all.</p>
-  </li>
-</ul>
-
-<p>Finding Q is hard, and an art that depends of the PGM at hand. Also, a legal Q is such that for every two states/assignments (x, x’), the probability of transitioning (x → x’) is exactly the same as the probability of transitioning in reverse (x’ → x), [such property is called ‘detailed balance’]. </p>
-
-<h2 id="q-as-gibbs-or-gibbs-as-mh">Q as Gibbs, or Gibbs as MH</h2>
-
-<p>We can insert Gibbs into our MH framework with a trick. We consider that the Gibbs sampling method is our Q(x → x’), our way of finding new assignment (even if in litle steps which violates the MH goal, but it is a trick). Since Gibbs is already legal, all we need is to define an approval distribution A(x → x’) that always accepts whatever Q (Gibbs) brings, for example A(x → x’) = 1.</p>
-
-<h2 id="q-as-the-uniform-distribution">Q as the Uniform distribution</h2>
-
-<p>A very simple Q is based on the Uniform distribution. For all the variables in the assignment we randomly choose (independently) new assignments. Brutishly. All at once. Then we compute the transitions by multiplying the specific probabilities of getting that evidence (to and from the initial assignment from/to the new assignment). Now we can compute the acceptance probability A.</p>
-
-<p>The problem is that because we are pulling out assignments out of a hat randomly, most of them will be very unique/unrelated and therefore with low-probability transition. A low probability transition will surely get rejected by the acceptance step, and so we end up lingering in one state rather than exploring the state space. So we may end up with tons of failed trials, tons of staying put, and we only move out of the assignment when we don’t go too far.</p>
-
-<p>Ising models and image segmentation applications tend to rely on pairwise Markov networks. In these networks, adjacent variables tend to take on the same values. This makes it hard to explore the space for proposal distributions which change the value of one variable at a time, such as Gibbs or the uniform proposal distribution.</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[MCMC Gibbs - Analysis]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis/"/>
-    
-    <updated>2014-02-11T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/02/11/MCMC-Gibbs-Analysis</id>
-    
-    <content type="html"><![CDATA[<p>We are going to use our primitive MCMC Gibbs Inference engine on our 9 variable toy Ising grid (with histerical potentials [1.0, 0.2]). And then compare our results to our previous approximation using Loopy Belief Propagation.</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/toy_grid.png" width="300" title="Small Pairwise Markov Grid" /></p>
-
-<p>The big problem is that there is no clear cut way to know when we have left the wandering zone around and entered the domain of the joint probability. We cannot know when the chain has mixed, we can only guess.</p>
-
-<h2 id="mixing">Mixing</h2>
-
-<p>As a first experiment we run our MCMC to collect a total of 70,000 samples. The initial assignment is initialized to all ones. </p>
-
-<p>Now from the samples we get subsets every 1,000 samples of size 10,000. That is 59 subsets that go from sample [0 to 10,000], [1,000 to 11,000], [2,000 to 12,000], …. Each subset is a window, of 10,000 samples collected after different mixing times.</p>
-
-<p>If we plot the difference between the exact marginal and our MCMC estimated marginal of the three variables (number 0 as red, 4 as blue, and 8 as green), we have the following charts (from two different runs).</p>
-
-<div>
-	<img src="http://sotoseattle.github.io/images/feb14/dist_to_exact_mcmcg.png" width="425" title="Run 1" />
-	<img class="right" src="http://sotoseattle.github.io/images/feb14/dist_to_exact_mcmcgB.png" width="425" title="Run 2" />
-</div>
-
-<p>What I deduce from this (and here is pure amateur talking) is that all variables tend to move together. I don’t know what is a good mixing time, it looks like it is pretty much mixed from the start. Nevertheless, I’ll choose 7,000 to be safe. Also, as we walk around, the system oscilates and spike away from the exact marginals in a bounded range.</p>
-
-<h2 id="sample-size">Sample size</h2>
-
-<p>Following the previous settings but fixing the mixing time to 7,000, we can plot the difference between exact and estimated marginals as we collect more samples. From the charts (two different runs) we see that anything beyond 30,000 samples seems to be ok.</p>
-
-<div>
-	<img class="left" src="http://sotoseattle.github.io/images/feb14/dist_to_exact_mcmcg_3.png" width="425" title="Run 1" />
-	<img class="right" src="http://sotoseattle.github.io/images/feb14/dist_to_exact_mcmcg_3B.png" width="425" title="Run 2" />
-</div>
-
-<h2 id="marginals-convergence">Marginals Convergence</h2>
-
-<p>Gibbs walks one step at a time, so for grids with high potentials (high correlation between variables), it tends to stay for long periods next to high potential states (or clusters), slowing down mixing.</p>
-
-<p>In the following charts we run twice different models and see how well the estimated marginals converge across runs. All models are Ising grids with 9 variables, have mixing time of 7,000 and sample size of 10,000. </p>
-
-<div>
-	<img class="left" src="http://sotoseattle.github.io/images/feb14/compare_runs_0703.png" width="425" />
-	<img class="right" src="http://sotoseattle.github.io/images/feb14/compare_runs_102.png" width="425" />
-	<img class="center" src="http://sotoseattle.github.io/images/feb14/compare_runs_095005.png" width="425" />
-</div>
-
-<p>The better convergence the closer the estimated marginals to the diagonal. The first model has potentials [0.7, 0.3] and all variables are along the diagonal. The same happens for the second model, our optimized [1., 0.2], where the a corner variable get a bit off, but good for all purposes. </p>
-
-<p>A third model with even further heighened potentials [0.95, 0.05] shows discouraging results. The true marginals are all in the narrow range [0.5974, 0.6009], but our estimated marginals for the first run are tightly clustered around 0.0, while all marginals for the second run are tightly clustered around 0.6. This can be palliated with a bigger sample size up to a point.</p>
-
-<p>Two points to make: 1) this shows convergence between runs, not to the exact marginal. 2) The lower correlation between variables, the better convergence.</p>
-
-<h2 id="comparison-to-lbp">Comparison to LBP</h2>
-
-<p>Finally we are going to run 10 times the model we have. Mixing time of 7,000. Sample size of 20,000. Starting assignment, 5 runs with 0s, and 5 runs with 1s. We are going to compute the error as before and see what results we get as compared to the exact marginals for all variables.</p>
-
-<p>The error, as defined in previous posts, from our 10 runs is 0.065 on the average, with a range of [0.005, 0.17] and a standard deviation of 0.05. That is a further improvement from our best approximation of 0.24 with RBP.</p>
-
-<p>Nevertheless, although Gibbs gives us on the average much better results, from time to time it go cyclothymic and spikes markedly away from the exact marginals.</p>
-
-<p>As a data point for comparison purposes, taking the estimated marginals from our last run (the 10th run) we get an error of 0.059, and the already familiar table:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">MCMC Gibbs aprox</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.52015</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.541</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.53745</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.5518</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.57795</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.58745</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.5918</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.59885</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.60425</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Even for higher order Ising grids, as long as we don’t have way too highly correlated variables, we mix long enhough and we collect a sufficiently big sample size, we get pretty decent results!</p>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[MCMC Gibbs - Code]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/02/10/Gibbs-code/"/>
-    
-    <updated>2014-02-10T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/02/10/Gibbs-code</id>
-    
-    <content type="html"><![CDATA[<h2 id="how-to-sample-a-distribution">How to sample a distribution</h2>
-
-<p>The first method we need is to find a random assignment given a discrete distribution. For example, if we have a distribution over a single variable with cardinality 3, [p0, p1, p2] = [0.25, 0.35, 0.4] we:</p>
-
-<ul>
-  <li>create the cumulative distr =&gt; [c1, c2, c3] = [0.25, 0.60, 1.0]</li>
-  <li>pick up a random number r between 0 and 1 (based on uniform dist), let’s say we get 0.43</li>
-  <li>create a new array based on [c &gt;= r] =&gt; [False, True, True]</li>
-  <li>the first True gives us the assignment, in this case 1 out of possible assignments (0, 1, 2).</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Sample Randomly From Given Distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">randSampleDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
-</span><span class="line">    <span class="n">cum_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
-</span><span class="line">    <span class="n">u</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">cum_prob</span><span class="p">))</span>
-</span><span class="line">    <span class="n">included</span> <span class="o">=</span> <span class="n">cum_prob</span><span class="o">&gt;=</span><span class="n">u</span>
-</span><span class="line">    <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">included</span><span class="o">==</span><span class="bp">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c"># get first</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sample</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="find-distribution-for-a-variable-given-a-complete-assignment">Find distribution for a variable given a complete assignment</h2>
-
-<p>Now we are going to get the distribution of a variable given that all other variables have been assigned. We operate in log space for easier computations.</p>
-
-<p>The key is to understand that for each factor fu that includes the variable we can reduce it with the assignment (excluding the sampling variable) and marginalize for all variables (excluding the sampling variable) to come up with the distribution for that variable. Operating in log space we add this arrays of probabilities to come up with the total distribution.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Log Distribution for a Variable Given an Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">logDistAss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_var</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">])</span>
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">cardio</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_to_factors</span><span class="p">[</span><span class="n">sample_var</span><span class="p">]:</span>
-</span><span class="line">        <span class="n">evi</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">k</span><span class="o">!=</span> <span class="n">sample_var</span><span class="p">)</span>
-</span><span class="line">        <span class="n">fu</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_dist</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">)</span>
-</span><span class="line">        <span class="n">logbp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fu</span><span class="p">)</span>
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="n">logbp</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">logbp</span><span class="p">)</span> <span class="c"># to avoid underflow when back in normal space</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">logbp</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Note three things:</p>
-
-<ul>
-  <li>that FactorOperations.extract is an added method that works the same as marginalize but marginalizing in a sweep all variables except the one to extract.</li>
-  <li>.var_to_factors is a dictionary where for each variable we have a set of the factors it is involved with. This structure is computed once and allows us to compute faster the sampling process.</li>
-  <li>to speed up things I have coded a utility function based on reducing a factor by evidence. It gets an assignment to all factor variables except one and produces an array with the distribution resulting for that variable.</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Reducing Factor to a single var distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">reduce_to_dist</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;reduce factor by complete assignment to a single variable distribution&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">ass</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">evidence</span><span class="p">:</span>
-</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">))</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">counter</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error in observed vars&quot;</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ass</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="one-step-down-the-chain">One step down the Chain</h2>
-
-<p>The Gibbs sampling process, starts with a complete assignment and ends with another complete assignment. For each variable we:</p>
-
-<ul>
-  <li>compute the distribution based on the other assigned variables, </li>
-  <li>find it’s new assignment based on rolling a dice on the distribution,</li>
-  <li>update the assignment with this new value so for the new iteration one variable of the assignment has changed</li>
-</ul>
-
-<p>We repeat for all variables, updating all variables in the process, until we get a newly complete assignment that corresponds to the new state in the Markov Chain.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Gibbs 1 step down the Markov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">Gibbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
-</span><span class="line">        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDistAss</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">ass</span><span class="p">)</span>
-</span><span class="line">        <span class="n">ass</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">randSampleDist</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">(),</span> <span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">ass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="running-around-the-chain">Running around the Chain</h2>
-
-<p>Collecting samples from the Markov Chain is as easy as running iteratively the previous Gibbs method. We introduce two new inputs:</p>
-
-<ul>
-  <li>mix_time: how many steps to take before we think the chain has converged and we start collecting samples. Consider that at the start we are wondering near the initial assignment and to reach a ‘real’ assignment we need enough time walking around.</li>
-  <li>num_samples: after mixing time, how many steps to take, how many samples to collect.</li>
-</ul>
-
-<p>The code is self explanatory:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Collecting Samples from the Makov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sampleMarkovChain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
-</span><span class="line">    <span class="n">max_iter</span> <span class="o">=</span> <span class="n">mix_time</span> <span class="o">+</span> <span class="n">num_samples</span>
-</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
-</span><span class="line">        <span class="n">seed_assignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gibbs</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)</span>
-</span><span class="line">        <span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)]</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">mix_time</span><span class="p">:</span>
-</span><span class="line">            <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">all_samples</span><span class="p">,</span> <span class="n">sol</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">all_samples</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="inference">Inference</h2>
-
-<p>Now that we have the samples we can compute the estimated marginals by counting, for each variable, how many times each as assignment shows up.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Inference from MCMC using Gibbs Transitions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">infere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
-</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampleMarkovChain</span><span class="p">(</span><span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">x</span><span class="p">])</span>
-</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">all_samples</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">M</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
 ]]></content>
     
   </entry>

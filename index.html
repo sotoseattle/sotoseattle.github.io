@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Following my previous post I have been thinking about the 4 Principles of Simple Design, their meaning and their applications to the little coding &hellip;">
+  <meta name="description" content="Last Tuesday the Seattle Ruby group organized a workshop to code Conway’s Game of Life. It was a first (at least in a long time), and I think it was &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -118,7 +118,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a></h1>
+      <h1 class="entry-title"><a href="/blog/2015/03/01/Seattlerb-GoL/">Seattle Ruby Game of Life</a></h1>
       
       
     
@@ -135,43 +135,26 @@
   
 
 
-<time datetime="2014-11-18T10:17:00-08:00" pubdate data-updated="true">Nov 18<span>th</span>, 2014</time>
+<time datetime="2015-03-01T10:00:00-08:00" pubdate data-updated="true">Mar 1<span>st</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Following my previous post I have been thinking about the 4 Principles of Simple Design, their meaning and their applications to the little coding exercise of the Game of Life. These principles are:</p>
+  <div class="entry-content"><p><img class="right" src="/images/mar15/wheel.png" width="250" /></p>
 
-<ol>
-  <li>Code pases tests =&gt; test drive development</li>
-  <li>Code reveals intent =&gt; can be read and understood, expressive</li>
-  <li>DRY =&gt; more in terms of knowledge than code</li>
-  <li>Code is simple, minimal =&gt; the least code to do/express the most</li>
-</ol>
+<p>Last Tuesday the Seattle Ruby group organized a workshop to code Conway’s Game of Life. It was a first (at least in a long time), and I think it was a success. People were engaged and everybody was focused coding away in the 45 minutes we had. We even had a Wheel of Misfortune so people could add randomized constraints in case the problem was too easy.</p>
 
-<p>I really like the idea of priorities, of never violating higher level principles. So if you can compress a complex method into a single clever line, you don’t do it if it becomes less readable, if it becomes confusing and difficult to understand. So first and foremost, pass the tests, make sure the code does what is supposed to do, that it adds value. Then make it accessible, etc. And find compromises among the principles never losing sight of where the priorities stand.</p>
+<p>A repository was published prior to the event so people could familiarized themselves with the problem. <a href="https://github.com/SeaRbSg/workshops">Repo</a>. The following are some examples included in the common repo from some contributors:</p>
 
-<p>A big lesson learned is not to be afraid of throwing away code. You lose semi-working code, but you gain insight about the problem and the code. In the end, the balance is positive. The code is better.</p>
+<p>Lito Nicolai had an amazing implementation using matrices:</p>
 
-<p>I find it impressive that if you follow the path, the result is really clean, simple and expressive code.</p>
-
-<p>I find it interesting that if you follow the path, your code may already solve many of the subsequent challenges of Code Retreats. Things like:</p>
-
-<ul>
-  <li>small methods</li>
-  <li>no conditionals</li>
-  <li>no naked data structures</li>
-  <li>no primitive classes</li>
-</ul>
-
-<p>Here are the main classes of my Game of Life so far:
 </div>
   
   
     <footer>
-      <a rel="full-article" href="/blog/2014/11/18/4-PSD/">Read on &rarr;</a>
+      <a rel="full-article" href="/blog/2015/03/01/Seattlerb-GoL/">Read on &rarr;</a>
     </footer>
   
 
@@ -184,7 +167,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a></h1>
+      <h1 class="entry-title"><a href="/blog/2015/03/01/CodeFellows/">Article Published</a></h1>
       
       
     
@@ -201,43 +184,19 @@
   
 
 
-<time datetime="2014-11-17T20:17:00-08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2014</time>
+<time datetime="2015-03-01T10:00:00-08:00" pubdate data-updated="true">Mar 1<span>st</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p>Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning experience.</p>
+  <div class="entry-content"><p>Just a brief note to announce that Code Fellows has published a guest post I wrote.</p>
 
-<p>One of the goals of the exercise is to get one out of his coding comfort-zone. Like thrown into a dark room we stretch the arms to ‘feel’ and ‘see’ what is next, when I was taken out of my way of thinking, when confronted with a curve ball to code (zombie cells?) or when I had to pair in a different language, I was forced to stretch my arms and use short bursts of tests as the only way to gain ground and advance.</p>
+<p>Enjoy the amazing wisdom it distills at: <a href="https://www.codefellows.org/blog/learning-rails-5-tips-to-become-an-exceptional-rails-developer">Article</a></p>
 
-<p><img class="left" src="/images/Nov14/Game_of_life_pulsar.gif" width="200" />
-“Game of life pulsar” by JokeySmurf <a href="http://commons.wikimedia.org/wiki/File:Game_of_life_pulsar.gif#mediaviewer/File:Game_of_life_pulsar.gif">Licensed under Public domain via Wikimedia Commons</a></p>
-
-<p>The pair experience was happily horrifying, God I need to work on that! Adding ping-pong style to it, raised the stakes to the level of Hunger Games.</p>
-
-<p>Nevertheless, I spent the next day working on the Game of Life, trying to code it from the point of view of the 4 Principles of Simple Design and thinking about the process.</p>
-
-<p>My unfinished code is <a href="https://github.com/sotoseattle/CodeRetreat">here</a> and these notes are my reflections on the process.</p>
-
-<h3 id="learning-to-fly">Learning to Fly</h3>
-
-<p>First and foremost I not only started every iteration writing the tests, but tried to write them from the most general point of view, avoiding referring to implementation details. This is extremely difficult for two reasons:</p>
-
-<p>First, unconsciously, when I pose a testing question / requirement I already have an implicit idea of how to answer it. Visualizing how things should work, even if only in the end point (as seen by customer or objects), does not happen in a vacuum. As soon as one starts to think about it, the mind starts to consider alternatives: data structures, algorithms, etc, from past experience. Furthermore, when you write the details of the test you are specifying the objects to use and the methods to call.</p>
-
-<p>I want to keep the questions as open-ended as possible, so later on the code can answer as it sees fit, from the trenches in the battlefield and not directed by an armchair admiral.</p>
-
-<p>Second, if the test is too general, too abstract, too high altitude, it ends up encompassing way too much functionality, which requires to implement too many things in too many places in order to pass the test. Therefore I need to get down from the high chair and make more concrete, low level requirements. But this in turn, (i.e. calling a specific intermediary method in my test) is already steering and making me think of concrete implementation details!</p>
-
-<p>There is great tension between these forces, between flying high without getting lost in space, and flying low and hitting the rooftops.
 </div>
   
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/11/17/Code-Retreat/">Read on &rarr;</a>
-    </footer>
   
 
 
@@ -249,7 +208,7 @@
   <header>
   
     
-      <h1 class="entry-title"><a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a></h1>
+      <h1 class="entry-title"><a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a></h1>
       
       
     
@@ -266,25 +225,29 @@
   
 
 
-<time datetime="2014-11-02T20:17:00-08:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2014</time>
+<time datetime="2015-02-15T10:00:00-08:00" pubdate data-updated="true">Feb 15<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-  <div class="entry-content"><p><img class="right" src="/images/Nov14/dice.png" width="400" /></p>
+  <div class="entry-content"><p><img class="right" src="/images/feb15/gol_scheme.gif" width="250" /></p>
 
-<p>My Rubygem Primo is alive and kicking! Check it out at <a href="https://github.com/sotoseattle/Primo">Github</a>.</p>
+<p>I am going through the <a href="https://www.goodreads.com/book/show/475858.The_Seasoned_Schemer">Seasoned Schemer</a>, the second part of the legendary Socratic Scheme books.</p>
 
-<p>In 2013 I took the online course “Probabilistic Graphical Models” (Stanford, Prof. Daphne Koller) from <a href="https://www.coursera.org/course/pgm">Coursera.org</a>. It was complex and difficult, but a lot of fun because of all the possibilities it opens up. This gem is a liberal translation of the code I worked with in Octave throughout the course, and which later I coded in python to learn the language.</p>
+<p>As an exercise, and coinciding with an upcoming workshop organized by Seattle Ruby, I have coded Conway’s Game of Life in Scheme. It is not perfect and only uses the syntax and concepts learned in the Scheme textbooks up to the use of letrecc (Chapter 12 I think).</p>
 
-<p>Sincere thanks to Masahiro Tanaka for his wonderful <a href="http://masa16.github.io/narray/">NArray gem</a>, which allows me to, for example, multiply two multi-dimensional arrays element-wise in a single step, after aligning them with simple rotations of their axes (actually pretty cool).</p>
+<p>The complete code can be found in my repo at the Seattle Study Group (<a href="https://github.com/SeaRbSg/little-schemer/tree/master/sotoseattle/sandbox/game_of_life">Code</a>).</p>
 
-<p>I have christened this working library PRIMO (Probabilistic Inference Modeling) because in Spanish it means either prime, first, cousin or dumb! :)</p>
+<p>The animated gif is a visualization of the code written.</p>
 
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/02/15/Scheme-GOL/">Read on &rarr;</a>
+    </footer>
   
 
 
@@ -305,23 +268,23 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/03/01/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
       </li>
     
       <li class="post">
         <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/02/Primo-Lives/">Primo Lives!</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise into Angular + Rails</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a>
       </li>
     
   </ul>
