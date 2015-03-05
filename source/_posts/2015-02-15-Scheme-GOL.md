@@ -16,6 +16,7 @@ The complete code can be found in my repo at the Seattle Study Group ([Code](htt
 
 The animated gif is a visualization of the code written.
 
+<!--more-->
 <br/>
 
 ```scheme
