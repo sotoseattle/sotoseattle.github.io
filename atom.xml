@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2015-12-05T13:58:37-08:00</updated>
+  <updated>2015-12-05T14:06:14-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -37,11 +37,11 @@
 <p>Intuitively what we want is something similar to the following:</p>
 
 <ul>
-  <li>We open a portal at the start of our journey, at the root or beginning of the tree. This portal is where we want to go back to when we find the node. It is our way to get back home as we get lost in the multiverse of recurring calls through the tree.</li>
+  <li>We open a portal at the start of our journey, at the root or beginning of the tree. This portal is where we want to go back to when we find The Node. It is our way to get back home as we get lost in the multiverse of recurring calls through the tree.</li>
   <li>Once we secure a way back, we jump in the rabbit hole, we start searching the tree, going from node to node, a dazzling pin-ball.</li>
   <li>As we go along, as we search for The Node, we keep a bread crumb track of the path taken.</li>
   <li>After many jumps between nodes, already disoriented, we arrive to The Node we were after. But, alas! our tree is made of nodes that do not link upwards to parents, only downwards to children, so we cannot use our bread crumbs to dig ourselves back to the root!</li>
-  <li>Yet we know that we have an opened portal at the root. And as we all know from Cosmology 101 we can always open the other end of the wormhole with our sonic screwdriver and get back to safety.</li>
+  <li>Yet we have an opened portal at the root and, as we all know from Cosmology 101, we can always open the other end of the wormhole with our sonic screwdriver and get back to safety.</li>
 </ul>
 
 <p>The final code would look like the following. I leave up to you to make sense of the details (the Internet is full of better explanations than this one :-).</p>
