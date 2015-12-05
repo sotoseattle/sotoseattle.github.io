@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2015-12-05T13:16:09-08:00</updated>
+  <updated>2015-12-05T13:58:37-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -18,14 +18,18 @@
     <link href="http://sotoseattle.github.io/blog/2015/12/05/ruby-continuations/"/>
     <updated>2015-12-05T12:14:40-08:00</updated>
     <id>http://sotoseattle.github.io/blog/2015/12/05/ruby-continuations</id>
-    <content type="html"><![CDATA[<p>Continuations are a useful device for many coding tasks. I see them as portals or worm-holes that connect different parts of your code. Continuations allow you to hyper-jump from one place of your executing code to another without missing a bit. The following is an example of how they can be used:
+    <content type="html"><![CDATA[<p>Continuations are a useful device for many coding tasks. I like to visualize them as portals or wormholes that connect different parts of your code. Continuations allow you to hyper-jump from one place of your executing code to another without missing a bit. The following is an example of how they can be used:</p>
+
+<p><img class="center" src="/images/dec15/portal.jpg" width="800">
 <!--more--></p>
 
 <blockquote>
   <p>Given a binary tree and two nodes A and B from within that tree, write a function to find the node which is the first common ancestor of A and B.</p>
 </blockquote>
 
-<p>You already know how to search binary trees, depth or breadth first, and you could just traverse the tree in search of the nodes and pick up the parents as you go along. That is not intrinsically difficult and there are many examples on the Internet. The problem is that you need to run through the whole tree every time you initiate a search. Could there be a way to stop moving along the tree once you find the node and simple return to sender? Yes, with continuations.</p>
+<p>You already know how to search binary trees, depth or breadth first, and you could just traverse the tree in search of the nodes and pick up the parents as you go along. That is not intrinsically difficult and there are many examples on the Internet. The problem is that you need to run through the whole tree every time you initiate a search. Could there be a way to stop moving along the tree once you find the node and simple return to sender? Yes, one way is with continuations.</p>
+
+<p><img class="right" src="/images/dec15/treesearch.png" width="300"></p>
 
 <p>Intuitively what we want is something similar to the following:</p>
 
@@ -34,7 +38,7 @@
   <li>Once we secure a way back, we jump in the rabbit hole, we start searching the tree, going from node to node, a dazzling pin-ball.</li>
   <li>As we go along, as we search for The Node, we keep a bread crumb track of the path taken.</li>
   <li>After many jumps between nodes, already disoriented, we arrive to The Node we were after. But, alas! our tree is made of nodes that do not link upwards to parents, only downwards to children, so we cannot use our bread crumbs to dig ourselves back to the root!</li>
-  <li>Yet we know that we have an opened portal at the root. And based on basic Hawkings-Murinara Theory of Worm Holes, we know that we can always open the other end of the worm home, and get back to safety through it.</li>
+  <li>Yet we know that we have an opened portal at the root. And as we all know from Cosmology 101 we can always open the other end of the wormhole with our sonic screwdriver and get back to safety.</li>
 </ul>
 
 <p>The final code would look like the following. I leave up to you to make sense of the details (the Internet is full of better explanations than this one :-).</p>
@@ -52,7 +56,7 @@ find node, [], portal                           # go down the rabbit hole in sea
 </code></pre>
 
 <p>def find n, crumbtrail, getaway
-    getaway.call crumbtrail if self == n            # if found, send ancestry chain through the portal</p>
+    getaway.call crumbtrail if self == n            # if found, send ancestry logbook through the portal</p>
 
 <pre><code>(@left  &amp;&amp; @left.find( n, crumbtrail + [self], getaway)) ||
 (@right &amp;&amp; @right.find(n, crumbtrail + [self], getaway))   end
