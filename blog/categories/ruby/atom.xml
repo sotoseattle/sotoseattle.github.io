@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2015-03-05T12:41:08-08:00</updated>
+  <updated>2015-12-05T13:16:09-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,69 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby Continuations]]></title>
+    <link href="http://sotoseattle.github.io/blog/2015/12/05/ruby-continuations/"/>
+    <updated>2015-12-05T12:14:40-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2015/12/05/ruby-continuations</id>
+    <content type="html"><![CDATA[<p>Continuations are a useful device for many coding tasks. I see them as portals or worm-holes that connect different parts of your code. Continuations allow you to hyper-jump from one place of your executing code to another without missing a bit. The following is an example of how they can be used:
+<!--more--></p>
+
+<blockquote>
+  <p>Given a binary tree and two nodes A and B from within that tree, write a function to find the node which is the first common ancestor of A and B.</p>
+</blockquote>
+
+<p>You already know how to search binary trees, depth or breadth first, and you could just traverse the tree in search of the nodes and pick up the parents as you go along. That is not intrinsically difficult and there are many examples on the Internet. The problem is that you need to run through the whole tree every time you initiate a search. Could there be a way to stop moving along the tree once you find the node and simple return to sender? Yes, with continuations.</p>
+
+<p>Intuitively what we want is something similar to the following:</p>
+
+<ul>
+  <li>We open a portal at the start of our journey, at the root or beginning of the tree. This portal is where we want to go back to when we find the node. It is our way to get back home as we get lost in the multiverse of recurring calls through the tree.</li>
+  <li>Once we secure a way back, we jump in the rabbit hole, we start searching the tree, going from node to node, a dazzling pin-ball.</li>
+  <li>As we go along, as we search for The Node, we keep a bread crumb track of the path taken.</li>
+  <li>After many jumps between nodes, already disoriented, we arrive to The Node we were after. But, alas! our tree is made of nodes that do not link upwards to parents, only downwards to children, so we cannot use our bread crumbs to dig ourselves back to the root!</li>
+  <li>Yet we know that we have an opened portal at the root. And based on basic Hawkings-Murinara Theory of Worm Holes, we know that we can always open the other end of the worm home, and get back to safety through it.</li>
+</ul>
+
+<p>The final code would look like the following. I leave up to you to make sense of the details (the Internet is full of better explanations than this one :-).</p>
+
+<p>```ruby
+module Ancestry
+  require ‘continuation’</p>
+
+<p>def ancestors node
+    portal = callcc {|cont| cont}                   # open cosmological-portal (brrrrzzzzzuinga!!)</p>
+
+<pre><code>return portal unless portal.is_a? Continuation  # return whatever was sent through the portal
+
+find node, [], portal                           # go down the rabbit hole in search of node   end
+</code></pre>
+
+<p>def find n, crumbtrail, getaway
+    getaway.call crumbtrail if self == n            # if found, send ancestry chain through the portal</p>
+
+<pre><code>(@left  &amp;&amp; @left.find( n, crumbtrail + [self], getaway)) ||
+(@right &amp;&amp; @right.find(n, crumbtrail + [self], getaway))   end
+</code></pre>
+
+<p>def common_ancestor a, b
+    (ancestors(a) &amp; ancestors(b)).last
+  end
+end</p>
+
+<p>class Bintree
+  include Ancestry
+  attr_accessor :val, :left, :right</p>
+
+<p>def initialize val
+    @left = @right = nil
+    @val = val
+  end
+end
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Seattle Ruby Game Of Life]]></title>

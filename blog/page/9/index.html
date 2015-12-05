@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="These are different approaches to improve convergence and accuracy of the marginals. 1. Smoothing Messages Very easy to implement. When we compute &hellip;">
+  <meta name="description" content="In the previous three posts we saw that we can compute approximate marginals in the mini Ising grid with uneven results. The more polarized the &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,112 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/09/MCMC-Gibbs/">MCMC Gibbs - Theory</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-09T08:01:00-08:00" pubdate data-updated="true">Feb 9<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In the previous three posts we saw that we can compute approximate marginals in the mini Ising grid with uneven results. The more polarized the potentials, the more contradictions in the messages passed, the more difficult to converge to the true marginals.</p>
+
+<p>In the following posts we are going to approach this problem (computing the aproximate marginals) from a different perspective, the Monte Carlo way. Beware that my grasp of these matters is flimsy at best, so excuse any mistakes I’ll made.</p>
+
+<h2 id="sampling-for-inference">Sampling for Inference</h2>
+
+<p>Our PGM is based on, and is a reflection of, a joint distribution of all its variables and the independence relationships among them. And we have already seen that if we have this joint distribution we have all the information necessary to answer any questions. Now, we also saw that except for the simplest graphs it is impractical to compute this joint distribution due to its size. </p>
+
+<p>Imagine if we could come up with a way to sample this unknown and huge distribution. A way to generate perfectly viable, realistic assignments to all the variables in the joint distribution. With a sample big enough, we can estimate the answers we need, and we could get the approximate marginals.</p>
+
+<p>For a Bayes Network, independently of its size this is doable. We start at the root nodes (eldest parents), roll a dice to see which assignments we get to those variables, and once computed start walking down the graph rolling dice based on the reduced tables of each node. When we have assigned values to all variables we have a complete assignment to the joint distribution. With enough of these we can infere estimated parameters. </p>
+
+<p>For a Markov Network the previous process does not work, because there are no parents, no direction of flow. It is just a bunch of nodes talking to each other without concert and whose potentials depend on each other’s assignments. An egg and chicken conundrum.</p>
+
+<h2 id="markov-chain">Markov Chain</h2>
+
+<p>Markov Chain Monte Carlo (MCMC) gives us a way to generate samples from the joint distribution behind a Markov net using a trick over Markov Chains. (chains and nets, even by the same guy, are unrelated concepts).</p>
+
+<p>A Markov chain consists of a set of states, where wach state has transition probabilities specifying the probabilities of stepping to each other state from that state. We start at some initial state, and in each step we move to another state, obeying the transition probabilities. Now, <em>some</em> Markov chains have the property that if we run them (hopping around) indefinitely, it will always converge to the same stationary probability distribution $ \pi $ for the states: that is, if we run it forever, the probability of being in some state s will be the same p no matter what the initial state was. So it won’t matter where you start, or where you went, because in the end, you’ll know where you’ll end up exactly (probabilisticly speaking, that is).</p>
+
+<p>Better explanation, tons of examples and good writting in Wikipedia. Highly informative.</p>
+
+<p><img class="center" src="/images/feb14/markov_example.png" width="500" title="Example of Markov Chain" /></p>
+
+<h2 id="mutating-our-pgm-into-a-markov-chain">Mutating our PGM into a Markov Chain</h2>
+
+<p>Back to our networks and graphs. We are going to build a Markov Chain where the states from the Markov chain will correspond to complete assignments to the variables of the model. In this way the probability to pass from one state to the next one corresponds to the probability of passing from one assignment of variables to another assignment. And if the whole mess converges over time, we should reach a set of constant probabilities for each assignment possible. Alas, the joint distribution. And sampling from it would get us to a good approximations of the marginals.</p>
+
+<p>The trick is to come up with the right transition probabilities (between complete assignments / states) so a) the chain converges and 2) to the joint distribution we are after. There are different methods to get these transition probabilities right. We start with the simples one, Gibbs.</p>
+
+<p>For example, given a Markov network of only three nodes, a clique. Each node holds a single binary variable [0,1,2]. Each node has a singleton factor on its variable, respectively var 0: [0.4, 0.6], var 1: [0.4, 0.6] and var 2: [0.6, 0.4]. There are additional pairwise factor between each pair of variables (0,1), (0,2) and (1,2), all with the same potentials [agree with value 1.0, and disagree with value 0.2]. The representation of such PGM is very simple, three nodes fully connected.</p>
+
+<p><img class="center" src="/images/feb14/MN_simple.png" width="300" title="Mini Markov Net" /></p>
+
+<p>Since all variables are binary, the total possible assignments is 2^3 = 8. We construct a Markov Chain with 8 nodes, one for each assignment. The connections between these nodes, better called transitions since they are directed edges, represent the ability to pass from one assignment to another. So if I am at assignment (0,0,0) and the next assignment I get is (0,0,1), then there is a transition between them.</p>
+
+<p>Using the Gibbs transition process (to be studied below), we can collect a lot of samples from the distribution, a lot of assignments. The order of the samples collected will tell us about the individual hops, from and to which assignments me move in a single step, giving us the transitions (connections between nodes), and just counting the times we transition between each pair of nodes we can derive the transition probabilities.</p>
+
+<p>In the following figure I have drawn the 8 nodes of the derived Markov Chain, and only drawn the transitions of two nodes, assignments (0,0,0), and (0,0,1) for clarity. We can see that once in assignment (0,0,0) there is a high probability of staying put (86.8%), while the probability of remaining in (0,0,1) is only 1%. Also we see that the highest probability for moving from (0,0,1) is to transition to (1,1,1) with 55.8% probability. Beware that these transition probabilities are not the stationary probabilities, but used to estimate them (furthermore there are only 8 stationary probabilities, because they are the probabilities of being at that assignment).</p>
+
+<p><img class="center" src="/images/feb14/MC_simple.png" width="400" title="Mini Markov Chain" /></p>
+
+<p>This is an exercise to visualize how the MC from a PGM looks like. For normal PGM it is just too messy and wild, and trying to visualize is futile.</p>
+
+<h2 id="gibbs">Gibbs</h2>
+
+<p>We start at some randomly chosen initial state, a  randomly chosen initial assignmentto all variables in the Markov network. </p>
+
+<p>To move to the next state, we iterate through the variables. We replace each value in turn with a newly-selected value using probabilities <em>conditional on the values of all the other variables</em> – the new values for the variables we already changed this iteration and the old values for the variables we haven’t reached yet. When we have gone through all the variables, the new values, the new assignment to all variables, becomes our new state, and we’ve made one step in the Markov chain. </p>
+
+<p>Now for some esoteric theory. A Markov chain is regular if there exists an integer k such that, for every x, x’, the probability of getting from x to x’ in exactly k steps is &gt; 0. The key is that first we choose the k, then that should hold for every pair of states! </p>
+
+<p>From that definition we can extract the following: an MC is regular if the following sufficient conditions are met:</p>
+
+<ul>
+  <li>
+    <p>Every two states are connected (I can go from every state to any other state, with positive probability)</p>
+  </li>
+  <li>
+    <p>For every state, there is a self-transition (there should always be a positive probability of satying put in the state).</p>
+  </li>
+</ul>
+
+<p>The importance of being regular is that by article of faith a regular Markov Chain converges to a unique stationary distribution regardless of start state. Aha!</p>
+
+<p>Our Gibbs way of sampling creates an MC (derived itself from the PGM) that is regular, and therefore it has the same stationary distribution as the distribution of our PGM. So, in the long run, I can find/collect new states/assignments that show up with probability equal to the joint distribution of the PGM. </p>
+
+<p>Finally, as another aside, for a Markov Network, another sufficient condition is that if all factors are positive, the Gibbs chain is regular. Beware, that being regular does not mean it is efficient and mixes.</p>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1047,176 +1153,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/06/LBP-I/">Loopy Belief Propagation (I)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-06T08:01:00-08:00" pubdate data-updated="true">Feb 6<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>After a few days sick as a dog, in which I also lost 3 kilograms (great diet), I am back in the saddle, ready to code the 5th assignment of PGM. It will all be about loopy belief propagation as a way to compute approximate marginals and in contrast with the exact inference derived from our clique trees.</p>
-
-<p>To do so we use a Pairwise Markov Grid, with multiple connections between variables that produce clique trees with nodes too big for efficient computation. Here is an example with 3 nodes per side:</p>
-
-<p><img class="center" src="/images/feb14/toy_grid.png" width="400" title="Small Pairwise Markov Grid" /></p>
-
-<p>A simple and self-explanatory code to produce the graph would be the following (pay attention to the assignment of weights in and off diagonals):</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">ToyNetwork</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]):</span> <span class="c"># n is number of variables per side in grid</span>
-</span><span class="line">        <span class="n">on_diag</span><span class="p">,</span> <span class="n">off_diag</span> <span class="o">=</span> <span class="n">weights</span>
-</span><span class="line">        <span class="n">c</span> <span class="o">=</span> <span class="mi">2</span>   <span class="c"># fixed cardinality of all vars</span>
-</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="n">n</span><span class="o">*</span><span class="n">n</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">,</span> <span class="n">f_pair</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-</span><span class="line">        <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">V</span><span class="p">)]</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">ToyNetwork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">([[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">v</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="n">row</span><span class="o">*</span><span class="n">n</span> <span class="o">+</span> <span class="n">col</span>
-</span><span class="line">                <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="n">pos</span><span class="p">]])</span>  <span class="c"># create singleton factor</span>
-</span><span class="line">                <span class="n">singleton_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">pos</span> <span class="o">&lt;</span> <span class="n">V</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>
-</span><span class="line">                <span class="n">f</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">singleton_values</span><span class="p">)</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">                <span class="n">links</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">row</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>      <span class="c"># add above</span>
-</span><span class="line">                    <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">row</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span> <span class="o">+</span> <span class="n">col</span><span class="p">)</span>
-</span><span class="line">                <span class="k">if</span> <span class="n">col</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>      <span class="c"># add to left</span>
-</span><span class="line">                    <span class="n">links</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="o">*</span><span class="n">n</span> <span class="o">+</span> <span class="n">col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">links</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="n">l</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="n">pos</span><span class="p">]])</span>
-</span><span class="line">                    <span class="n">f</span><span class="o">.</span><span class="n">fill_values</span><span class="p">([</span><span class="n">on_diag</span><span class="p">,</span> <span class="n">off_diag</span><span class="p">,</span> <span class="n">off_diag</span><span class="p">,</span> <span class="n">on_diag</span><span class="p">])</span>
-</span><span class="line">                    <span class="n">f_pair</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">f_pair</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">connectAll</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">index_var</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line"><span class="n">t</span> <span class="o">=</span> <span class="n">ToyNetwork</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-</span><span class="line"><span class="k">print</span> <span class="n">t</span><span class="o">.</span><span class="n">adj</span>
-</span><span class="line"><span class="k">print</span> <span class="n">t</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>If we build a clique tree from it through variable elimination we end up with the following:</p>
-
-<p><img class="center" src="/images/feb14/ct_toy_grid.png" width="500" title="Clique Tree" /></p>
-
-<p>That inner node is way too big for such a small net. As we grow the grid, the inner nodes grow exponentially in complexity, making it computationally intractable. Instead of trying to find an efficient clique tree to compute the exact marginals in just two passes, we could start with a more messy cluster graph, something that is not a tree, and calibrate it until convergence (or wherabouts) to get to good-enough marginals.</p>
-
-<p>The first default in the land of cluster graphs is the Bethe Cluster Graph. Its construction is immediate, get all factors as nodes and connect them to singleton factors made of the encompassed variables. Here is the Bethe derived from the previous Pairwise Markov Grid.</p>
-
-<p><img class="center" src="/images/feb14/bethe_toy_grid.png" width="500" title="Bether Cluster Graph" /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Bethe Cluster Graph</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">BetheNetwork</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">singletonFactors</span><span class="p">,</span> <span class="n">MultivarFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="n">listOfFactors</span> <span class="o">=</span> <span class="n">singletonFactors</span>
-</span><span class="line">        <span class="n">n_singles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">listOfFactors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">MultivarFactors</span><span class="p">)</span>
-</span><span class="line">        <span class="n">set_vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span><span class="p">]</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">BetheNetwork</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">set_vars</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_singles</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)):</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_singles</span><span class="p">):</span>
-</span><span class="line">                    <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="ow">and</span> <span class="n">i</span><span class="o">!=</span><span class="n">j</span><span class="p">:</span>
-</span><span class="line">                        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class="line"><span class="n">t1</span> <span class="o">=</span> <span class="n">ToyNetwork</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-</span><span class="line"><span class="n">B</span> <span class="o">=</span> <span class="n">BetheNetwork</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[:</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">],</span> <span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">:])</span>
-</span><span class="line"><span class="k">print</span> <span class="n">B</span><span class="o">.</span><span class="n">box</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/10/">&larr; Older</a>
@@ -1234,6 +1170,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
       </li>
     
@@ -1247,10 +1187,6 @@
     
       <li class="post">
         <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a>
       </li>
     
   </ul>
