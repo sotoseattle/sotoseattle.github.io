@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2016-06-18T09:48:04-07:00</updated>
+  <updated>2016-06-18T12:30:48-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Psyc Founders Out]]></title>
+    <link href="http://sotoseattle.github.io/blog/2016/06/18/Founders/"/>
+    
+    <updated>2016-06-18T13:14:40-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2016/06/18/Founders</id>
+    
+    <content type="html"><![CDATA[<p>In terms of relative weight, when investing in a startup, the quality of management and specifically of the Founder/CEO is the single most important driver of success. It is not the only one, many other pieces need to fit together, but the caliber of the head of the organization is the main necessary condition.</p>
+
+<!--more-->
+
+<p><img class="right" src="http://sotoseattle.github.io/images/jun16/handrabbit.jpg" width="300" /></p>
+
+<p>There are many aspects to consider when analyzing the leadership of a startup, and investors tend to fall into the false complacency of factual information. If something can be quantified or at least backed up by facts, then we have a good proxy to analyze, compare and assess. Again, these types of variables are all great and dandy, but for me they are just a necessary condition, not sufficient.</p>
+
+<p>Beyond the facts there is the personality, and beyond the personality there are things as immaterial and diffuse as motivations, goals and perspectives. These are more difficult to assess because they are subjective in nature and do not conform to easy typecasting.</p>
+
+<p>I do believe that many investors can assess facts and crunch numbers with greater accuracy, so there is little competitive advantage there to be gained by those of us who are not from Lake Wobegon. But I also believe that there is a lot of money to be made by correctly assessing the imponderables, the subjective and the ill defined.</p>
+
+<p><em>Founder’s Motivation</em></p>
+
+<p>Why do it? Why go through all the pains and stresses? Behind a facade of drive the real reasons that propel a founder may be varied. Some perceived weaknesses can become great sources of strength, yet others can be ticking bombs that will doom the enterprise down the road.</p>
+
+<ul>
+  <li>
+    <p>Is she trying to prove something to herself? Or is she trying to measure up in someone’s eyes? Is she a self aware of her own motivations? No need to be Zen, just wise enough or able enough to listen outside of one’s bubble.</p>
+  </li>
+  <li>
+    <p>Is it just a reflection of a sense of entitlement born out of a successful career in a corporate environment or upbringing?</p>
+  </li>
+  <li>
+    <p>Is that drive to connect with others (investors, clients, employees) a personality trait borne out of empathy and discipline, or is it a reflection of a deeper need to be in the spotlight (i.e. narcissistic tendencies)?</p>
+  </li>
+  <li>
+    <p>The fact that she climbed the 7 tallest mountains, is it a reflection of drive or is it of a deeper inability to stay put, and a pathological need to push the limits? I want risk takers, not testosterone-unhinged thrill-seekers.</p>
+  </li>
+</ul>
+
+<p><em>Founder’s POV</em></p>
+
+<p>For all the talk about understanding customers and putting on other’s peoples shoes (gross), we as investors should walk the walk and try to see through the Founder’s eyes. This is closely related to the previous point of understanding the founder’s motivations.</p>
+
+<p>As investors we analyze the startup from the little understanding we slowly accumulate of the company. The whats, whys and hows. From the outside. It is only natural and logical. Furthermore, and at the expense of sounding corny, we do not tend to see things as they are; but as we are. From our personal experience and point of view.</p>
+
+<p>I think it is valuable to complement this with an understanding of how the Founder actually thinks about the startup. Does she sees things the way we do? Does she evaluate the different parts in the same way we do?</p>
+
+<p>What does she care about and how does she prioritize them? In areas that are out of view, how does she behave towards the interests of the different stakeholders? (employees, investors, clients).</p>
+
+<p>What is she afraid of? For some, a failure with somebody else’s money is a badge of honor in a startup career, a career arbitrage opportunity, an experiential stepping stone or a sabbatical.</p>
+
+<p>Beyond engaging in conversation, all materials presented can tell a story too. Beyond the idiotic business-speak there is always a choice when selecting ideas and words. Like witnesses interviewed by the police, we cannot help ourselves and give clues of what we really think, fear and motivates us. We just need to be aware.</p>
+
+<p>Additionally, I have found that another source of insight is the financial projections the founders prepare. As future forecasting they are by nature not very useful, but sometimes they say quite a lot about how the founders understand their company today.</p>
+
+<p>I leave to the reader the exercise of figuring out what this post tells about me and about how I see Angel Investing.</p>
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -2674,274 +2734,6 @@ q_{ij} := \frac{\sum_u{\Phi_{i,j}(u,u)}}{\sum_{u,v}{\Phi_{i,j}(u,v)}}
 <p><img class="center" src="http://sotoseattle.github.io/images/feb14/MHSW_2_hist.png" width="500" /></p>
 
 <p>Amazing. An Average error of 0.04 0with standard deviation of 0.01.</p>
-
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[MCMC MH Swendsen Wang]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/02/15/MCMC-MH-SW/"/>
-    
-    <updated>2014-02-15T08:01:00-08:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/02/15/MCMC-MH-SW</id>
-    
-    <content type="html"><![CDATA[<p>We continue with Assignment 5 from Prof. Koller’s Coursera course: “Probabilistic Graphical Models”. I am including the explanation from the assignment paper because it is the most clear explanation I have found for the Swendsen Wang sampling method, which is a hair rasing trip in on itself.</p>
-
-<h2 id="theory">Theory</h2>
-
-<p>In Ising models and image segmentation applications, pairwise Markov networks are frequently used. This means specially for strong potentials adjacent variables tend to take on the same values. This makes it hard to explore the space for possible assignments by changing the value of one variable at a time, like Gibbs does. The Swendsen-Wang algorithm has been specifically designed for this kind of networks and overcomes this difficulty by changing, at the same time, a group of adjacent variables that have the same value.</p>
-
-<p>In Swendsen-Wang, we start with a model that has variables connected in pairwise factors in a Markov graph. All the variables can take on the same values. To do MCMC, we start as usual in some state x. To get to the next state, we start with the graph. We break all the edges between variables that have different values. Then, we also break the rest of the edges between any nodes i and j with probability <script type="math/tex">(1−q_{i,j})</script>, where <script type="math/tex">q_{i,j}</script> is a probability that can depend on i and j but not their current assignment. </p>
-
-<p>Once we’ve broken all those edges, we’re left with a graph with connected groups of variables, with all variables in a group sharing the same assignment. We randomly pick one with a uniform distribution. That’s Y . We choose a new assignment, using a probability distribution R. With the new assignment to the variables in Y , we now have the new state x’; in other words, the new assignment x’ is the same as x, except that the variables in Y have changed value. As with all MH, we accept the state with a probability A.</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/SW_procedure.png" width="500" title="Swendsen Wang Procedure 1" /></p>
-
-<p>To compute Q, R, and A, we use the following equations. Let C(Y|x) be the probability that a set Y is selected to be updated using this procedure, given the current state is x. Then we somehow divine Q(x → x’), the chance that we’ll try a transition from x to x’ by changing Y , as the following:</p>
-
-<script type="math/tex; mode=display">
-Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
-</script>
-
-<p>So we can compute the ratio for A (acceptance probability):</p>
-
-<script type="math/tex; mode=display">
-\frac{Q(x' \rightarrow x)}{Q(x \rightarrow x')} =\frac{C(Y|x') R(Y = l|x'_Y )}{C(Y|x) R(Y = l'|x_Y )}
-</script>
-
-<p>And we realize that obviously the following is a truism:</p>
-
-<script type="math/tex; mode=display">
-\frac{C(Y|x')}{C(Y|x)} = \frac{\prod_{(i,j) \in \epsilon (Y, X_{l'}^{'}-Y)}(1 - q_{i,j})}{\prod_{(i,j) \in \epsilon (Y, X_{l}-Y)}(1 - q_{i,j})}
-</script>
-
-<p>Where: <script type="math/tex">X_l</script> is the set of vertices with label l in x, <script type="math/tex">X'_{l'}</script> is the set of vertices with label l’ in x’; and where <script type="math/tex">\epsilon(Y,Z)</script> (between two disjoint sets Y,Z) is the set of edges connecting nodes in Y to nodes in Z.</p>
-
-<h2 id="sw-uniform-variant">SW Uniform variant</h2>
-
-<p>Although the intuition behind breaking the graph and changing the assignment of a connected component makes sense, coming up with Q and R are beyond my grasp. Nevertheless, we compute SW in two variants. The first one is easy, it uses a Q that is uniform, so we set all the <script type="math/tex">q_{ij}</script> to 0.5 (our Ising net is all binomial). We also set R to be uniform. Nevertheless Let’s go step by step:</p>
-
-<p>The first thing we have to take into consideration is to create a data structure in our MCMC_MHSW object that holds, for each edge between nodes i and j the value of <script type="math/tex">q_{ij}</script>. In our variant all Q are equal, being the uniform.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Q by edges</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="bp">self</span><span class="o">.</span><span class="n">q_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span><span class="p">)</span>
-</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">q_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-</span><span class="line">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">q_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Now we start processing. Given the graph and a complete assignment we remove the edges connecting variables that have different values. Also, we take the opportunity to break edges based on the probability Q.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Breaking Edges Based on Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">common_components_and_Q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;return connected edges between nodes that share assignment, and pass Q probability&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">edges</span> <span class="o">=</span> <span class="p">[[]]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_pass_edges</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">ass</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">==</span><span class="n">ass</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span> <span class="ow">and</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]:</span>
-</span><span class="line">            <span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span class="line">            <span class="n">edges</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">edges</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">edges</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>With this new graph (the same as the original but with rearranged edges) we need is a way to find its connected components. That is easy with DFS (Depth First Search) and the Princeton Algorithm’s course from Coursera. Given a graph G we can find how many components there are, and to which one each variable belongs.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Connected Components</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">CC</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">G</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">dni</span> <span class="o">=</span> <span class="p">[[]]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="p">[[]]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">dni</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-</span><span class="line">            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">):</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The code for a method to return a new assignment begins to take form:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Finding a new Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="c"># build new graph breaking edges where nodes differ in assignment and by Q</span>
-</span><span class="line">    <span class="n">G_prime</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="p">)</span>
-</span><span class="line">    <span class="n">G_prime</span><span class="o">.</span><span class="n">adj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rearrange_edges</span><span class="p">(</span><span class="n">from_ass</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># get connected components</span>
-</span><span class="line">    <span class="n">common_comps</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">G_prime</span><span class="p">)</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>With the components identified we can select one (randomly), and retrieve all its variables.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cont</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="o">...</span>
-</span><span class="line">    <span class="c"># select a common component randomly</span>
-</span><span class="line">    <span class="n">Y_index</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">common_comps</span><span class="o">.</span><span class="n">count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">    <span class="n">Y_v_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">common_comps</span><span class="o">.</span><span class="n">dni</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">Y_index</span><span class="p">]</span>
-</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Y_v_id</span><span class="p">]</span>
-</span><span class="line">    <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">(</span><span class="n">cardio</span><span class="p">))</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="c"># check all have same ass and cardinality</span>
-</span><span class="line">    <span class="n">d</span> <span class="o">=</span> <span class="n">cardio</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>We compute the R (actually the log of R for underflows). In our case of first variant and given that all variables are bianry, this  uniform distribution R becomes <code>[log(0.5), log(0.5)]</code>. The old value of Y can be taken from any variable of Y (we choose whichever is first), and the new assignment is randomly extracted from the R distribution. The new complete assignment becomes then the same as the original except for the variables in Y, which take now on the new value derived from R.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cont</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="o">...</span>
-</span><span class="line">    <span class="n">logR</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">d</span><span class="p">)]</span><span class="o">*</span><span class="n">d</span>
-</span><span class="line">    <span class="n">old_value</span> <span class="o">=</span> <span class="n">from_ass</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">Y_v_id</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
-</span><span class="line">    <span class="n">new_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">randSampleDist</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logR</span><span class="p">))</span>
-</span><span class="line">    <span class="n">to_ass</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">new_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">Y_v_id</span> <span class="k">else</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">from_ass</span><span class="p">)</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Now comes the part of the messy equation and the epsilons. We need to compute the ratio of the products of Qs for all edges. We do it in log space with sums.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cont</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="o">...</span>
-</span><span class="line">    <span class="c"># log-ratio of the prob of picking Y given we transition from_ass to_ass</span>
-</span><span class="line">    <span class="c"># we need to iterate over all edges</span>
-</span><span class="line">    <span class="n">log_QY_ratio</span> <span class="o">=</span> <span class="mf">0.0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">one_pass_edges</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">Y_v_id</span> <span class="ow">and</span> <span class="n">j</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Y_v_id</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Y_v_id</span> <span class="ow">and</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">Y_v_id</span><span class="p">):</span>
-</span><span class="line">            <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">from_ass</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">old_value</span> <span class="ow">and</span> <span class="n">from_ass</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">old_value</span><span class="p">:</span>
-</span><span class="line">                <span class="n">log_QY_ratio</span> <span class="o">=</span> <span class="n">log_QY_ratio</span> <span class="o">-</span> <span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">to_ass</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">new_value</span> <span class="ow">and</span> <span class="n">to_ass</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">new_value</span><span class="p">:</span>
-</span><span class="line">                <span class="n">log_QY_ratio</span> <span class="o">=</span> <span class="n">log_QY_ratio</span> <span class="o">+</span> <span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_list</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Finally, we have everything to compute A. We compute the stationary probabilities as we did with MH Uniform, easy. Then the acceptance probability just follows the theoretical formula given before. We check randomly if pass or not the acceptance threshold, and if we do we send the new complete assignment as the new sample (if not , we stay put).</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cont</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">    <span class="o">...</span>
-</span><span class="line">    <span class="n">acceptance</span><span class="p">,</span> <span class="n">from_pi</span><span class="p">,</span> <span class="n">to_pi</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">        <span class="n">from_pi</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">))</span>
-</span><span class="line">        <span class="n">to_pi</span> <span class="o">+=</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">to_ass</span><span class="p">))</span>
-</span><span class="line">    <span class="n">acceptance</span> <span class="o">=</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">to_pi</span><span class="p">)</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">from_pi</span><span class="p">))</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_QY_ratio</span><span class="p">)</span><span class="o">*</span>\
-</span><span class="line">                      <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logR</span><span class="p">[</span><span class="n">old_value</span><span class="p">])</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logR</span><span class="p">[</span><span class="n">new_value</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">acceptance</span><span class="p">:</span>
-</span><span class="line">        <span class="n">from_ass</span> <span class="o">=</span> <span class="n">to_ass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">return</span> <span class="n">from_ass</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="analysis">Analysis</h2>
-
-<p>Following the same procedures and initial inputs as we did for Gibbs and MH Uniform we produce the following chart for comparison purposes. All pretty impressive.</p>
-
-<p>Mixing time:</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/MHSW_1_mix.png" width="500" title="Mixing Windows Run 1" /></p>
-
-<p>Sample Size:</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/MHSW_1_size.png" width="500" title="Sample Size Run 1" /></p>
-
-<p>Marginals Convergence for the extreme case [0.95, 0.05]:</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/MHSW_1_cross.png" width="500" /></p>
-
-<p>Histogram of dist to true marginal based on 100 runs on 16 node Ising:</p>
-
-<p><img class="center" src="http://sotoseattle.github.io/images/feb14/MHSW_1_hist.png" width="500" /></p>
-
-<p>Although the hsitogram runs over 70,000 is overkill (WS arrives at the stationary distribution way earlier), the results are impressive. An Average error of 0.04 with standard deviation of 0.02. All very impressive. Cannot wait to see if the Swendsen Wang variant 2 achieves even better results!</p>
 
 ]]></content>
     

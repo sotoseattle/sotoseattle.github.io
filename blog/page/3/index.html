@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="My Rubygem Primo is alive and kicking! Check it out at Github. In 2013 I took the online course “Probabilistic Graphical Models” (Stanford, Prof. &hellip;">
+  <meta name="description" content="Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,71 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/17/Code-Retreat/">Code Retreat Reflections</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-17T20:17:00-08:00" pubdate data-updated="true">Nov 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Last Saturday 15, Nov I participated in the Global day of Code Retreat 2014. Although I could only join for half a day, it was an intense learning experience.</p>
+
+<p>One of the goals of the exercise is to get one out of his coding comfort-zone. Like thrown into a dark room we stretch the arms to ‘feel’ and ‘see’ what is next, when I was taken out of my way of thinking, when confronted with a curve ball to code (zombie cells?) or when I had to pair in a different language, I was forced to stretch my arms and use short bursts of tests as the only way to gain ground and advance.</p>
+
+<p><img class="left" src="/images/Nov14/Game_of_life_pulsar.gif" width="200" />
+“Game of life pulsar” by JokeySmurf <a href="http://commons.wikimedia.org/wiki/File:Game_of_life_pulsar.gif#mediaviewer/File:Game_of_life_pulsar.gif">Licensed under Public domain via Wikimedia Commons</a></p>
+
+<p>The pair experience was happily horrifying, God I need to work on that! Adding ping-pong style to it, raised the stakes to the level of Hunger Games.</p>
+
+<p>Nevertheless, I spent the next day working on the Game of Life, trying to code it from the point of view of the 4 Principles of Simple Design and thinking about the process.</p>
+
+<p>My unfinished code is <a href="https://github.com/sotoseattle/CodeRetreat">here</a> and these notes are my reflections on the process.</p>
+
+<h3 id="learning-to-fly">Learning to Fly</h3>
+
+<p>First and foremost I not only started every iteration writing the tests, but tried to write them from the most general point of view, avoiding referring to implementation details. This is extremely difficult for two reasons:</p>
+
+<p>First, unconsciously, when I pose a testing question / requirement I already have an implicit idea of how to answer it. Visualizing how things should work, even if only in the end point (as seen by customer or objects), does not happen in a vacuum. As soon as one starts to think about it, the mind starts to consider alternatives: data structures, algorithms, etc, from past experience. Furthermore, when you write the details of the test you are specifying the objects to use and the methods to call.</p>
+
+<p>I want to keep the questions as open-ended as possible, so later on the code can answer as it sees fit, from the trenches in the battlefield and not directed by an armchair admiral.</p>
+
+<p>Second, if the test is too general, too abstract, too high altitude, it ends up encompassing way too much functionality, which requires to implement too many things in too many places in order to pass the test. Therefore I need to get down from the high chair and make more concrete, low level requirements. But this in turn, (i.e. calling a specific intermediary method in my test) is already steering and making me think of concrete implementation details!</p>
+
+<p>There is great tension between these forces, between flying high without getting lost in space, and flying low and hitting the rooftops.
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/11/17/Code-Retreat/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -226,61 +291,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/28/Rails-API-Versioning/">Rails Api Versioning</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-28T16:17:00-07:00" pubdate data-updated="true">Oct 28<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><img class="right" src="/images/Oct14/versionapi.png" width="200" title="RailsCast" /></p>
-
-<p>Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema will mutate. That is OK as long as you have a rational way to structure the different versions of the api, how they are called and what they return.</p>
-
-<p>There are different ways to achieve this versioning, I will be enumerating the pros and cons of three of them.</p>
-
-<h3 id="pre-pend-the-ryan-bates-way">Pre-pend (the Ryan Bates Way)</h3>
-
-<p><a href="http://railscasts.com">RailsCast</a>, the ultimate resource for all things rails, goes into specific details of how to manually set up your own versioning system in its <a href="http://railscasts.com/episodes/350-rest-api-versioning?view=asciicast">episode 350</a>.</p>
-
-<p>It involves modifying your routes so your apis resources are encapsulated in namespaces. There are many advantages to this approach, first and foremost it forces you to be aware of what is happening, you learn your tool in the process and you don’t depend on external code (versioning gem).</p>
-
-<p>On the other hand, you’ll end up with parallel versions of the same code living side by side, not the most DRY way to keep your code base. Furthermore, you are responsible for tracking changes to your schema, and then adapting and maintaining each of the version calls.</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/28/Rails-API-Versioning/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/4/">&larr; Older</a>
@@ -298,6 +308,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
@@ -311,10 +325,6 @@
     
       <li class="post">
         <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/11/18/4-PSD/">4 Principles of Simple Design Reflections</a>
       </li>
     
   </ul>
