@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2016-06-18T14:05:43-07:00</updated>
+  <updated>2016-06-18T14:07:46-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -15,13 +15,21 @@
   
   <entry>
     
-    <title type="html"><![CDATA[Psyc Founders Out]]></title>
+    <title type="html"><![CDATA[Founders]]></title>
     <link href="http://sotoseattle.github.io/blog/2016/06/18/Founders/"/>
     
-    <updated>2016-06-18T13:14:40-07:00</updated>
+    <updated>2016-06-18T00:00:00-07:00</updated>
     <id>http://sotoseattle.github.io/blog/2016/06/18/Founders</id>
     
-    <content type="html"><![CDATA[<p>In terms of relative weight, when investing in a startup, the quality of management and specifically of the Founder/CEO is the single most important driver of success. It is not the only one, many other pieces need to fit together too, but the caliber of the head of the organization is the main necessary condition.</p>
+    <content type="html"><![CDATA[
+<p>layout: post
+title: “Psyc Founders Out”
+date: 2016-06-18 12:14:40 -0800
+comments: true
+categories: Angel
+—</p>
+
+<p>In terms of relative weight, when investing in a startup, the quality of management and specifically of the Founder/CEO is the single most important driver of success. It is not the only one, many other pieces need to fit together too, but the caliber of the head of the organization is the main necessary condition.</p>
 
 <!--more-->
 
@@ -58,13 +66,21 @@
 
 <p>For all the talk about understanding customers and putting on other’s peoples shoes, we as investors should walk the walk and try to see through the Founder’s eyes. It is valuable to complement our own understanding with an understanding of how the Founder actually thinks about the startup. Does she sees things the way we do? Does she connect the dots and evaluate the different parts in the same way we do?</p>
 
-<p>What does she care about most? What do her actions tell us about how she behaves towards the interests of the different stakeholders? (employees, investors, clients).</p>
+<ul>
+  <li>
+    <p>What does she care about most? What do her actions tell us about how she behaves towards the interests of the different stakeholders? (employees, investors, clients).</p>
+  </li>
+  <li>
+    <p>What is she afraid of? For sure she has thought about failure scenarios. What are her real barriers to exit? Not only material but reputational. For some, a failure with somebody else’s money can be seen a badge of honor in a startup career, an experiential stepping stone or a sabbatical.</p>
+  </li>
+  <li>
+    <p>Beyond engaging in conversation with Founders, the materials they present can tell a story too. Ignoring the abused business jargon there is always a choice when selecting ideas and words. Like witnesses interviewed by the police, we cannot help ourselves and end up giving clues of what we really think, fear and motivates us. Up to what degree is the Founder aware of this? Awareness is a plus in my book, but how do you tell the self-aware from the smooth-operator?</p>
+  </li>
+</ul>
 
-<p>What is she afraid of? For sure she has thought about failure scenarios. What are her real barriers to exit? Not only material but reputational. For some, a failure with somebody else’s money can be seen a badge of honor in a startup career, an experiential stepping stone or a sabbatical.</p>
-
-<p>Beyond engaging in conversation with Founders, the materials they present can tell a story too. Ignoring the abused business jargon there is always a choice when selecting ideas and words. Like witnesses interviewed by the police, we cannot help ourselves and end up giving clues of what we really think, fear and motivates us. Up to what degree is the Founder aware of this? Awareness is a plus in my book, but how do you tell the self-aware from the smooth-operator?</p>
-
-<p>Additionally, I have found that another source of insight is the financial projections the Founders prepare. As future forecasting they are by nature not very useful, but sometimes they say quite a lot about how the Founders understand their company today.</p>
+<blockquote>
+  <p>Additionally, I have found that another source of insight is the financial projections the Founders prepare. As future forecasting they are by nature not very useful, but sometimes they say quite a lot about how the Founders understand their company today.</p>
+</blockquote>
 
 <p><em>Last Thoughts</em></p>
 
