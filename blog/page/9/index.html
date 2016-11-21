@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="How to sample a distribution The first method we need is to find a random assignment given a discrete distribution. For example, if we have a &hellip;">
+  <meta name="description" content="We are going to use our primitive MCMC Gibbs Inference engine on our 9 variable toy Ising grid (with histerical potentials [1.0, 0.2]). And then &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,165 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/11/MCMC-Gibbs-Analysis/">MCMC Gibbs - Analysis</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-11T08:01:00-08:00" pubdate data-updated="true">Feb 11<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We are going to use our primitive MCMC Gibbs Inference engine on our 9 variable toy Ising grid (with histerical potentials [1.0, 0.2]). And then compare our results to our previous approximation using Loopy Belief Propagation.</p>
+
+<p><img class="center" src="/images/feb14/toy_grid.png" width="300" title="Small Pairwise Markov Grid" /></p>
+
+<p>The big problem is that there is no clear cut way to know when we have left the wandering zone around and entered the domain of the joint probability. We cannot know when the chain has mixed, we can only guess.</p>
+
+<h2 id="mixing">Mixing</h2>
+
+<p>As a first experiment we run our MCMC to collect a total of 70,000 samples. The initial assignment is initialized to all ones. </p>
+
+<p>Now from the samples we get subsets every 1,000 samples of size 10,000. That is 59 subsets that go from sample [0 to 10,000], [1,000 to 11,000], [2,000 to 12,000], …. Each subset is a window, of 10,000 samples collected after different mixing times.</p>
+
+<p>If we plot the difference between the exact marginal and our MCMC estimated marginal of the three variables (number 0 as red, 4 as blue, and 8 as green), we have the following charts (from two different runs).</p>
+
+<div>
+	<img src="/images/feb14/dist_to_exact_mcmcg.png" width="425" title="Run 1" />
+	<img class="right" src="/images/feb14/dist_to_exact_mcmcgB.png" width="425" title="Run 2" />
+</div>
+
+<p>What I deduce from this (and here is pure amateur talking) is that all variables tend to move together. I don’t know what is a good mixing time, it looks like it is pretty much mixed from the start. Nevertheless, I’ll choose 7,000 to be safe. Also, as we walk around, the system oscilates and spike away from the exact marginals in a bounded range.</p>
+
+<h2 id="sample-size">Sample size</h2>
+
+<p>Following the previous settings but fixing the mixing time to 7,000, we can plot the difference between exact and estimated marginals as we collect more samples. From the charts (two different runs) we see that anything beyond 30,000 samples seems to be ok.</p>
+
+<div>
+	<img class="left" src="/images/feb14/dist_to_exact_mcmcg_3.png" width="425" title="Run 1" />
+	<img class="right" src="/images/feb14/dist_to_exact_mcmcg_3B.png" width="425" title="Run 2" />
+</div>
+
+<h2 id="marginals-convergence">Marginals Convergence</h2>
+
+<p>Gibbs walks one step at a time, so for grids with high potentials (high correlation between variables), it tends to stay for long periods next to high potential states (or clusters), slowing down mixing.</p>
+
+<p>In the following charts we run twice different models and see how well the estimated marginals converge across runs. All models are Ising grids with 9 variables, have mixing time of 7,000 and sample size of 10,000. </p>
+
+<div>
+	<img class="left" src="/images/feb14/compare_runs_0703.png" width="425" />
+	<img class="right" src="/images/feb14/compare_runs_102.png" width="425" />
+	<img class="center" src="/images/feb14/compare_runs_095005.png" width="425" />
+</div>
+
+<p>The better convergence the closer the estimated marginals to the diagonal. The first model has potentials [0.7, 0.3] and all variables are along the diagonal. The same happens for the second model, our optimized [1., 0.2], where the a corner variable get a bit off, but good for all purposes. </p>
+
+<p>A third model with even further heighened potentials [0.95, 0.05] shows discouraging results. The true marginals are all in the narrow range [0.5974, 0.6009], but our estimated marginals for the first run are tightly clustered around 0.0, while all marginals for the second run are tightly clustered around 0.6. This can be palliated with a bigger sample size up to a point.</p>
+
+<p>Two points to make: 1) this shows convergence between runs, not to the exact marginal. 2) The lower correlation between variables, the better convergence.</p>
+
+<h2 id="comparison-to-lbp">Comparison to LBP</h2>
+
+<p>Finally we are going to run 10 times the model we have. Mixing time of 7,000. Sample size of 20,000. Starting assignment, 5 runs with 0s, and 5 runs with 1s. We are going to compute the error as before and see what results we get as compared to the exact marginals for all variables.</p>
+
+<p>The error, as defined in previous posts, from our 10 runs is 0.065 on the average, with a range of [0.005, 0.17] and a standard deviation of 0.05. That is a further improvement from our best approximation of 0.24 with RBP.</p>
+
+<p>Nevertheless, although Gibbs gives us on the average much better results, from time to time it go cyclothymic and spikes markedly away from the exact marginals.</p>
+
+<p>As a data point for comparison purposes, taking the estimated marginals from our last run (the 10th run) we get an error of 0.059, and the already familiar table:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">MCMC Gibbs aprox</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.52015</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.541</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.53745</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.5518</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.57795</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.58745</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.5918</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.59885</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.60425</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<p>Even for higher order Ising grids, as long as we don’t have way too highly correlated variables, we mix long enhough and we collect a sufficiently big sample size, we get pretty decent results!</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -420,491 +579,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/08/LBP-3/">Loopy Belief Propagation (III)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-08T08:01:00-08:00" pubdate data-updated="true">Feb 8<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>These are different approaches to improve convergence and accuracy of the marginals.</p>
-
-<h2 id="smoothing-messages">1. Smoothing Messages</h2>
-
-<p>Very easy to implement. When we compute every new message, instead of updating the delta, we update with smoothing: <code>coef*(new delta) + (1-coef)*(prev stored delta)</code>. This slows convergence in one hand but also avoids big jumps in the beliefs, giving time to achieve convergence at a more controlled pace. Trying for different coeficients I did not improve the marginals.</p>
-
-<h2 id="tree-reparametrization">2. Tree Reparametrization</h2>
-
-<p>Also easy to implement. Instead of using BFS for message scheduling of all nodes, we find a set of trees in the graph so all edges are covered. It is better if we have spanning trees (as long as possible). Then we propagate like with Clique Trees, only twice, forward and backward. The easiest way to get trees from a graph is using Depth First Search (DFS). Still, I don’t know how to get the minimum set of trees that encompass the whole graph, and I had to do it by hand :( Here is an example of 2 trees that span the grid:</p>
-
-<p><img class="center" src="/images/feb14/TRP.png" width="500" title="Trees for LBP" /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>DFS</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">DFS_Paths</span><span class="p">:</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">G</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">s</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># only the forward path, add backwards</span>
-</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span> <span class="c"># start only at designated root</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-</span><span class="line">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="n">w</span><span class="p">])</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-</span><span class="line">        <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">pathTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-</span><span class="line">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
-</span><span class="line">            <span class="k">return</span> <span class="bp">None</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
-</span><span class="line">            <span class="n">x</span> <span class="o">=</span> <span class="n">v</span>
-</span><span class="line">            <span class="k">while</span> <span class="n">x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
-</span><span class="line">                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-</span><span class="line">                <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
-</span><span class="line">            <span class="k">return</span> <span class="n">path</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>When I run on indiscriminate sets of trees I converge to the bad marginals. But if I use two trees, one long spanning DFS tree plus a manually computed one for the missed edges, I get somewhat better results (sqr error from 0.99 to 0.75):</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.723905954527</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.728300716867</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.592195736634</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.835859875384</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.911873353528</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.900624901637</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.8791687735</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.927292899198</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.905241175589</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<h2 id="residual-belief-propagation">3. Residual Belief Propagation</h2>
-
-<p>This last effort is based on the fact that not all messgaes have the same importance. Some change the beliefs a great deal, while others are less important. It is easy to look at the way messages achieve convergence, andd see that not all reach equilibrium at the same time. The same happens with the betas.</p>
-
-<p>What I did was implement a priority queue, and as compute each message I store it in the queue with a key that measures how much the message changed. Since all messages are univariate (check cluster graph and realize that there are only pairwise potentials), each message has two values (p, 1-p). The measure I use is the abs of the difference in p. The first pass (BFS) goes through all edges and computes all messages, but starting with the second pass, we compute only the messages that change beyond a tolerance and ordered so the more important run first. </p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibrate with RBP</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">()</span>
-</span><span class="line">    <span class="n">q</span> <span class="o">=</span> <span class="n">PriorityQueue</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">    <span class="n">cycles</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">while</span> <span class="n">keep_going</span><span class="p">:</span>
-</span><span class="line">        <span class="n">cycles</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
-</span><span class="line">            <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">            <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">            <span class="n">messages</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">            <span class="n">prev_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">            <span class="n">new_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">
-</span><span class="line">            <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">new_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_res</span><span class="p">,</span> <span class="n">prev_res</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">):</span>
-</span><span class="line">                <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="nb">abs</span><span class="p">(</span><span class="n">mag</span><span class="p">):[</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">]})</span>
-</span><span class="line">                <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="n">cycles</span><span class="o">&gt;</span><span class="mi">1000</span><span class="p">:</span>
-</span><span class="line">            <span class="o">...</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
-</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</span><span class="line">            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c"># because it is a minQ</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;Cycles:&#39;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="s">&#39;Messages passed&#39;</span><span class="p">,</span> <span class="n">messages</span>
-</span><span class="line">    <span class="c"># compute the beliefs</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>This way we only need 3 cycles and 104 messages. The first cycle goes through all 48 edges. the second also computes 48 messages but in a different order (prioritized by heuristic importance), and the third only comutes 8 messages. The results are even better:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.614445509854</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.632046274666</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.592793285825</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.699814842287</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.759645004711</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.749109157114</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.739850591712</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.822523867844</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.848549594174</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Square distance error is 0.42. If instead of using the BSF as the initial path, we compute all messages and create an initial path based on a priority queue as before, the error can be taken further down to 0.33.</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.399020732163</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.378280542986</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.443100330486</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.465753424658</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.641605971227</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.662337662338</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.641605971227</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.770344431088</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.719502074689</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>And finally, if instead of prioritizing the queue based on the importance of the messages we do it based on how each new message changes the marginalized belief of the receiving node we lower the error further to 0.24, although we need to cycle 13 times and pass 296 messages.</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.444436529385</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.605683356431</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.494869086601</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.562421013105</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.692305538097</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.64302214095</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.682604471501</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.745950622502</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.748513253977</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Code to compute the magnitude based on belief change</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
-</span><span class="line">    <span class="n">beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">to_w</span><span class="p">])</span>
-</span><span class="line">    <span class="n">past_beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">affected_var</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">beta</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">to_w</span><span class="p">]:</span>
-</span><span class="line">        <span class="n">posX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">posX</span><span class="p">]</span>
-</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> <span class="c">#### NORMALIZING</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">if</span> <span class="n">affected_var</span><span class="o">!=</span><span class="p">[]:</span>
-</span><span class="line">        <span class="n">past_beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">past_beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span class="line">    <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">mag</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Nevertheless, although it gives good results for a 9 node Ising grid, the more the nodes the worse it works. The RBP is the best approach found and I am sure that with a better designed key for the queue (to show which messages should be prioritized) bigger grids can also be optimized.</p>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/10/">&larr; Older</a>
@@ -922,6 +596,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
@@ -935,10 +613,6 @@
     
       <li class="post">
         <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
       </li>
     
   </ul>

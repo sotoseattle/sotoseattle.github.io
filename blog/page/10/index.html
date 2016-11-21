@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="I am going to start abstracting the behavior of the cluster graph class, since Clique Tree and Bethe Graphs are specific cases of cluster graphs and &hellip;">
+  <meta name="description" content="These are different approaches to improve convergence and accuracy of the marginals. 1. Smoothing Messages Very easy to implement. When we compute &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,491 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/08/LBP-3/">Loopy Belief Propagation (III)</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-08T08:01:00-08:00" pubdate data-updated="true">Feb 8<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>These are different approaches to improve convergence and accuracy of the marginals.</p>
+
+<h2 id="smoothing-messages">1. Smoothing Messages</h2>
+
+<p>Very easy to implement. When we compute every new message, instead of updating the delta, we update with smoothing: <code>coef*(new delta) + (1-coef)*(prev stored delta)</code>. This slows convergence in one hand but also avoids big jumps in the beliefs, giving time to achieve convergence at a more controlled pace. Trying for different coeficients I did not improve the marginals.</p>
+
+<h2 id="tree-reparametrization">2. Tree Reparametrization</h2>
+
+<p>Also easy to implement. Instead of using BFS for message scheduling of all nodes, we find a set of trees in the graph so all edges are covered. It is better if we have spanning trees (as long as possible). Then we propagate like with Clique Trees, only twice, forward and backward. The easiest way to get trees from a graph is using Depth First Search (DFS). Still, I don’t know how to get the minimum set of trees that encompass the whole graph, and I had to do it by hand :( Here is an example of 2 trees that span the grid:</p>
+
+<p><img class="center" src="/images/feb14/TRP.png" width="500" title="Trees for LBP" /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>DFS</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">DFS_Paths</span><span class="p">:</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">G</span> <span class="o">=</span> <span class="n">G</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">s</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span> <span class="o">=</span> <span class="p">[]</span> <span class="c"># only the forward path, add backwards</span>
+</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">V</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">)</span> <span class="c"># start only at designated root</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+</span><span class="line">            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">discoveryPath</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">v</span><span class="p">,</span><span class="n">w</span><span class="p">])</span>
+</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">dfs</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class="line">        <span class="k">pass</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">pathTo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">:</span>
+</span><span class="line">            <span class="k">return</span> <span class="bp">None</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>
+</span><span class="line">            <span class="n">x</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class="line">            <span class="k">while</span> <span class="n">x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
+</span><span class="line">                <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edgeTo</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+</span><span class="line">                <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+</span><span class="line">            <span class="k">return</span> <span class="n">path</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>When I run on indiscriminate sets of trees I converge to the bad marginals. But if I use two trees, one long spanning DFS tree plus a manually computed one for the missed edges, I get somewhat better results (sqr error from 0.99 to 0.75):</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">approx. marg (LBP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.723905954527</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.728300716867</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.592195736634</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.835859875384</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.911873353528</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.900624901637</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.8791687735</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.927292899198</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.905241175589</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<h2 id="residual-belief-propagation">3. Residual Belief Propagation</h2>
+
+<p>This last effort is based on the fact that not all messgaes have the same importance. Some change the beliefs a great deal, while others are less important. It is easy to look at the way messages achieve convergence, andd see that not all reach equilibrium at the same time. The same happens with the betas.</p>
+
+<p>What I did was implement a priority queue, and as compute each message I store it in the queue with a key that measures how much the message changed. Since all messages are univariate (check cluster graph and realize that there are only pairwise potentials), each message has two values (p, 1-p). The measure I use is the abs of the difference in p. The first pass (BFS) goes through all edges and computes all messages, but starting with the second pass, we compute only the messages that change beyond a tolerance and ordered so the more important run first. </p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibrate with RBP</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">()</span>
+</span><span class="line">    <span class="n">q</span> <span class="o">=</span> <span class="n">PriorityQueue</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">    <span class="n">cycles</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span><span class="line">    <span class="k">while</span> <span class="n">keep_going</span><span class="p">:</span>
+</span><span class="line">        <span class="n">cycles</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">        <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+</span><span class="line">            <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
+</span><span class="line">            <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
+</span><span class="line">            <span class="n">messages</span> <span class="o">+=</span><span class="mi">1</span>
+</span><span class="line">            <span class="n">prev_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
+</span><span class="line">            <span class="n">new_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span><span class="line">
+</span><span class="line">            <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">new_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">prev_res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_res</span><span class="p">,</span> <span class="n">prev_res</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">):</span>
+</span><span class="line">                <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="nb">abs</span><span class="p">(</span><span class="n">mag</span><span class="p">):[</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">]})</span>
+</span><span class="line">                <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">
+</span><span class="line">        <span class="k">if</span> <span class="n">cycles</span><span class="o">&gt;</span><span class="mi">1000</span><span class="p">:</span>
+</span><span class="line">            <span class="o">...</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+</span><span class="line">            <span class="n">a</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+</span><span class="line">            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class="line">        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span> <span class="c"># because it is a minQ</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">print</span> <span class="s">&#39;Cycles:&#39;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="s">&#39;Messages passed&#39;</span><span class="p">,</span> <span class="n">messages</span>
+</span><span class="line">    <span class="c"># compute the beliefs</span>
+</span><span class="line">    <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>This way we only need 3 cycles and 104 messages. The first cycle goes through all 48 edges. the second also computes 48 messages but in a different order (prioritized by heuristic importance), and the third only comutes 8 messages. The results are even better:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">approx. marg (LBP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.614445509854</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.632046274666</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.592793285825</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.699814842287</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.759645004711</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.749109157114</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.739850591712</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.822523867844</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.848549594174</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<p>Square distance error is 0.42. If instead of using the BSF as the initial path, we compute all messages and create an initial path based on a priority queue as before, the error can be taken further down to 0.33.</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">approx. marg (LBP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.399020732163</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.378280542986</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.443100330486</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.465753424658</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.641605971227</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.662337662338</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.641605971227</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.770344431088</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.719502074689</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<p>And finally, if instead of prioritizing the queue based on the importance of the messages we do it based on how each new message changes the marginalized belief of the receiving node we lower the error further to 0.24, although we need to cycle 13 times and pass 296 messages.</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">var</th>
+      <th style="text-align: right">exact marginal</th>
+      <th style="text-align: right">approx. marg (LBP)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"> </td>
+      <td style="text-align: right"> </td>
+      <td style="text-align: right"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0</td>
+      <td style="text-align: right">0.537310955208</td>
+      <td style="text-align: right">0.444436529385</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: right">0.556558936419</td>
+      <td style="text-align: right">0.605683356431</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: right">0.552439017812</td>
+      <td style="text-align: right">0.494869086601</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3</td>
+      <td style="text-align: right">0.573509953445</td>
+      <td style="text-align: right">0.562421013105</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4</td>
+      <td style="text-align: right">0.6</td>
+      <td style="text-align: right">0.692305538097</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5</td>
+      <td style="text-align: right">0.607090867757</td>
+      <td style="text-align: right">0.64302214095</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">6</td>
+      <td style="text-align: right">0.611810074317</td>
+      <td style="text-align: right">0.682604471501</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">7</td>
+      <td style="text-align: right">0.621715017707</td>
+      <td style="text-align: right">0.745950622502</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8</td>
+      <td style="text-align: right">0.626241528067</td>
+      <td style="text-align: right">0.748513253977</td>
+    </tr>
+  </tbody>
+</table>
+<p><br /></p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Code to compute the magnitude based on belief change</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">magnitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
+</span><span class="line">    <span class="n">beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">to_w</span><span class="p">])</span>
+</span><span class="line">    <span class="n">past_beta</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">affected_var</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">beta</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">e</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">to_w</span><span class="p">]:</span>
+</span><span class="line">        <span class="n">posX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
+</span><span class="line">        <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">posX</span><span class="p">]</span>
+</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> <span class="c">#### NORMALIZING</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">if</span> <span class="n">affected_var</span><span class="o">!=</span><span class="p">[]:</span>
+</span><span class="line">        <span class="n">past_beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">past_beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class="line">        <span class="n">beta</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">affected_var</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span class="line">    <span class="n">mag</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="n">past_beta</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">mag</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Nevertheless, although it gives good results for a 9 node Ising grid, the more the nodes the worse it works. The RBP is the best approach found and I am sure that with a better designed key for the queue (to show which messages should be prioritized) bigger grids can also be optimized.</p>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -732,235 +1217,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/25/OCR-CRF/">OCR Words (III): Conditional Random Fields</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-25T08:01:00-08:00" pubdate data-updated="true">Jan 25<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>And so we finally can run our own character recognition software. As before, we use the data from Prof. Daphne Koller, Stanford University, Coursera course. We have a set of 99 words. Each word contains a list of images where each image correspond to a handwritten (lowercase) letter. We also have the ground truth for each word so we can rate the accuracy of the code.</p>
-
-<p>For each word, we already knwo how to build all the factors involved:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>OCR Framework</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># We hold words in dictionary allWords. For each word tow keys, &#39;gT&#39; (ground truth) and &#39;img&#39; (the image)</span>
-</span><span class="line"><span class="n">alpha</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span><span class="s">&#39;b&#39;</span><span class="p">,</span><span class="s">&#39;c&#39;</span><span class="p">,</span><span class="s">&#39;d&#39;</span><span class="p">,</span><span class="s">&#39;e&#39;</span><span class="p">,</span><span class="s">&#39;f&#39;</span><span class="p">,</span><span class="s">&#39;g&#39;</span><span class="p">,</span><span class="s">&#39;h&#39;</span><span class="p">,</span><span class="s">&#39;i&#39;</span><span class="p">,</span><span class="s">&#39;j&#39;</span><span class="p">,</span><span class="s">&#39;k&#39;</span><span class="p">,</span><span class="s">&#39;l&#39;</span><span class="p">,</span><span class="s">&#39;m&#39;</span><span class="p">,</span><span class="s">&#39;n&#39;</span><span class="p">,</span><span class="s">&#39;o&#39;</span><span class="p">,</span><span class="s">&#39;p&#39;</span><span class="p">,</span><span class="s">&#39;q&#39;</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">,</span><span class="s">&#39;s&#39;</span><span class="p">,</span><span class="s">&#39;t&#39;</span><span class="p">,</span><span class="s">&#39;u&#39;</span><span class="p">,</span><span class="s">&#39;v&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">,</span><span class="s">&#39;x&#39;</span><span class="p">,</span><span class="s">&#39;y&#39;</span><span class="p">,</span><span class="s">&#39;z&#39;</span><span class="p">]</span>
-</span><span class="line"><span class="n">k</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
-</span><span class="line"><span class="n">image_px</span> <span class="o">=</span> <span class="mi">128</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">MAP_Word</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
-</span><span class="line">    <span class="n">chars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">])</span>
-</span><span class="line">    <span class="n">vall</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">chars</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Rvar</span><span class="o">.</span><span class="n">Rvar</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">26</span><span class="p">)</span>
-</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">singletonFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pairwiseFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
-</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tripletFactor</span><span class="p">(</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]))</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># choose the top two similar images</span>
-</span><span class="line">    <span class="n">ss</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">chars</span><span class="p">):</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">chars</span><span class="p">):</span>
-</span><span class="line">            <span class="n">ss</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">vall</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">vall</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">similarity</span><span class="p">(</span><span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span> <span class="n">word</span><span class="p">[</span><span class="s">&#39;img&#39;</span><span class="p">][</span><span class="n">j</span><span class="p">])])</span>
-</span><span class="line">    <span class="n">ss</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-</span><span class="line">    <span class="n">top1</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_simil_factor</span><span class="p">(</span><span class="n">top1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">top1</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-</span><span class="line">    <span class="n">top2</span> <span class="o">=</span> <span class="n">ss</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">image_simil_factor</span><span class="p">(</span><span class="n">top2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">top2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">top2</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Now that we have all factors listed we can compute the clique tree and perform belief propagation to find the MAP assignment.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>(&#8230;cont)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MAP_Word</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
-</span><span class="line">	<span class="o">...</span>
-</span><span class="line">	<span class="n">cc</span> <span class="o">=</span> <span class="n">CliqueTree</span><span class="o">.</span><span class="n">CliqueTree</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-</span><span class="line">    <span class="n">cc</span><span class="o">.</span><span class="n">calibrate</span><span class="p">(</span><span class="n">isMax</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">sol</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">vari</span> <span class="ow">in</span> <span class="n">vall</span><span class="p">:</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">cc</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">vari</span> <span class="ow">in</span> <span class="n">beta</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">                <span class="n">fu</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">beta</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">vari</span><span class="p">])):</span>
-</span><span class="line">                    <span class="n">fu</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">max_marginalize</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
-</span><span class="line">                <span class="n">maxi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</span><span class="line">                <span class="n">sol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">maxi</span><span class="p">))</span>
-</span><span class="line">                <span class="k">break</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sol</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>For example, consider the first word in the set: ‘torturing’. It has 9 variables and initially 26 factors (9 singletons, 8 pairwise, 7 triplets and 2 similiraty). The top similarities are between the ‘t’s (var 0 and 3) and ‘r’s (var 2 and 5). Without the similarity factors the tree would have 7 nodes with three consecutive letters each. The similarities force some nodes together and we end up with just four nodes. The less nodes, with the most variables imply the more complex the computation since we end up with huge factors. Finally, see that in this case, with factors among adjacent variables, our tree becomes a chain.</p>
-
-<p><img class="center" src="/images/jan14/ocr_crf_example.png" width="600" title="'torturing' Example" /></p>
-
-<p>Running a simple scoring method over the whole 99 words tells us how well we do:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Measure infered vs. ground truth</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">score</span><span class="p">():</span>
-</span><span class="line">    <span class="n">tot_chars</span><span class="p">,</span> <span class="n">tot_words</span><span class="p">,</span> <span class="n">chars_ok</span><span class="p">,</span> <span class="n">words_ok</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">allWords</span><span class="p">)):</span>
-</span><span class="line">        <span class="n">tot_words</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">        <span class="n">w</span> <span class="o">=</span> <span class="n">allWords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">        <span class="n">count</span> <span class="o">=</span> <span class="mf">0.</span>
-</span><span class="line">        <span class="n">num_letters</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">])</span>
-</span><span class="line">        <span class="nb">map</span> <span class="o">=</span> <span class="n">MAP_Word</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_letters</span><span class="p">):</span>
-</span><span class="line">            <span class="n">tot_chars</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">            <span class="k">if</span> <span class="nb">map</span><span class="p">[</span><span class="n">e</span><span class="p">]</span><span class="o">==</span><span class="n">w</span><span class="p">[</span><span class="s">&#39;gT&#39;</span><span class="p">][</span><span class="n">e</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">chars_ok</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">                <span class="n">count</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">count</span><span class="o">==</span><span class="n">num_letters</span><span class="p">:</span>
-</span><span class="line">            <span class="n">words_ok</span> <span class="o">+=</span><span class="mf">1.</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;words:&#39;</span><span class="p">,</span> <span class="n">words_ok</span><span class="p">,</span> <span class="p">(</span><span class="mf">100.</span><span class="o">*</span><span class="n">words_ok</span><span class="o">/</span><span class="n">tot_words</span><span class="p">),</span><span class="s">&#39;%&#39;</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;letters:&#39;</span><span class="p">,</span> <span class="n">chars_ok</span><span class="p">,</span> <span class="p">(</span><span class="mf">100.</span><span class="o">*</span><span class="n">chars_ok</span><span class="o">/</span><span class="n">tot_chars</span><span class="p">),</span><span class="s">&#39;%&#39;</span>
-</span><span class="line">    <span class="k">pass</span>
-</span><span class="line">
-</span><span class="line"><span class="n">score</span><span class="p">()</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>And these are the results:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: left"> </th>
-      <th style="text-align: center"> </th>
-      <th style="text-align: center"> </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">Accuracy (%)</td>
-      <td style="text-align: center">Words</td>
-      <td style="text-align: center">Letters</td>
-    </tr>
-    <tr>
-      <td style="text-align: left"> </td>
-      <td style="text-align: center"> </td>
-      <td style="text-align: center"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: left">Only Singleton</td>
-      <td style="text-align: center">22.2</td>
-      <td style="text-align: center">76.8</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Pairwise</td>
-      <td style="text-align: center">26.3</td>
-      <td style="text-align: center">79.2</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Triplet</td>
-      <td style="text-align: center">34.3</td>
-      <td style="text-align: center">80.1</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">+ Similarity</td>
-      <td style="text-align: center">37.4</td>
-      <td style="text-align: center">81.7</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Not amazing but not bad for an easily extendable model. Just add factors between variables, watching out to not make too many connections among distant variables.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/11/">&larr; Older</a>
@@ -978,6 +1234,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
@@ -991,10 +1251,6 @@
     
       <li class="post">
         <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
       </li>
     
   </ul>

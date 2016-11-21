@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="I have spent the last 13th submissions to beat my previous position (77th with 81.81% accuracy) without result. I tried concocting and adding new &hellip;">
+  <meta name="description" content="This is a post about my third tutorial competition, Data Science London. The training data consists of 1,000 records with 40 features. We need to &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,306 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/28/Data-Science-London/">Data Science London</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-28T21:02:00-07:00" pubdate data-updated="true">Oct 28<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>This is a post about my third tutorial competition, Data Science London.</p>
+
+<p>The training data consists of 1,000 records with 40 features. We need to classify each record as 1 or 0. The test set consists of 9,000 additional records.</p>
+
+<p>After playing a bit with the training set one realizes that there is a ton of noise in the data, and that we need to carefully distill the features to get something of value. Furthermore, the noisy data is supported by the fact that the features were created artificially for the purpose of this tutorial competition.</p>
+
+<h2 id="feature-selection">feature selection</h2>
+
+<p>To start cleaning up the data a first approach is to see which features give the most predictive power. To do this I use an SVM with Gaussian kernel. Then I find the feature that gives the most predictive power. Then I repeat the process finding the feature that added to the previously selected achieves the highest accuracy. </p>
+
+<p>Another way is to use the ExtraTreesClassifier from the scikit package which results in the following chart of the importance of features (<a href="http://scikit-learn.org/stable/auto_examples/ensemble/plot_forest_importances.html#example-ensemble-plot-forest-importances-py">link</a>):</p>
+
+<p><img class="center" src="/images/kaggle_scilondon/features_power_svm.png" width="600" /></p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+      <th style="text-align: right"> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">SVM</td>
+      <td style="text-align: right">14</td>
+      <td style="text-align: right">12</td>
+      <td style="text-align: right">29</td>
+      <td style="text-align: right">6</td>
+      <td style="text-align: right">36</td>
+      <td style="text-align: right">39</td>
+      <td style="text-align: right">7</td>
+      <td style="text-align: right">4</td>
+      <td style="text-align: right">28</td>
+      <td style="text-align: right">19</td>
+      <td style="text-align: right">22</td>
+      <td style="text-align: right">18</td>
+      <td style="text-align: right">38</td>
+      <td style="text-align: right">3</td>
+      <td style="text-align: right">32</td>
+      <td style="text-align: right">34</td>
+      <td style="text-align: right">13</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">TreesClassif</td>
+      <td style="text-align: right">14</td>
+      <td style="text-align: right">12</td>
+      <td style="text-align: right">6</td>
+      <td style="text-align: right">39</td>
+      <td style="text-align: right">36</td>
+      <td style="text-align: right">18</td>
+      <td style="text-align: right">4</td>
+      <td style="text-align: right">32</td>
+      <td style="text-align: right">38</td>
+      <td style="text-align: right">29</td>
+      <td style="text-align: right">28</td>
+      <td style="text-align: right">23</td>
+      <td style="text-align: right">22</td>
+      <td style="text-align: right">34</td>
+      <td style="text-align: right">7</td>
+      <td style="text-align: right">9</td>
+      <td style="text-align: right">10</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>Only using the feature number 14 we already guess right more than 2/3 of the times. As we add features we increase the accuracy until it stabilizes somewhere between the first 10 and 22 features. Then, the added noise starts to degrade the model and lose predictive power. Optimizing hyper-parameters for the first 18 features we achieve 93.6% on cross validation and 91.84% on the 9,000 samples test set.</p>
+
+<p>ALTERNATIVE WAYS TO CHOOSE FEATURES FROM SCIKIT</p>
+
+<h2 id="dimensionality-reduction">dimensionality reduction</h2>
+
+<p>Even after choosing the set of features we still have way too much noise in the data. One way to ‘clean it up’ is through dimensionality reduction. This has a good and a bad aspect. On one hand, it is a dangerous practice since what we do is project into a lower dimension space all the features and in the process we loose data, maybe valuable. On the other hand, it allows us to apply ‘whitening’, removing data points that are close by and highly correlated.</p>
+
+<p>In this case it pays to apply PCA because I rather start with less valuable data but more salient, than more noisy and diffuse information. Here are two images with accuracy on the first 100 records of training an SVM on the subsequent 900 for different sets of features and dimensions. The left one comes from the main features derived from the tree classifier, the right most from the cycling svm:</p>
+
+<p><img class="left" src="/images/kaggle_scilondon/feat_dim_trees.png" width="420" title="Features from trees" /></p>
+
+<p><img class="right" src="/images/kaggle_scilondon/feat_dim_svm.png" width="420" title="Features from SVM" /></p>
+
+<p><br /></p>
+
+<p>My SVM set achieves a maximum accuracy of 97% for the first 14 features reduced to 12 dimensions. The forest one achieves a top 96% for a wider set of combinations (&gt; 12 features and 12-13 dimensions).</p>
+
+<p>As an aside, I tried all kinds of different approaches available in the scikit package for dim reduction, except for the ‘kernel pca’ that took too long. The best result was achieved with Random PCA on my reduced set of 14 features and reduced to 12 dimensions. These 12 dimensions explain something like half of the variance when considering the whole feature set, and around 90% of the variance in the reduced feature set.</p>
+
+<p><img class="center" src="/images/kaggle_scilondon/explained_var.png" width="500" title="Variance explained from dimensions" /></p>
+
+<p>One final note. It is easy to code the PCA algorithm. Nevertheless I used the SciKit tool because it includes the Random PCA and whitening (which still escapes me). Here is the code for bare-bones PCA:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>barebones PCA</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">pca</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+</span><span class="line">	<span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">	<span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span><span class="line">	<span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+</span><span class="line">	<span class="n">Sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</span><span class="line">	<span class="k">print</span> <span class="s">&#39;Sigma shape should be nxn:&#39;</span><span class="p">,</span> <span class="n">Sigma</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">	<span class="k">print</span> <span class="s">&#39;U will be m x &#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">Sigma</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span><span class="line">	<span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">Sigma</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</span><span class="line">	<span class="k">return</span> <span class="p">[</span><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">shrink</span><span class="p">(</span><span class="n">example_norm</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">):</span>
+</span><span class="line">	<span class="n">Ureduce</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">dimensions</span><span class="p">]</span>
+</span><span class="line">	<span class="n">Z</span> <span class="o">=</span> <span class="n">example_norm</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ureduce</span><span class="p">)</span>
+</span><span class="line">	<span class="k">return</span> <span class="n">Z</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">inflate</span><span class="p">(</span><span class="n">shrunk_data</span><span class="p">,</span> <span class="n">U</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">):</span>
+</span><span class="line">	<span class="n">Ureduce</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">dimensions</span><span class="p">]</span>
+</span><span class="line">	<span class="n">X_rec</span> <span class="o">=</span> <span class="n">shrunk_data</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Ureduce</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</span><span class="line">	<span class="k">return</span> <span class="n">X_rec</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="engorging-the-training-by-guessing">engorging the training by guessing</h2>
+
+<p>We have an inherent asymmetry: 1000 training records and 9000 for testing. If we could pass records from the testing to the training set we could boost the model’s power. The problem is that we don’t have the labels of the testing set records. But they are so many that we could run our model on the testing set and believe that the few predictions made with very high probability are so certain as to take them as ‘real’. </p>
+
+<p>In an initial pass of the SVM over the testing set we select the predicted records with probability higher than 99% and add them to our training set. We measure the accuracy on a separated cross validation set and store the result. We repeat the process over and over and only stop when the accuracy on the CV set goes down. We end up with around 8,508 records, 2,316 support vectors, and an accuracy of around 97% on cross validation.</p>
+
+<p>The intuition behind the idea is that although we don’t gain anything from certain added records (because we were already pretty sure where they fell), the addition to the training set will allow other less apparent features and subtleties gain contrast and predictive power.</p>
+
+<p>At the end of this process we have a huge, if slightly screwed up training set that gives us the following accuracies against our cross validation set:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: center">precision</th>
+      <th style="text-align: center">recall</th>
+      <th style="text-align: center">f1-score</th>
+      <th style="text-align: right">support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">label 0</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">149</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">label 1</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">151</td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td style="text-align: left">avg / total</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">300</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h2 id="experiment-with-nn">experiment with NN</h2>
+
+<p>As an experiment, we train a neural network with quite an excess of nodes [input: 18, hidden_1: 36, hidden_2: 36, output: 2] on the engorged training set. Then for each prediction made by SVM and NN, in case the models disagree, whoever assigns the highest probability to his choice decides.</p>
+
+<p>Run on the CV set we got the same result:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: left"> </th>
+      <th style="text-align: center">precision</th>
+      <th style="text-align: center">recall</th>
+      <th style="text-align: center">f1-score</th>
+      <th style="text-align: right">support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">label 0</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">149</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">label 1</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">151</td>
+    </tr>
+  </tbody>
+  <tbody>
+    <tr>
+      <td style="text-align: left">avg / total</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: right">300</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>Both models differed on just 10 samples (3%) and in 5 cases the NN decided. The NN didn’t do better than the SVM, it just had a different opinion on some borderline cases.</p>
+
+<h2 id="final-submission">final submission</h2>
+
+<p>I have rerun my algorithm multiple times trying to find the best initial feature set and best randomized path that engorges the data. My last few consistent scores were between 95.45 and 95.827.</p>
+
+<p>My final submissions came down to: </p>
+
+<ul>
+  <li>a newly distilled feature set of 20 features, </li>
+  <li>tweaked hyper-parameters,</li>
+  <li>the patience to run the engorgement algorithm until I got 97.66% on CV</li>
+  <li>8,808 training records guessed with p&gt;0.99 and 2,635 support vectors</li>
+  <li>and using the mix model</li>
+</ul>
+
+<p>which achieves a 95.566% (a tad better than the SVM alone). </p>
+
+<p>Two days back, out of chance with the same mix strategy on a randomly optimized set I got my best (though I suspect overfit) result:</p>
+
+<blockquote><p>Kaggle&#8217;s position 9 with 95.827% accuracy.</p></blockquote>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -418,160 +718,6 @@ D_{ij}^{(l)} &:= \frac{1}{m} \Delta_{ij}^{(l)} \mbox{  if j=0}
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/17/Neural-Net-Theory/">Neural Networks Theory: Forwards</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-17T19:02:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>No need to introduce how neurons work. The pictures below are self explanatory and better explanations can be founf in the Net. Again thanks to Prof Ng of Coursera fame for making this material so accessible easy so grasp, and to the always great reference of <a href="http://ufldl.stanford.edu/wiki/index.php/Neural_Networks">Stanford Ufldl</a>.</p>
-
-<p><img class="center" src="/images/oct13/neuron.png" title="neuron" /></p>
-
-<p><img class="center" src="/images/oct13/neuron_transmission.gif" title="neuron" /></p>
-
-<h2 id="digital-neurons">digital neurons</h2>
-
-<p>Our simplified version has the computation, transformation of input into output, being the logistic regression of the input.</p>
-
-<p><img class="left" src="/images/oct13/one_neuron.png" title="neurotic neuron alone" /></p>
-
-<p>In the picture the +1 input is another input, the $x_0$, also called the ‘bias unit’ and as we know from logistic regression, always with value one. Sometimes it is explicitly specified, sometimes it is absent from the representations, nevertheless it is always there when we compute things. This single neuron model is a.k.a. Sigmoid (logistic) activation function (where activation function was the g(z)).</p>
-
-<script type="math/tex; mode=display">
-h(x) = \frac{1}{ 1  + e^{ -\theta^T x } }
-\\
-g(z) = \frac{1}{ 1  + e^{-z}}
-</script>
-
-<p>A neural network is just a bunch of neurons connected together in layers. In the picture below, three neurons in a layer plus another neuron on layer three. Realize that the bias units of layers 1 and 2 are not drawn. The first layer is called ‘Input Layer’, the last layer is the ‘Output Layer’, and the ones between are the ‘Hidden Layers’.</p>
-
-<p><img class="center" src="/images/oct13/neural_net.png" title="neuron party" /></p>
-
-<p>More terminology: $a_i^{j}$ is the output (‘activation’) of neuron in layer j. $\Theta^{j}$ is the matrix of parameters ($\theta$) that control the function mapping from layer j to the next one (j+1).</p>
-
-<h2 id="feed-forward-propagation">feed-forward propagation</h2>
-
-<p>Let’s compute things moving starting at the input, from left to right. The computation of the outputs of layer 2 based on the inputs is:</p>
-
-<script type="math/tex; mode=display">
-a_1^{(2)} = g(\theta_{10}^{(1)}x_0 + \theta_{11}^{(1)}x_1 + \theta_{13}^{(1)}x_3) = g(z_1^{2})
-\\
-a_2^{(2)} = g(\theta_{20}^{(1)}x_0 + \theta_{21}^{(1)}x_1 + \theta_{23}^{(1)}x_3) = g(z_2^{2}
-\\
-a_3^{(2)} = g(\theta_{30}^{(1)}x_0 + \theta_{31}^{(1)}x_1 + \theta_{33}^{(1)}x_3) = g(z_3^{2}
-\\
-h_{\Theta}(x) = a_1^{(3)} = g(\theta_{10}^{(2)}a_0^{(2)} + \theta_{11}^{(2)}a_1^{(2)} + \theta_{12}^{(2)}a_2^{(2)} + \theta_{13}^{(2)}a_3^{(2)} ) = g(z_1^{3}
-</script>
-
-<p>So because we have 3 input units (plus the bias one) and 3 hidden units, the $\Theta^{1}$ would have shape (3,4). Similarly, $\Theta^{2}$ maps from 3 hidden units (plus bias one) to 1 output unit, so the shape is (1,4). Things to consider:</p>
-
-<ul>
-  <li>in the example, $x_i$ are the inputs and work exactly like given $a_{input}$</li>
-  <li>as bias units, $a^{1} = x_0 = 1$</li>
-  <li>number of params matrices = layers - 1.</li>
-  <li>shape of params matrix = out layer size x in layer size [+ bias].</li>
-</ul>
-
-<p>The above equations, vectorized become:</p>
-
-<script type="math/tex; mode=display">
-z^{2} = \Theta^{(1)} x = \Theta^{(1)} a^{(1)}
-\\
-a^{(2)} = g(z^{(2)})
-</script>
-
-<p>Where x is a vector (4,1), and $z^{(2)}$ is (3,1).</p>
-
-<script type="math/tex; mode=display">
-z^{3} = \Theta^{(3)} a^{(2)}
-\\
-a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
-</script>
-
-<p>And $z^{(3)}$ is a vector a scalar because $\Theta^{(3)} . a^{(2)}$ is (1,4) x (4,1).</p>
-
-<p>The key to understand is that we are just applying logistic regression to each neuron based on features that are the activation inputs from previous layers. It is obvious in the last unit, and is easy to generalize from it backwards. </p>
-
-<p>Another take: In the old logistic regression we had some features from which we compute a set of parameters and then predict the hypothesis function. Now, we can create a new set of features based on the initial features, and use these new features to compute the logistic regression prediction. Is just applying the same logit in a chained manner. The new features will be a set of different, derived, more nuances and more complex features than the initial ones. </p>
-
-<p>The more to the right the layer, the more complex the features because of more manipulation. It is very illustrative the example of Prof. Ng replicating the function XNOR with just three neurons to appreciate how it is possible to create very complex features by applying simple functions to each unit, so they compound the complexity along the way.</p>
-
-<p><img class="center" src="/images/oct13/x1xnorx2.png" title="compounded complexity" /></p>
-
-<p>The code couldn’t be simpler.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>feed forward</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1E-11</span><span class="p">))(</span><span class="n">z</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">sigmoid_gradient</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
-</span><span class="line">    <span class="k">return</span> <span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)))</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">feedforward</span><span class="p">(</span><span class="n">theta_matrix</span><span class="p">,</span> <span class="n">input_v</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;one layer forward computation, assumes input_v has no bias&#39;&#39;&#39;</span>
-</span><span class="line">    <span class="n">m</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="n">input_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">input_v</span><span class="p">])</span>
-</span><span class="line">    <span class="n">z</span> <span class="o">=</span> <span class="n">input_v</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">theta_matrix</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">one_x</span><span class="p">):</span>
-</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">one_x</span><span class="p">),</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
-</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">one_x</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thetas</span><span class="p">:</span>
-</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="n">a</span><span class="p">])</span> <span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">a</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/19/">&larr; Older</a>
@@ -589,6 +735,10 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
@@ -602,10 +752,6 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
     
       <li class="post">
         <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/02/15/Scheme-GOL/">Game of Life in Scheme</a>
       </li>
     
   </ul>
