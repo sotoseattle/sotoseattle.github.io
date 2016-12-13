@@ -9,7 +9,8 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="No need to introduce how neurons work. The pictures below are self explanatory and better explanations can be founf in the Net. Again thanks to Prof &hellip;">
+  <meta name="description" content="cost function We use a generalization of the logistic regression cost function: \begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +112,235 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/19/Neural-Net-Cost/">Neural Networks Theory: Backwards</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-19T09:02:00-07:00" pubdate data-updated="true">Oct 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2 id="cost-function">cost function</h2>
+
+<p>We use a generalization of the logistic regression cost function:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\log h_\theta(x^{(i)})) + (1-y^{(i)}) (\log (1-h_\theta(x^{(i)})))\right] + \frac{\lambda}{2m} \sum_{i=1}^m \theta_j^2 
+\end{align}
+\</script>
+
+<p>To create our neurotic cost function:</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m \sum_{k=1}^K y_k^{(i)} \log (h_\Theta(x^{(i)}))_k + (1-y_k^{(i)}) \log (1-(h_\Theta(x^{(i)}))_k)\right] + \frac{\lambda}{2m} \sum_{l=1}^{L-1} \sum_{i=1}^s_{l} \sum_{j=1}^{s_{l+1}} {\Theta_{ji}^{(l)}}^2
+\end{align}
+</script>
+
+<p>In logit there was a single output unit, so the generalized for only adds a sum over the K output units of the layer. The new regularization component is just adding over all possible values of $\Theta_{ji}^{(l)}$ for each l, j and i. Also, like logit, it excludes all the parameters for bias units.</p>
+
+<p>The intuition is simple, in a fast and dirty way, the cost of example i is ‘like’ the square error, or squared difference between what the network says and the reality dictates.</p>
+
+<p>Finally, consider that the cost function is not convex, so we can get stuck.end up in a local minimum when optimizing the parameters. In practice this is not a big problem and the usual suspects algorithms will get to a very good local minimum even if not the global one.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>cost function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">y_bloat</span> <span class="o">=</span> <span class="n">groundTruth</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class="line">    <span class="n">a</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="mf">0.</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">thetas</span><span class="p">:</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">a</span><span class="p">])</span>
+</span><span class="line">        <span class="n">a</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">        <span class="n">r</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</span><span class="line">    <span class="n">J</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="n">y_bloat</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y_bloat</span><span class="p">)</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">a</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="n">r</span><span class="o">*</span><span class="n">lam</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">m</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">J</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="gradient">gradient</h2>
+
+<p>So the idea is to find the parameters $\theta$ that minimize the cost function. Like before, we need to compute both the cost and the gradient at each iteration of an optimization algorithm.</p>
+
+<p>The same way that $a_j^{(l)}$ is the activation (result, output) of node j in layer l, we are going to have a $\delta_j^{(l)}$, which will represent the “error” on the activation of that node, kind of like how much is the output off from where we needed it to be.</p>
+
+<p>If we go all the way to the end, we do know that the final activation is the predicted h(x) and should be equal to the ‘true’ observed label y. So in a case with 4 layers (4<sup>th</sup>) layer is the output layer) we have, $\delta_j^{(4)} = a_j^{(4)} - y_j = (h_{\Theta}(x))_j - y_j$ or in vectorized form: $\delta^{(4)} = a^{(4)} - y$</p>
+
+<p>Now we can go backwards and compute the deltas one layer at a time considering that g’ is the derivative of the activation function.</p>
+
+<script type="math/tex; mode=display">
+\begin{align}
+\delta^{(3)} = (\Theta^{(3)})^T \delta^{(4)} .* g'(z^{(3)}) = (\Theta^{(3)})^T \delta^{(4)} .* (a^{(3)} .* (1-a^{(3)}))
+\\
+\delta^{(2)} = (\Theta^{(2)})^T \delta^{(3)} .* g'(z^{(2)}) = (\Theta^{(2)})^T \delta^{(3)} .* (a^{(2)} .* (1-a^{(2)}))
+\end{align}
+</script>
+
+<p>There is no $\delta^{(1)}$ because the first layer has no errors, is the input.</p>
+
+<p>In a sense, if we forward propagate the computation of the activations in each layer from the input forward, we back propagate the computations of the errors from the output backwards.</p>
+
+<p>It is possible to demonstrate mathematically that the partial derivative of the cost function is equal to $a_j^{(l)} \delta_i^{(l+1)}$ when no considering regularization.</p>
+
+<p>Intuition: Imagine a node A from which two activation outputs connect it to another two nodes B and C. The $\delta$ of A is computed as a weighted average of the $\delta$ of B and C weighted by the $\Theta$ that connect them to node A.</p>
+
+<script type="math/tex; mode=display">
+\delta_A \approx \Theta_{A \to B} \delta_B + \Theta_{A \to C} \delta_C
+</script>
+
+<h2 id="backpropagation-algorithm">backpropagation algorithm</h2>
+
+<ul>
+  <li>Set $\Delta_{ij}^{(l)}$ for all l, i, j, that we will use to later compute the gradient</li>
+  <li>For each example:
+    <ul>
+      <li>set $a^{(1)} = x^{(i)}$</li>
+      <li>forward propagate to compute all $a^{(l)}$</li>
+      <li>backpropagate using first $y^{(i)}$ to compute all $\delta^{(l)}$ up to $\delta^{(2)}$</li>
+      <li>compute the $\Delta$ updating with the partial derivative:</li>
+    </ul>
+  </li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+\Delta_{ij}^{(l)} &:= \Delta_{ij}^{(l)} + a_{j}^{(l)} \delta_{i}^{(l+1)}
+\\
+\Delta^{(l)} &:= \Delta^{(l)} + \delta^{(l+1)} (a^{(l)})^T
+\end{align}
+ %]]></script>
+
+<ul>
+  <li>Compute D terms that correspond to the gradient, partial derivative of $J(\Theta)$ now with regularization:</li>
+</ul>
+
+<script type="math/tex; mode=display">% <![CDATA[
+
+\begin{align}
+D_{ij}^{(l)} &:= \frac{1}{m} \Delta_{ij}^{(l)} + \lambda \Theta_{ij}^{(l)} \mbox{  if j!=0}
+\\
+D_{ij}^{(l)} &:= \frac{1}{m} \Delta_{ij}^{(l)} \mbox{  if j=0}
+\end{align}
+ %]]></script>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>gradient function and backpropagation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="n">thetas_rolled</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+</span><span class="line">    <span class="n">thetas</span> <span class="o">=</span> <span class="n">unroll_thetas</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">thetas_rolled</span><span class="p">)</span>
+</span><span class="line">    <span class="n">num_thetas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layers</span><span class="p">)</span>
+</span><span class="line">    <span class="n">y_bloat</span> <span class="o">=</span> <span class="n">groundTruth</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># forward =&gt; fill lists of &#39;activations&#39; and &#39;z&#39;</span>
+</span><span class="line">    <span class="n">a</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">):</span>
+</span><span class="line">        <span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)),</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+</span><span class="line">        <span class="n">z</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+</span><span class="line">        <span class="n">a</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># backwards =&gt; fill list of deltas</span>
+</span><span class="line">    <span class="n">d</span> <span class="o">=</span> <span class="p">[(</span><span class="n">a</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y_bloat</span><span class="p">)]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+</span><span class="line">        <span class="n">d</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][:,</span><span class="mi">1</span><span class="p">:]))</span> <span class="o">*</span> <span class="n">sigmoid_gradient</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+</span><span class="line">
+</span><span class="line">    <span class="c"># forward =&gt; compute gradient</span>
+</span><span class="line">    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_thetas</span><span class="p">):</span>
+</span><span class="line">        <span class="n">Vwip</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="n">lam</span><span class="o">*</span><span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span><span class="o">/</span><span class="n">m</span>
+</span><span class="line">        <span class="n">Vwip</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="p">(</span><span class="n">lam</span><span class="o">/</span><span class="n">m</span><span class="p">)</span> <span class="o">*</span> <span class="n">thetas</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">        <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">V</span><span class="p">,</span> <span class="n">Vwip</span><span class="o">.</span><span class="n">flatten</span><span class="p">()])</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">V</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">thetas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">f</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">d</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -453,266 +683,6 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/13/Kaggle-Digit-SVM/">Kaggle Digit OCR: SVM (Top 5)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-13T18:02:00-07:00" pubdate data-updated="true">Oct 13<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>SVM is much easier to implement than our previous regressions because it is already been coded in the package <a href="http://scikit-learn.org/stable/modules/svm.html">scikit learn</a> (sklearn). All that is needed is to tweak the hyperparameters to achieve a high accuracy.</p>
-
-<p>My data set is divided as before, 30.000 images for training and 12.000 for evaluation. SVM works best with scaled input so my Xs have been pre-processed so all pixel values are in the range {0,1}, and each feature has zero mean and unit variance. For this we also use sklearn preprocessing utilities.</p>
-
-<p>I have tried two non-linear approaches gaussian and 4<sup>th</sup> degreee polynomial, to see how they compare to the most rudimentary linear approach of past runs.</p>
-
-<h2 id="gaussian-kernel">gaussian kernel</h2>
-
-<p>For the Kaggle digit recognition competition I have employed a Gaussian kernel (RBF) with a sigma equal to 0.001. The safety margin constant C is set to 14. Both parameters were found after a few trail and error runs. SVM is pretty slow so the trick is to use very small training/eval sets (2000 images) to zero in the coeficients. Later on we can better the result with the whole sets.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm rbf on test data</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
-</span><span class="line"><span class="n">predictions</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<blockquote><p>The accuracy on the evaluation set is 96.55% and on the test set (Kaggle) is 96,91%.</p></blockquote>
-
-<p>The result beat the previous 2-regressions approach (93.6%) by a high margin.</p>
-
-<h2 id="polynomial-kernel">polynomial kernel</h2>
-
-<p>4<sup>th</sup> degreee : $(\gamma \langle x, x’\rangle + r)^4$ with a hyperparameter r of 0.38, and a regularization constant C of 8.3. The hyperparameters were found using the StratifiedKFold and GridSearchCV from the scikit package from which we can also produce a heatmap.</p>
-
-<p><img src="/images/kaggle_ocr/choose_params_svm.png" title="searching for hyperparams" /></p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>svm call</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The accuracy on the evaluation set is 97.9%. </p>
-
-<h2 id="twerking-the-training-data">twerking the training data</h2>
-
-<p>But I am not done. I want to try a crazy idea I just found, Virtual SVM! </p>
-
-<p>Kudos to <a href="http://www.jetgoodson.com/blogged.php?ident=49">Jet Goodson</a> and his clever way to put this Virtual SVM to work. It is based on the paper <a href="http://www.cs.berkeley.edu/~malik/cs294/decoste-scholkopf.pdf">Training Invariant Support Vector Machines</a> by Dennis DeCoste and Bernhard Scholkopf.</p>
-
-<p>The trick is that when you run an SVM you get as a byproduct a set of Support Vectors, which are nothing but the subset of the training examples that the SVM actually bases its decisions on. Those are the training examples that define the hyperplanes.</p>
-
-<p><code>clf.support_vectors_</code> gives us a matrix of support vectors, which in our case are around 10,000. And <code>clf.support_</code> gives an array with the index of the training examples that are the support vectors. We can check this:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>python console</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">clf</span><span class="o">.</span><span class="n">support_</span>
-</span><span class="line"><span class="c"># array([    5,    69,   146, ..., 41962, 41992, 41999], dtype=int32)</span>
-</span><span class="line"><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">xt</span><span class="p">[</span><span class="mi">5</span><span class="p">,:],</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span><span class="p">[</span><span class="mi">0</span><span class="p">,:])</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>So if we want to artificially create new examples from the old ones (moving, blurring, etc.), we should only modify the ones that count. In order to modify the image, since I am a newbie, I’ll just move the image to each side [N,S,W,E] a tiny bit (one pixel), and rotate 10 degrees clockwise and counter-clockwise. </p>
-
-<p>For every image of the support vectors set I can get an additional 6 twerked images. This totals a new training set of around 10.000 x 7 = 70.000 images. This is a stretch for a  SVM but nothing compared that to 42.000 x 7 = 294.000 of directly applying the transformations to the training set.</p>
-
-<blockquote><p>The accuracy on the evaluation set is 98.225% and on the test set (Kaggle): 98.086%.</p></blockquote>
-
-<p><a href="http://scipy-lectures.github.io/advanced/image_processing/index.html">Important resource</a> to start understanding how to manipulate images in python.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Twerk SVM for test set</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">twerk</span><span class="p">(</span><span class="n">x_old_set</span><span class="p">,</span> <span class="n">y_old_set</span><span class="p">):</span>
-</span><span class="line">    <span class="n">m</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="o">.</span><span class="n">shape</span>
-</span><span class="line">    <span class="n">x_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
-</span><span class="line">    <span class="n">y_new_set</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="p">,))</span>
-</span><span class="line">    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># add the original one</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">x</span> <span class="o">=</span> <span class="n">x_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
-</span><span class="line">        <span class="n">y</span> <span class="o">=</span> <span class="n">y_old_set</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># move north 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">27</span><span class="p">:,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="c">#x_new_set[j] = np.roll(x, 2*k[0], k[1]).flatten()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move south 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">,:],</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">,:]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move left 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># move right 1 px</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">x</span><span class="p">[:,</span><span class="mi">27</span><span class="p">:],</span> <span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="mi">27</span><span class="p">]])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># rotate 10 degrees</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">        <span class="c"># rotate -10 degrees</span>
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">        <span class="n">x_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">reshape</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line">        <span class="n">y_new_set</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class="line">    <span class="k">return</span> <span class="p">[</span><span class="n">x_new_set</span><span class="p">,</span> <span class="n">y_new_set</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">prep_submit</span><span class="p">():</span>
-</span><span class="line">    <span class="n">clf</span> <span class="o">=</span> <span class="n">svm</span><span class="o">.</span><span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mf">6.2</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s">&#39;poly&#39;</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mf">0.48</span><span class="p">,</span> <span class="n">cache_size</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">,:],</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">42000</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">x_support</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">support_vectors_</span>
-</span><span class="line">    <span class="n">y_support</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">clf</span><span class="o">.</span><span class="n">support_</span><span class="p">])</span>
-</span><span class="line">    <span class="p">[</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">]</span><span class="o">=</span> <span class="n">twerk</span><span class="p">(</span><span class="n">x_support</span><span class="p">,</span> <span class="n">y_support</span><span class="p">)</span>
-</span><span class="line">    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">a</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
-</span><span class="line">    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">28001</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">b</span><span class="p">,</span> <span class="n">a</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;To submitt add header: ImageId,Label&#39;</span>
-</span><span class="line">    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s">&#39;./data/kaggle/predictions_svm.csv&#39;</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%i</span><span class="s">,</span><span class="si">%i</span><span class="s">&#39;</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="last-experiment">last experiment</h2>
-
-<p>For SVM the size of the training set makes a difference. I am going to try to run it all on the 70,000 images, the training set plus the testing set with the added predictions from the best run. </p>
-
-<p>This is totally endogamy and an article of faith no-no but I figured:</p>
-
-<ul>
-  <li>since I am already geting 98% right, if at least I can reinforce the good ones, the better performance from that reinforcement of the good ones may be enough to counteract the added errors from that 2% wrongly labeled.</li>
-  <li>it is great way to confirm the article of faith.</li>
-</ul>
-
-<p>With twerking et all, we do much worse, the new Kaggle rating is 97.95%</p>
-
-<h2 id="no-seriously-the-last-one">no, seriously, the last one</h2>
-
-<p>I thought: why 28x28 and not bigger? Or smaller? The difference is the amount of padding around the image. I have read that the samples are already pretty centered and aligned, so why not give more importance to the center of the picture and less as we go out? What would happen if we initially crop the image from 28x28 to 20x20? It seems that those 4 pixel bands are pretty much empty. Maybe focusing in the inner image we can better train the model.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>croping the images</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line"><span class="n">new_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="mi">400</span><span class="p">))</span>
-</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
-</span><span class="line">    <span class="n">old</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">)</span>
-</span><span class="line">    <span class="n">new_x</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">old</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">,</span><span class="mi">4</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-</span><span class="line"><span class="n">x</span> <span class="o">=</span> <span class="n">new_x</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>Doing the same as before (re-optimizing hyper params =&gt; {C= 2.6, r= 0.34}, twerking as before, etc) we get:</p>
-
-<blockquote><p>Accuracy on evaluation set: 98.7%<br />Score on the test set (Kaggle): 98.87%.</p></blockquote>
-
-<p>It is a huge jump of almost a percentage point only based on munging the input!</p>
-
-<p>The new position is 80 out of 1956 participants (as of today), in the top 5%! Consider that my first trial a few days ago (a simple linear softmax model) placed me at position 1,654, in the bottom 15%.</p>
-
-<h2 id="conclusion">conclusion</h2>
-
-<p>Again, once reached the plateau of the model it is very difficult to raise the bar.</p>
-
-<p>The key is to be creative and look for out-of-the-box approaches.</p>
-
-<p>The single most important aspect is to know the data, visualize in different ways to understand it and to analyze correctly where the model fails.
-Finally, I suspect that, with a bit of further image manipulation, the accuracy can be raised a bit more. I’ll leave this to a future competition.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/20/">&larr; Older</a>
@@ -730,6 +700,10 @@ Finally, I suspect that, with a bit of further image manipulation, the accuracy 
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/12/12/Promises/">Forecasting, a double-edged sword</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
       </li>
     
@@ -743,10 +717,6 @@ Finally, I suspect that, with a bit of further image manipulation, the accuracy 
     
       <li class="post">
         <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
       </li>
     
   </ul>

@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="My fellow students at Code Fellows and I have made public a set of templates under the name of “Backgrounders” that show how to set up different &hellip;">
+  <meta name="description" content="I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/20/Octopress-GH/">Installing Octopress at github.io</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-20T11:00:00-07:00" pubdate data-updated="true">Oct 20<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I am collecting posts from my previous blog, ideogrammatic.com, adding some new ones I have written over the last month and putting it all together in github.io as my personal blog.</p>
+
+<p>I am using Octopress with a tweaked mnml theme and have got hold of a nice domain with my handle sotoseattle to point to.</p>
+
+<p>The basic deployment of an Octopress blog into your github.io is easy, and there are many posts with the details in the Internet so I am assuming you have gone through the paces.</p>
+
+<p>Now, if you are like me, you’ll hit problems in unexpected places. I have found that it helps to understand how Octopress and GitHub actually use git repos between them.</p>
+
+<p>In essence you’ll end up using two different git repos inside both your Octopress code base. And the fun part is that both point to the same github repo!</p>
+
+<p>1.- the first can be found inside the folder _deploy:</p>
+
+<ul>
+  <li><code>rake generate</code> compiles the site from all the files in the source directory (and other resources) and places everything inside the _deploy folder.</li>
+  <li><code>rake deploy</code> pushes it (the files inside _deploy) up to GitHub, actually to the to origin/master branch.</li>
+</ul>
+
+<p>So, for example, if we have a custom domain and we want it to point to our github.io site, we need a CNAME file that we place inside the source folder. After rake generate and rake deploy, it will show up in the root of origin/master (and inside our _deploy folder)</p>
+
+<p>2.- The second git repo, you create it on the root:</p>
+
+<p>For this one we create a single branch, “source”, that holds everything (all files, source and _deploy) and we push only to origin/source. Aha!, this repo goes to the ‘source’ branch in github, the generated one goes to ‘master’. So we don’t have a master branch in this local git repo, only source, and in this way we avoid pushing it to master in origin (which already tracks the first repo!).</p>
+
+<p>Messy explanation, I know, but once you wrap your mind around the concept of 2 different repos pointing to 2 branches of the same upstream repo, it all makes sense.</p>
+
+<p>Now, I may be off base in this explanation, if so, please set me straight in the comments.</p>
+
+<p>Good luck with the Octos!</p>
+
+<p><img class="center" src="/images/Oct14/octocat_octopress.png" width="400" title="Code Fellows logo" /></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -251,120 +318,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/17/Rails-BDD/">Rails BDD Cheats</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-17T18:01:00-07:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>As a reminder, when testing BDD style a Rails app these are helpful to have close by:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># Rakefile</span>
-</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../config/application&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">load_tasks</span>
-</span><span class="line">
-</span><span class="line"><span class="ss">Rails</span><span class="p">:</span><span class="ss">:TestTask</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;test:features&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;test:prepare&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-</span><span class="line">  <span class="n">t</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;test/features/**/*_test.rb&#39;</span>
-</span><span class="line"><span class="k">end</span>
-</span><span class="line">
-</span><span class="line"><span class="ss">Rake</span><span class="p">:</span><span class="ss">:Task</span><span class="o">[</span><span class="s1">&#39;test:run&#39;</span><span class="o">].</span><span class="n">enhance</span> <span class="o">[</span><span class="s1">&#39;test:features&#39;</span><span class="o">]</span>
-</span><span class="line">
-</span><span class="line"><span class="n">task</span> <span class="ss">default</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test_helper.rb</span>
-</span><span class="line"><span class="c1"># ENV[&#39;RAILS_ENV&#39;] ||= &#39;test&#39;</span>
-</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
-</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;Current environment: </span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class="line">
-</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../../config/environment&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;rails/test_help&#39;</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;minitest/rails/capybara&#39;</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;capybara/poltergeist&#39;</span>
-</span><span class="line"><span class="c1"># require &#39;pry-rescue/minitest&#39;</span>
-</span><span class="line">
-</span><span class="line"><span class="k">class</span> <span class="nc">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
-</span><span class="line">  <span class="n">fixtures</span> <span class="ss">:all</span>
-</span><span class="line">  <span class="no">Capybara</span><span class="o">.</span><span class="n">javascript_driver</span> <span class="o">=</span> <span class="ss">:poltergeist</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test/features/do_some_test.rb</span>
-</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
-</span><span class="line">
-</span><span class="line"><span class="n">feature</span> <span class="s1">&#39;Do something&#39;</span> <span class="k">do</span>
-</span><span class="line">  <span class="n">scenario</span> <span class="s1">&#39;anybody can do something&#39;</span> <span class="k">do</span>
-</span><span class="line">    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/7/">&larr; Older</a>
@@ -382,6 +335,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/12/12/Promises/">Forecasting, a double-edged sword</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
       </li>
     
@@ -395,10 +352,6 @@
     
       <li class="post">
         <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/01/CodeFellows/">Article Published</a>
       </li>
     
   </ul>
