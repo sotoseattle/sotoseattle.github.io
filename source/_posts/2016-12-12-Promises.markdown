@@ -1,0 +1,32 @@
+---
+layout: post
+title: "Founder Forecasts: a double-edged sword"
+date: 2016-12-12 12:14:40 -0800
+comments: true
+categories: Angel
+---
+
+It is generally accepted that startups' financial forecasts are more like a sailing bearing than a walkable path, a promise than an oath, optimistic intentions than pragmatic expectations.
+
+I beg to differ.
+
+<!--more-->
+
+Don’t get me wrong, I don’t care about the 5 or 10 year projections. The hockey stick meme is more an excuse to surface the underlying assumptions that justify the scalability of the business model, than a serious forecast.
+
+But I do care about the short term, specially the next 12 to 18 months until the next milestone. Knowing what you can achieve in the next year signals more than diligence and knowledge (of market and go to market plan). It spells out self-awareness of the founder and team’s capabilities in what matters, their ability to engage, sell and fulfill.
+
+If the founder is nonchalant about the short term, if orders of magnitudes are tossed around and changed on a whim, if looking back the need-to-pivot argument looks like a nervous tick, I’ll lose heart and attention.
+
+The 12 month forecast is a soft-contract and breaking it should only be explained by exogenous factors. Factors not only beyond the control of the founders, but outside their radar from the start (and with good reason if so). If they could have been anticipated, they should have been factored in and stated from the start.
+
+As a founder, try to treat your investors like you treat your customers. You don't expect to say to your customers "hey, sorry the product didn't do what we said it would, you know, it was a beta, and... stuff happens". I know it is a caricaturization, but make it a guiding principle to under promise and over deliver, to everybody. It will be your most effective branding.
+
+As investors, we fill the vacuum of uncertainty with unspoken and untested assumptions. Bad short term forecasts are specially dangerous because they generate all kinds of wrong assumptions. And when these are proven wrong, all that remains standing is the founder who gave her word.
+
+Investors will look at what was forecasted in the round before, and will evaluate the founder on both: how grounded her estimates were and how well did she fulfilled her promises.
+
+In a setting where uncertainty is high and facts are few, forecasts become soft promises that bind. If kept, they build trust. If broken, they taint.
+
+A startup that goes beyond the forecasts and delivers more than promised, stands head and shoulders above the pack.
+

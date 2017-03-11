@@ -1,0 +1,39 @@
+---
+layout: post
+title: "Gazelles and Unicorns"
+date: 2016-11-18 12:14:40 -0800
+comments: true
+categories: Angel
+---
+
+In StartupLand there are two markedly different types of beasts: gazelles and unicorns.
+
+As investor's, how should we analyze each type?
+
+{% img center /images/nov16/gazcorn.png 500 %}
+
+<!--more-->
+Here are some concepts that I liberally took from an ACA (Angel Capital Association) webinar given by Keyvan Firouzi's (Gust's Director Valuation Services).
+
+*Gazelles*
+
+* Expected Returns with multiples between 1x and 30x.
+* On average, they will comprise 30% of a diversified portfolio.
+* The key drivers to achieve these returns depend on execution, steady performance, and incremental improvements.
+* Due diligence matters, not only team but the whole panoply.
+* Right assessment of pre money valuation matters.
+* Deal terms and subsequent financing rounds matters too for its dilutive effect.
+* A too high pre money valuation signals a misalignment between founders and investors.
+* Pre money Valuation, Ask and Stage must be aligned too.
+
+*Unicorns*
+
+* Returns > 30x
+* In the average, it will comprise just 2% of a diversified portfolio.
+* The key driver is the occurrence of major technological, social, geographic-specific cultural and/or economical shifts.
+* These shifts take years in the making before a commercial opportunity arrives.
+* Due diligence is specially important assessing _timing_ and scope of shift, as well as the quality of team to navigate it.
+* Pre money valuation is not a key input. Don't lose sleep.
+
+In Summary for Unicorns ask Why now? (timing) and Why you? (Team). For Gazelles, the questions are more operational so ask a lot of Who, What, Why, and Hows?
+
