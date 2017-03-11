@@ -9,8 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="cost function We use a generalization of the logistic regression cost function: \begin{align}
-J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\ &hellip;">
+  <meta name="description" content="I have spent the last 13th submissions to beat my previous position (77th with 81.81% accuracy) without result. I tried concocting and adding new &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,6 +111,83 @@ J(\theta) = -\frac{1}{m} \left[ \sum_{i=1}^m y^{(i)} (\ &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/22/Neurotic-Titanic/">Neurotic Titanic</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-22T21:02:00-07:00" pubdate data-updated="true">Oct 22<span>nd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>I have spent the last 13th submissions to beat my previous position (77<sup>th</sup> with 81.81% accuracy) without result. I tried concocting and adding new features, combining them in weird ways, estimating the missing values to the highest accuracy possible. All to no avail.</p>
+
+<p>I have tried not only screwing with the SVM, but Neural Networks with the code of previous posts. The Neural Nets work great but tend to overfit tremendously. I get 84-88% in CV only to get 75-80% on the Kaggle test set. The overfitting got me thinking about ways to simplify so the model could generalize better. This is what I have learn:</p>
+
+<h2 id="less-features-are-better-than-more">less features are better than more</h2>
+
+<p>From my previous like 10 features I have realized that we get the same results with less. Actually, the title level alone will give you 79% accuracy on the cross validation set. Then you can experiment adding new features to see how well you do and realize that in order of incremental power come: family (as Parch + SibSp), Fare paid, Pclass, overseer, charisma (binAge * Pclass), Port_Q (embarked on Queenssomething), ….</p>
+
+<p>After the first 5 you don’t add much more and a bit further you star to add noise and lose generalization power. This means that things like Age, Sex or Embarked port are not even considered!</p>
+
+<h2 id="simpler-beats-complex-sometimes">simpler beats complex (sometimes)</h2>
+
+<p>I tried to simplify as much as possible the features. First I only use 5 (‘title_level’, ‘family’, ‘Fare’, ‘Pclass’, ‘overseer’). Then I tried to simplify them:</p>
+
+<p>I started estimating the correct Age (as bin) with a SVM and then with a Neural Network. The SVM got 68% right on CV, and the NN north of 90%. The problem is that Age is not key, the title already incorporates all the age information that is relevant. So out it went.</p>
+
+<p>The same with Sex. Title already incorporates the info. Adding Sex, in this case, only confuses things.</p>
+
+<p>On title I aggregate it to just [‘mr’, ‘mrs’, ‘mss’, ‘master’, ‘rev’, ‘major’, ‘sir’, ‘col’, ‘capt’, ‘the countess’]. The less the merrier.</p>
+
+<p>Family went from a sum of relatives to 3 classes, [traveling alone, 1 relative, more than 1 relative on board].</p>
+
+<p>Overseer, was a bit more built up. essentially for each passenger I look for other relatives and companions that survived. For women, if the survivor was older give 10 points, if not get just 1. For men, if the survivor was a man older by 20 years give 10 points, if not get 1. Any other way get -1. The idea already explained that in a crisis we gather with who we know, and that the elder look after the younger (up to a point).</p>
+
+<p>By the way, I have been trying avoid 0 values, in the suspicion (material or not) that zeros are traps from which is difficult to escape (when most we do is multiply stuff).</p>
+
+<h2 id="svm-or-nn--why-not-both">SVM or NN =&gt; why not both?</h2>
+
+<p>With the above simplifications either SVM or NN got stuck under 80%. There was no way to move the dial so I tried a crazy approach: run them both (with optimized hyperparameters) and then:</p>
+
+<ul>
+  <li>commit when both agree,</li>
+  <li>when they disagree on the outcome, choose the one with the highest assigned probability (yes, SVM can estimate the probability too!)</li>
+</ul>
+
+<p>Stupidly simple, and with great results. With my latest iteration, number 26, I landed on the 57 spot of 7,035 participants (as of now).</p>
+
+<blockquote><p>Score on the test set (Kaggle): 82.775%.</p></blockquote>
+
+<p>The NN alone (submission 27) is a big network with three hidden layers and overfits the data to death (Kaggle 80.38%). The SVM alone does not get past 80% either. But both of them working together work wonders. I am sure more could be extracted from this approach, but I need to get going and I should try a new competition and learn a new model.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -496,193 +572,6 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/17/Titanic/">Kaggle Titanic: Features (Top 5)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-17T18:02:00-07:00" pubdate data-updated="true">Oct 17<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I have spent the last few days in the <a href="http://www.kaggle.com/c/titanic-gettingStarted">Titanic competition</a>. It is another easy, entry level, tutorial example to get a grasp of how machine learning works. Again I didn’t use the random forest model as suggested and got lazy with the only two things I know, logistic regression and SVM.</p>
-
-<p>I am not going to delve in the details of the data structure, suffice to say that we are given a part of the Titanic’s manifest with the survivorship rates. Our goal is for another set of passengers predict their survival.</p>
-
-<p>I wanted to test the waters first so I used a very simple logistic regression with few variables: Sex, Pclass and Fare. That landed me in the bottom 15%, as usual, with a very low accuracy.</p>
-
-<p>The main concept of the competition is the importance of the features we use. For example, it is obvious that Sex (gender) is an important feature (predictor), as it is Age (younger passengers have a better chance) and means (richer fare better than poor passengers). All this can be visualized through plots of different variables and their correlations.</p>
-
-<p>So doing an SVM (Gaussian kernel) with the obvious candidates of Sex, Pclass, Fare gets us to a fair accuracy. If we add Age we don’t improve things, mainly because many entries are NaN. To solve it, I substituted those unknown ages with 24, the median age of passengers of 3rd class (which I assume to be ones least known). This raised the bar a bit more.</p>
-
-<h2 id="beware-of-rates-and-sets">beware of rates and sets</h2>
-
-<p>Consider that the data set is small, so depending on how you partition it between training and cross validation the accuracy on CV varies. I started seting up two sets:</p>
-
-<ul>
-  <li>training of the first 691 records, and the following 200 for cross validation.</li>
-  <li>training of the last 691 records, and the previous 200 for cross validation.</li>
-</ul>
-
-<p>I achieved a higher accuracy when both were high (aprox. 85%) than when they were apart (86.5% and 82%). Furthermore, I always got much higher accuracies on the CV set than on the test set, so 85% translated into 80% in the test set.</p>
-
-<p>Then I realized that I could use the whole training set and use the StratifiedKFold utility of scikit. Much easier way to go about it. </p>
-
-<p><img class="center" src="/images/kaggle_titanic/hypeparams.png" width="600" title="hyperparams search" /></p>
-
-<h2 id="python-pandas-manipulation">python pandas manipulation</h2>
-
-<p>Some tips to remember as to how munge data in pandas:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>dataframa manipulation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="c"># basic mapping</span>
-</span><span class="line"><span class="n">data</span><span class="o">.</span><span class="n">Sex</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Sex</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mf">1.</span> <span class="k">if</span> <span class="n">x</span><span class="o">==</span><span class="s">&#39;male&#39;</span> <span class="k">else</span> <span class="mf">0.</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># regexp extraction</span>
-</span><span class="line"><span class="kn">import</span> <span class="nn">re</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">extract_patt</span><span class="p">(</span><span class="n">patt</span><span class="p">,</span> <span class="n">linea</span><span class="p">):</span>
-</span><span class="line">    <span class="n">matchObj</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">patt</span><span class="p">,</span> <span class="n">linea</span><span class="p">)</span>
-</span><span class="line">    <span class="n">result</span> <span class="o">=</span> <span class="n">NaN</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">matchObj</span><span class="p">:</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">matchObj</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-</span><span class="line">    <span class="k">else</span><span class="p">:</span>
-</span><span class="line">        <span class="k">print</span> <span class="s">&quot;No match!!&quot;</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">NaN</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">extract_title</span><span class="p">(</span><span class="n">linea</span><span class="p">):</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">extract_patt</span><span class="p">(</span><span class="s">&#39;^.+,\s(.+)\..+&#39;</span><span class="p">,</span> <span class="n">linea</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># apply functions to dataframe =&gt; Fare NaN</span>
-</span><span class="line"><span class="n">fares_by_class</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;Pclass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">Fare</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">getFare</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
-</span><span class="line">    <span class="k">if</span> <span class="n">isnull</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s">&#39;Fare&#39;</span><span class="p">]):</span>
-</span><span class="line">        <span class="n">example</span><span class="p">[</span><span class="s">&#39;Fare&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fares_by_class</span><span class="p">[</span><span class="n">example</span><span class="p">[</span><span class="s">&#39;Pclass&#39;</span><span class="p">]]</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">example</span>
-</span><span class="line">
-</span><span class="line"><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getFare</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># plotting</span>
-</span><span class="line"><span class="n">bp</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s">&#39;Age&#39;</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s">&#39;Pclass&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
-</span><span class="line"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]:</span>
-</span><span class="line">    <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Age</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">Pclass</span><span class="o">==</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-</span><span class="line">    <span class="c"># Add some random &quot;jitter&quot; to the x-axis</span>
-</span><span class="line">    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-</span><span class="line">    <span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="s">&#39;r.&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="and-then-i-got-creative">and then I got creative:</h2>
-
-<p>I established as base features the Sex, Pclass, Fare and Age. To fill the missing values of Age I first extracted the titles from the names, then used the median of the title group as best guess. I used similar approaches for other missing values.</p>
-
-<p>Then I added 3 identity feature vectors [C, Q, S] depending on where the passenger embarked on. So if Mss. Roberts embarked on Southampton the three vectors would be [0, 0, 1].</p>
-
-<p>I wanted to give more power to the mix experience with money so I created another vector that resulted from multiplying Age and Pclass. The intuition behind was that when the moment came to choose among passengers, an elder statesman would have more ‘presence’ to win a social standoff.</p>
-
-<p>I didn’t like the Parch data because it mixes parents with children, which I think is key. And neither I liked SibSp because it mixes spouses with siblings. So I added them all in a single vector with the idea that people with family would fare differently that those without.</p>
-
-<p>I added another identity vector that described if the person was married based on the title associated in the name (1 for Mr and Mrs).</p>
-
-<p>Finally I created a last identity vector with the following characteristics:</p>
-
-<ul>
-  <li>if the passenger is a woman, get a 1 if a relative (searched by same last name) or cabin fellow (someone in the same cabin) survived.</li>
-  <li>if the passenger is a man, get a 1 if the same applies but the survivor is older.</li>
-</ul>
-
-<p>The intuition was based on the assumption that if someone survives, he/she would try to also help a younger male (son) or relative.</p>
-
-<p>I also tried many other weird features like using the letter of the Cabin which didn’t give good results (a scatter plot of this with Pclass is enough to see there is not much there).</p>
-
-<h2 id="better-way-to-fill-in-missing-data">better way to fill in missing data</h2>
-
-<p>Age seems to be a key feature and many of its values are missing. The median per title is a good approach but we can do better. Why not train an SVM? I created bins of age &lt;= [14,30,60,…], and trained an SVM with Pclass, Parch, SibSp, isMarried and title_level (a different int for each unique title) to assign each missing age to one of the new age bins. My accuracy on a cv set was a mere 67.5%.</p>
-
-<p>Now, consider that I left charisma as it was because it proved to be a good feature (computed as the product between the class and the age computed as given or median of title).</p>
-
-<p>Finally, I reduced the number of features so instead of the initial 12 I went down to 10. (Used a loop of possible features combinations and let it self evaluate the best combo).</p>
-
-<h2 id="conclusions">conclusions</h2>
-
-<p>With my latest iteration, number 13, I landed on the 77 spot of 6,978 participants (as of today).</p>
-
-<blockquote><p>Score on the test set (Kaggle): 81.818%.</p></blockquote>
-
-<p>The key is the feature set. It needs to be expressive, but too much bullshit only drives the model down. So only add important information (remember the boost got from using 20x20 instead of the 28x28 images on the OCR competition).</p>
-
-<p>Treat the results from your cross validation with a grain of salt. Obsessing too much about them may push you to overfit your data! My best score resulted from a model that gave me a lower 85% on my cross validation sets. A good hint comes from the number of support vectors distilled by the model!</p>
-
-<p>I have only spent a couple of days on features, with a creative team I am sure that the results can be improved greatly. There are many ideas to try like:</p>
-
-<ul>
-  <li>use a neural network to get a better age estimate.</li>
-  <li>mix and match models and make them vote on predictions.</li>
-  <li>try new narratives than can be converted into features (like the intuition that a father who survives will do the utmost for his children to survive too).</li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/20/">&larr; Older</a>
@@ -700,6 +589,10 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/01/11/Hunting-Tips/">Hunting Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/12/12/Promises/">Founder Forecasts: a double-edged sword</a>
       </li>
     
@@ -715,10 +608,6 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
         <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -732,7 +621,7 @@ a^{(3)} = h_{\Theta}(x) = g(z^{(3)})
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 -  Javier Soto <br/>
+  Copyright &copy; 2017 -  Javier Soto <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>

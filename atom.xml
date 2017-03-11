@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2016-12-13T12:26:05-08:00</updated>
+  <updated>2017-03-11T14:15:26-08:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,6 +12,58 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Hunting Tips]]></title>
+    <link href="http://sotoseattle.github.io/blog/2017/01/11/Hunting-Tips/"/>
+    
+    <updated>2017-01-11T12:00:40-08:00</updated>
+    <id>http://sotoseattle.github.io/blog/2017/01/11/Hunting-Tips</id>
+    
+    <content type="html"><![CDATA[<p>Last week I had the pleasure to attend the Angel Capital Association Northwest Regional Meeting in Portland, Oregon. I specially enjoyed the atmosphere of camaraderie and common effort to make the PNW a vibrant and healthy startup ecosystem.</p>
+
+<p>A specially interesting talk was given by Rob Wiltbank, CEO of Galois and Professor of Entrepreneurship at Willamette University. The following is a bastardization of his ideas for my investing purposes:</p>
+
+<!--more-->
+
+<h3 id="understand-your-limits">Understand Your Limits</h3>
+
+<p>Investors are good enough at differentiating the losing propositions (&lt;1x) from the rest. That means that while experience, knowledge and due diligence can help investors filter out the bad apples, we cannot seem to differentiate among the winning bets. We cannot seem to be able to figure out which investments will provide the highest returns (&gt;30x) among them all. For each selected investment, we can only be sure (up to a point) that it may not fail, not that it will provide a better return than its portfolio peers.</p>
+
+<h3 id="adjust-expectations">Adjust Expectations</h3>
+
+<p>A sobering fact when factoring in success scenarios is that most acquisitions (80%) of startups by public companies are for less than \$50M. If your portfolio is based on modelling all exits at the \$150M watermark you are up for a surprise. When modeling exit paths and expected returns, adjust them according to realistic probabilities.</p>
+
+<p>Also, on the average, bad investments are short lived (less than 3 years), low return ones (1-5x) have an average life of 3 years, and the best ones ones come to roost the last (average 6/8 years), with the best exits at years 6 and 7, and later ones trailing off. Again, averages are tricky but don’t dismiss them.</p>
+
+<h3 id="timing-matters">Timing Matters</h3>
+
+<p>The business cycle impacts returns. The length of the business cycle (7 - 8 year) is similar to  the life horizon of our standard investments, so it is not the same to invest in a peak as in a valley. We’ll do better if we enter right after a cycle bust, because our investments will come to roost at the next peak, providing exit valuations under optimistic conditions. Conversely, if we invest in the peak, what could have been a 5-10x in good times, can become a 1-5x. When comparing studies from 2005 and 2012 this explains the fluctuation of the total percentage of poor returns (&lt;1x) which can fluctuate between 70% and 50%.</p>
+
+<p>Interestingly enough, homeruns remain constant across cycles, and 10% of exits give you approx 90% of the value independent of business cycle timing. These homeruns exit in 6 to 8 years, so the better we time them the better for us.</p>
+
+<h3 id="price-matters">Price Matters</h3>
+
+<p>The Valuation at which we invest matters. Yes, it may be immaterial for homeruns due to the outsized outcome in comparison to the entry point, but it is not the same, when selling at 30, to have bought at 10 than 3. And since we cannot ascertain which ones will be homeruns, or even differentiate between 1-5x from 5-10x, we have an incentive to price them all downwards.</p>
+
+<p>By the way, so far the data analyzed shows that price/valuation has no predictive power for returns at our stage of investing. And we still don’t know when this threshold is crossed (in which financing round price becomes predictor). So don’t sweat it.</p>
+
+<h3 id="good-is-not-enough">Good is not enough</h3>
+
+<p>Additionally, given that, for most of our portfolio, exits are most probable in the \$20M - \$50M range, we should avoid capped opportunities, companies that although offer us a good investment opportunity in risk/return terms, still we expect them to exit at low valuations. An example is a viable company in a small market that we believe will exit at \$20M. We should aim to overweight our portfolio with big game, outsized opportunities, and potential homeruns.</p>
+
+<p><br /></p>
+
+<hr />
+
+<p><br /></p>
+
+<p>A sensible strategy is to focus on avoiding bad bets (a proxy signal: they survive 3 years) and focusing on startups that can make a sizeable difference, uncapped in potential and targeting big enough market opportunities. This will translate in a lot of ducklings that offer &gt;1x returns, among them (hopefully) some still untransformed swans. Time will tell, the low returns will become nice fat ducks in 3 to 6 years, and those that live more than 6y (necessary condition yet not sufficient), may become our homeruns.</p>
+
+]]></content>
+    
+  </entry>
   
   <entry>
     
@@ -2600,63 +2652,6 @@
 </span><span class="line">    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
 </span><span class="line">  <span class="k">end</span>
 </span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-]]></content>
-    
-  </entry>
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Ask before pushing]]></title>
-    <link href="http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm/"/>
-    
-    <updated>2014-09-16T08:01:00-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2014/09/16/git-push-confirm</id>
-    
-    <content type="html"><![CDATA[<p>During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally in git, besides, as they say, when in doubt reset –hard. But once your code is committed up to a publicly available and centralized repo, you become the butt of jokes in the office, people point at you behind your back and changing history becomes a nightmare.</p>
-
-<p>I have found a little trick that helps with this, git hooks!</p>
-
-<p>Inside your .git folder there is another one, ‘hooks’, and inside, there is a treasure trove of configurable callbacks to personalize your git work flow.</p>
-
-<p>There are many good sources in the Internet to check. Here is a good walk through: <a href="http://blog.ittybittyapps.com/blog/2013/09/03/git-pre-push/">link</a>. And this is the <a href="http://git-scm.com/book/en/Customizing-Git-Git-Hooks">Chacon bible</a> chapter about it.</p>
-
-<p>I ended including the following file ‘.git/hooks/pre-push’, which forces a confirmation every time I intend to push to master. Many other variants are possible, like making sure that your tests have run before pushing, I recommend exploring them all.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c">#!/bin/bash</span>
-</span><span class="line">
-</span><span class="line"><span class="nv">protected_branch</span><span class="o">=</span><span class="s1">&#39;master&#39;</span>
-</span><span class="line"><span class="nv">current_branch</span><span class="o">=</span><span class="k">$(</span>git symbolic-ref HEAD | sed -e <span class="s1">&#39;s,.*/\(.*\),\1,&#39;</span><span class="k">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">if</span> <span class="o">[</span> <span class="nv">$protected_branch</span> <span class="o">=</span> <span class="nv">$current_branch</span> <span class="o">]</span>
-</span><span class="line"><span class="k">then</span>
-</span><span class="line"><span class="k">    </span><span class="nb">read</span> -p <span class="s2">&quot;You&#39;re about to push master, is that what you intended? [y|n] &quot;</span> -n 1 -r &lt; /dev/tty
-</span><span class="line">    <span class="nb">echo</span>
-</span><span class="line"><span class="nb">    </span><span class="k">if </span><span class="nb">echo</span> <span class="nv">$REPLY</span> | grep -E <span class="s1">&#39;^[Yy]$&#39;</span> &gt; /dev/null
-</span><span class="line">    <span class="k">then</span>
-</span><span class="line"><span class="k">        </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line">    <span class="k">fi</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>1 <span class="c"># push will not execute</span>
-</span><span class="line"><span class="k">else</span>
-</span><span class="line"><span class="k">    </span><span class="nb">exit </span>0 <span class="c"># push will execute</span>
-</span><span class="line"><span class="k">fi</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div>
 ]]></content>
     

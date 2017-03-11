@@ -9,20 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="As a reminder, when testing BDD style a Rails app these are helpful to have close by: 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-# Rakefile
-require File.expand_path &hellip;">
+  <meta name="description" content="The Equalizer gem provides a nifty example of Ruby metaprogramming. It is a module that when added to your class helps define equality, equivalence &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -124,6 +111,86 @@ require File.expand_path &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/05/Metaprogramming/">Ruby Metaprogramming in Action</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-05T08:01:00-07:00" pubdate data-updated="true">Oct 5<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>The <a href="https://github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of Ruby metaprogramming.</p>
+
+<p>It is a module that when added to your class helps define equality, equivalence and inspection methods.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@latitude</span><span class="p">,</span> <span class="vi">@longitude</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line"><span class="n">point_b</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">inspect</span>    <span class="c1"># =&gt; &quot;#&lt;GeoLocation latitude=1 longitude=2&gt;&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_b</span>           <span class="c1"># =&gt; true</span>
+</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/05/Metaprogramming/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -321,51 +388,6 @@ require File.expand_path &hellip;">
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/09/15/Back-to-School/">Back to School</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-09-15T08:01:00-07:00" pubdate data-updated="true">Sep 15<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In order to hone in my coding skills and get up to par with professional best practices I am joining the <em>Rails Dev Accelerator Course</em> imparted by <a href="http://www.codefellows.com">Code Fellows</a>.</p>
-
-<p>Code Fellows is a start up inserted in the middle of the Amazon campus in South Lake Union. It is a dynamic environment full of energetic and passionate coders (students, staff and teachers).</p>
-
-<p>It promises to be 8 frantic weeks of theory and practice based on all kinds of coding assignments. I’ll try to keep up blogging in the interim but please forgive me if the workload keeps me away from these posts.</p>
-
-<p><a href="http://www.codefellows.com"><img class="center" src="/images/logos/codefellows.png" width="200" title="Code Fellows logo" /></a></p>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/8/">&larr; Older</a>
@@ -383,6 +405,10 @@ require File.expand_path &hellip;">
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/01/11/Hunting-Tips/">Hunting Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/12/12/Promises/">Founder Forecasts: a double-edged sword</a>
       </li>
     
@@ -398,10 +424,6 @@ require File.expand_path &hellip;">
         <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -415,7 +437,7 @@ require File.expand_path &hellip;">
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 -  Javier Soto <br/>
+  Copyright &copy; 2017 -  Javier Soto <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>

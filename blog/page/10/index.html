@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="In the previous three posts we saw that we can compute approximate marginals in the mini Ising grid with uneven results. The more polarized the &hellip;">
+  <meta name="description" content="How to sample a distribution The first method we need is to find a random assignment given a discrete distribution. For example, if we have a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,208 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/10/Gibbs-code/">MCMC Gibbs - Code</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-10T08:01:00-08:00" pubdate data-updated="true">Feb 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2 id="how-to-sample-a-distribution">How to sample a distribution</h2>
+
+<p>The first method we need is to find a random assignment given a discrete distribution. For example, if we have a distribution over a single variable with cardinality 3, [p0, p1, p2] = [0.25, 0.35, 0.4] we:</p>
+
+<ul>
+  <li>create the cumulative distr =&gt; [c1, c2, c3] = [0.25, 0.60, 1.0]</li>
+  <li>pick up a random number r between 0 and 1 (based on uniform dist), let’s say we get 0.43</li>
+  <li>create a new array based on [c &gt;= r] =&gt; [False, True, True]</li>
+  <li>the first True gives us the assignment, in this case 1 out of possible assignments (0, 1, 2).</li>
+</ul>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Sample Randomly From Given Distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">randSampleDist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">card</span><span class="p">,</span> <span class="n">probs</span><span class="p">):</span>
+</span><span class="line">    <span class="n">cum_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">probs</span><span class="p">)</span>
+</span><span class="line">    <span class="n">u</span> <span class="o">=</span> <span class="n">uniform</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">cum_prob</span><span class="p">))</span>
+</span><span class="line">    <span class="n">included</span> <span class="o">=</span> <span class="n">cum_prob</span><span class="o">&gt;=</span><span class="n">u</span>
+</span><span class="line">    <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">included</span><span class="o">==</span><span class="bp">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c"># get first</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">sample</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="find-distribution-for-a-variable-given-a-complete-assignment">Find distribution for a variable given a complete assignment</h2>
+
+<p>Now we are going to get the distribution of a variable given that all other variables have been assigned. We operate in log space for easier computations.</p>
+
+<p>The key is to understand that for each factor fu that includes the variable we can reduce it with the assignment (excluding the sampling variable) and marginalize for all variables (excluding the sampling variable) to come up with the distribution for that variable. Operating in log space we add this arrays of probabilities to come up with the total distribution.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Log Distribution for a Variable Given an Assignment</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">logDistAss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_var</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
+</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">])</span>
+</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">cardio</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_to_factors</span><span class="p">[</span><span class="n">sample_var</span><span class="p">]:</span>
+</span><span class="line">        <span class="n">evi</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">evidence</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">k</span><span class="o">!=</span> <span class="n">sample_var</span><span class="p">)</span>
+</span><span class="line">        <span class="n">fu</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_dist</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">)</span>
+</span><span class="line">        <span class="n">logbp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fu</span><span class="p">)</span>
+</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="n">logbp</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">logbp</span><span class="p">)</span> <span class="c"># to avoid underflow when back in normal space</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">logbp</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Note three things:</p>
+
+<ul>
+  <li>that FactorOperations.extract is an added method that works the same as marginalize but marginalizing in a sweep all variables except the one to extract.</li>
+  <li>.var_to_factors is a dictionary where for each variable we have a set of the factors it is involved with. This structure is computed once and allows us to compute faster the sampling process.</li>
+  <li>to speed up things I have coded a utility function based on reducing a factor by evidence. It gets an assignment to all factor variables except one and produces an array with the distribution resulting for that variable.</li>
+</ul>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Reducing Factor to a single var distribution</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">reduce_to_dist</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;reduce factor by complete assignment to a single variable distribution&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">ass</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">evidence</span><span class="p">:</span>
+</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evidence</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">            <span class="n">ass</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="bp">None</span><span class="p">))</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">counter</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error in observed vars&quot;</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ass</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="one-step-down-the-chain">One step down the Chain</h2>
+
+<p>The Gibbs sampling process, starts with a complete assignment and ends with another complete assignment. For each variable we:</p>
+
+<ul>
+  <li>compute the distribution based on the other assigned variables, </li>
+  <li>find it’s new assignment based on rolling a dice on the distribution,</li>
+  <li>update the assignment with this new value so for the new iteration one variable of the assignment has changed</li>
+</ul>
+
+<p>We repeat for all variables, updating all variables in the process, until we get a newly complete assignment that corresponds to the new state in the Markov Chain.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Gibbs 1 step down the Markov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">Gibbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ass</span><span class="p">):</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">:</span>
+</span><span class="line">        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDistAss</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="n">ass</span><span class="p">)</span>
+</span><span class="line">        <span class="n">ass</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">randSampleDist</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">(),</span> <span class="n">exp</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">ass</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="running-around-the-chain">Running around the Chain</h2>
+
+<p>Collecting samples from the Markov Chain is as easy as running iteratively the previous Gibbs method. We introduce two new inputs:</p>
+
+<ul>
+  <li>mix_time: how many steps to take before we think the chain has converged and we start collecting samples. Consider that at the start we are wondering near the initial assignment and to reach a ‘real’ assignment we need enough time walking around.</li>
+  <li>num_samples: after mixing time, how many steps to take, how many samples to collect.</li>
+</ul>
+
+<p>The code is self explanatory:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Collecting Samples from the Makov Chain</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sampleMarkovChain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
+</span><span class="line">    <span class="n">max_iter</span> <span class="o">=</span> <span class="n">mix_time</span> <span class="o">+</span> <span class="n">num_samples</span>
+</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)])</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+</span><span class="line">        <span class="n">seed_assignment</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Gibbs</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)</span>
+</span><span class="line">        <span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="n">seed_assignment</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">seed_assignment</span><span class="p">)]</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">mix_time</span><span class="p">:</span>
+</span><span class="line">            <span class="n">all_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">all_samples</span><span class="p">,</span> <span class="n">sol</span><span class="p">))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">all_samples</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="inference">Inference</h2>
+
+<p>Now that we have the samples we can compute the estimated marginals by counting, for each variable, how many times each as assignment shows up.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Inference from MCMC using Gibbs Transitions</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">infere</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">):</span>
+</span><span class="line">    <span class="n">all_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampleMarkovChain</span><span class="p">(</span><span class="n">mix_time</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">seed_assignment</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">):</span>
+</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">([</span><span class="n">x</span><span class="p">])</span>
+</span><span class="line">        <span class="n">M</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fill_values</span><span class="p">(</span><span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">all_samples</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float</span><span class="p">)))</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">M</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -703,456 +905,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/07/LBP-2/">Loopy Belief Propagation (II)</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-07T08:01:00-08:00" pubdate data-updated="true">Feb 7<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>I am going to start abstracting the behavior of the cluster graph class, since Clique Tree and Bethe Graphs are specific cases of cluster graphs and inherit from it common methods. To begin with, I only keep here the way to compute messages. I’ll add more through later refactorization.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Cluster Graph</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">ClusterGraph</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">mssg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
-</span><span class="line">        <span class="n">mess</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">to_w</span><span class="p">:</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">from_v</span><span class="p">)</span>
-</span><span class="line">                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
-</span><span class="line">                <span class="n">mess</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-</span><span class="line">        <span class="c"># the initial Psi</span>
-</span><span class="line">        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
-</span><span class="line">        <span class="c"># multiply by incoming messages</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">mess</span><span class="p">:</span>
-</span><span class="line">            <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>  <span class="c">#### NORMALIZING</span>
-</span><span class="line">        <span class="c"># marginalized to setsep vars</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">to_w</span><span class="p">]):</span>
-</span><span class="line">                <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">d</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>For the specific case we are working on, since I don’t know how to create other cluster graphs beyond the Bethe, I put everything under its name. Reading the code we see that the initialization comes from the BetheNetwork, the message passage schedule is a modified BFS (almost verbatim to Clique Tree), and the main difference is in the way we calibrate. Now we cycle through firing messages, and only stop when for a whole sequence (all messages sent on all edges) there is no material diference in the messages passed (all values of all messages before and after sent are less than a tolerance value).</p>
-
-<p>Either convergence is achieved or we cycle more than 1,000, in either way we stop and with whatever data we have available we compute the beliefs.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Bethe Cluster Graph</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-<span class="line-number">46</span>
-<span class="line-number">47</span>
-<span class="line-number">48</span>
-<span class="line-number">49</span>
-<span class="line-number">50</span>
-<span class="line-number">51</span>
-<span class="line-number">52</span>
-<span class="line-number">53</span>
-<span class="line-number">54</span>
-<span class="line-number">55</span>
-<span class="line-number">56</span>
-<span class="line-number">57</span>
-<span class="line-number">58</span>
-<span class="line-number">59</span>
-<span class="line-number">60</span>
-<span class="line-number">61</span>
-<span class="line-number">62</span>
-<span class="line-number">63</span>
-<span class="line-number">64</span>
-<span class="line-number">65</span>
-<span class="line-number">66</span>
-<span class="line-number">67</span>
-<span class="line-number">68</span>
-<span class="line-number">69</span>
-<span class="line-number">70</span>
-<span class="line-number">71</span>
-<span class="line-number">72</span>
-<span class="line-number">73</span>
-<span class="line-number">74</span>
-<span class="line-number">75</span>
-<span class="line-number">76</span>
-<span class="line-number">77</span>
-<span class="line-number">78</span>
-<span class="line-number">79</span>
-<span class="line-number">80</span>
-<span class="line-number">81</span>
-<span class="line-number">82</span>
-<span class="line-number">83</span>
-<span class="line-number">84</span>
-<span class="line-number">85</span>
-<span class="line-number">86</span>
-<span class="line-number">87</span>
-<span class="line-number">88</span>
-<span class="line-number">89</span>
-<span class="line-number">90</span>
-<span class="line-number">91</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">BetheGraph</span><span class="p">(</span><span class="n">ClusterGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">singletonFactors</span><span class="p">,</span> <span class="n">MultivarFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="c"># we assume the cluster graph is built beforehand</span>
-</span><span class="line">        <span class="n">listOfFactors</span> <span class="o">=</span> <span class="n">singletonFactors</span>
-</span><span class="line">        <span class="n">n_singles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">listOfFactors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">MultivarFactors</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">V</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)</span>
-</span><span class="line">        <span class="n">set_vars</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span><span class="p">]</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">BetheGraph</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">set_vars</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_singles</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">listOfFactors</span><span class="p">)):</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-</span><span class="line">                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_singles</span><span class="p">):</span>
-</span><span class="line">                    <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="ow">and</span> <span class="n">i</span><span class="o">!=</span><span class="n">j</span><span class="p">:</span>
-</span><span class="line">                        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="c"># clone an initialized adj structure for message propagation</span>
-</span><span class="line">        <span class="c"># and create initial messages all to ones</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">from_v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">to_w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">                <span class="n">vars_passed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">to_w</span><span class="p">])</span>
-</span><span class="line">                <span class="n">fu</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">vars_passed</span><span class="p">)))</span>
-</span><span class="line">                <span class="n">fu</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">fu</span><span class="o">.</span><span class="n">cards</span><span class="p">)</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span> <span class="o">=</span> <span class="n">fu</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line">        <span class="c">#prev_deltas = np.array([c for a in copy.copy(self.delta) for b in a for c in b.values])</span>
-</span><span class="line">        <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">        <span class="n">cycles</span><span class="p">,</span> <span class="n">messages</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
-</span><span class="line">        <span class="k">while</span> <span class="n">keep_going</span><span class="p">:</span>
-</span><span class="line">            <span class="n">cycles</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">            <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
-</span><span class="line">                <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">                <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">                <span class="c"># multiply factor in node self.factor[from_v] with incoming mssg</span>
-</span><span class="line">                <span class="n">messages</span> <span class="o">+=</span><span class="mi">1</span>
-</span><span class="line">                <span class="n">prev_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">                <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">                <span class="n">new_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">new_res</span><span class="p">,</span> <span class="n">prev_res</span><span class="p">,</span> <span class="mf">1e-12</span><span class="p">):</span>
-</span><span class="line">                    <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">
-</span><span class="line">            <span class="k">if</span> <span class="n">cycles</span><span class="o">&gt;</span><span class="mi">1000</span><span class="p">:</span>
-</span><span class="line">                <span class="k">print</span> <span class="s">&#39;SHIT! IT IS TAKING TOO LONG, ABORT!&#39;</span>
-</span><span class="line">                <span class="n">keep_going</span> <span class="o">=</span> <span class="bp">False</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">print</span> <span class="s">&#39;Cycles:&#39;</span><span class="p">,</span> <span class="n">cycles</span><span class="p">,</span> <span class="s">&#39;Messages passed&#39;</span><span class="p">,</span> <span class="n">messages</span>
-</span><span class="line">        <span class="c"># compute the beliefs</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="n">belief</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">v</span><span class="p">]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-</span><span class="line">                <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
-</span><span class="line">                <span class="n">belief</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">belief</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> <span class="c">#### NORMALIZING</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">belief</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">computePath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="sd">&#39;&#39;&#39;Still using reversed BFS as default&#39;&#39;&#39;</span>
-</span><span class="line">        <span class="n">start</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># choose an arbitrary min-neighbor node</span>
-</span><span class="line">        <span class="n">mino</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">)</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">            <span class="n">new_min</span> <span class="o">=</span> <span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">new_min</span><span class="o">&lt;</span><span class="n">mino</span><span class="p">:</span>
-</span><span class="line">                <span class="n">start</span> <span class="o">=</span> <span class="n">i</span>
-</span><span class="line">                <span class="n">mino</span> <span class="o">=</span> <span class="n">new_min</span>
-</span><span class="line">        <span class="n">forward</span> <span class="o">=</span> <span class="n">BFS_Paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">discoveryPath</span>
-</span><span class="line">        <span class="n">forward</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="c"># we dont need the last node</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">temp</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">        <span class="n">marked</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">from_v</span> <span class="ow">in</span> <span class="n">forward</span><span class="p">:</span>
-</span><span class="line">            <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
-</span><span class="line">            <span class="n">marked</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-</span><span class="line">            <span class="n">potentials</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">marked</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">potentials</span><span class="p">:</span>
-</span><span class="line">                <span class="n">to_v</span> <span class="o">=</span> <span class="n">q</span>
-</span><span class="line">                <span class="n">temp</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_v</span><span class="p">])</span>
-</span><span class="line">        <span class="n">edges</span> <span class="o">=</span> <span class="n">temp</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">temp</span><span class="p">):</span>
-</span><span class="line">            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">edges</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The nice thing is that we can use the small Ising grid (n=3) to both run exact inference (as clique tree) and loopy belief propagation, so we can compare results.</p>
-
-<p>For the case where all pairwise potentials are 0.5 (on and off diagonal), LBP only needs 2 cycles to achieve convergence, and the marginals are exact (coincide with results given by clique tree).</p>
-
-<p>If we start screwing things up by distancing the values between the diagonal and the rest things start changing. For example, with pairwise potentials of [0.7, 0.3], to achieve convergence the Bethe needs 9 cycles, 432 messages passed, and the approximate marginals are pretty much on the mark!</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.397366060615</td>
-      <td style="text-align: right">0.394122247658</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.424979590531</td>
-      <td style="text-align: right">0.423293282411</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.445407803138</td>
-      <td style="text-align: right">0.447301221331</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.475570349842</td>
-      <td style="text-align: right">0.479431838868</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.622892947007</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.622150908803</td>
-      <td style="text-align: right">0.641436349469</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.618791664308</td>
-      <td style="text-align: right">0.632073831741</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.66867562514</td>
-      <td style="text-align: right">0.692517183179</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.665842695853</td>
-      <td style="text-align: right">0.683969083626</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Here is the code to run it:</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Running</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
-</span><span class="line"><span class="n">t1</span> <span class="o">=</span> <span class="n">ToyNetwork</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="o">.</span><span class="mi">7</span><span class="p">,</span> <span class="o">.</span><span class="mi">3</span><span class="p">])</span>
-</span><span class="line"><span class="n">CG</span> <span class="o">=</span> <span class="n">BetheGraph</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[:</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">],</span> <span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">n</span><span class="o">*</span><span class="n">n</span><span class="p">:])</span>
-</span><span class="line"><span class="n">CG</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line"><span class="c"># EXACT MARGINALS</span>
-</span><span class="line"><span class="n">cc</span> <span class="o">=</span> <span class="n">CliqueTree</span><span class="p">(</span><span class="n">t1</span><span class="o">.</span><span class="n">factors</span><span class="p">)</span>
-</span><span class="line"><span class="n">cc</span><span class="o">.</span><span class="n">calibrate</span><span class="p">()</span>
-</span><span class="line"><span class="n">sol</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="n">t1</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line"><span class="k">for</span> <span class="n">belief</span> <span class="ow">in</span> <span class="n">cc</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span>
-</span><span class="line">    <span class="n">vs</span> <span class="o">=</span> <span class="n">belief</span><span class="o">.</span><span class="n">variables</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">sol</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">]</span><span class="o">==</span><span class="bp">None</span><span class="p">:</span>
-</span><span class="line">            <span class="n">b</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">belief</span><span class="p">)</span>
-</span><span class="line">            <span class="n">new_set</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">vs</span> <span class="k">if</span> <span class="n">a</span><span class="o">!=</span><span class="n">x</span><span class="p">]</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">new_set</span><span class="p">:</span>
-</span><span class="line">                <span class="n">b</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</span><span class="line">            <span class="n">sol</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line"><span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sol</span><span class="p">):</span>
-</span><span class="line">    <span class="k">print</span> <span class="s">&#39;var&#39;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s">&quot;:&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">&#39;----&#39;</span><span class="p">,</span> <span class="n">CG</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The problem is that as we unbalance the potentials the LBP starts giving us very bad results. For example, for [1.0, 0.2] we need 13 cycles, 624 messages and even at convergence the results are way off:</p>
-
-<table class="widetable">
-  <thead>
-    <tr>
-      <th style="text-align: center">var</th>
-      <th style="text-align: right">exact marginal</th>
-      <th style="text-align: right">approx. marg (LBP)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"> </td>
-      <td style="text-align: right"> </td>
-      <td style="text-align: right"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: center">0</td>
-      <td style="text-align: right">0.537310955208</td>
-      <td style="text-align: right">0.841504523883</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">1</td>
-      <td style="text-align: right">0.556558936419</td>
-      <td style="text-align: right">0.888905344335</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">2</td>
-      <td style="text-align: right">0.552439017812</td>
-      <td style="text-align: right">0.861003173355</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">3</td>
-      <td style="text-align: right">0.573509953445</td>
-      <td style="text-align: right">0.913335600629</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">4</td>
-      <td style="text-align: right">0.6</td>
-      <td style="text-align: right">0.973450365328</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">5</td>
-      <td style="text-align: right">0.607090867757</td>
-      <td style="text-align: right">0.953516447573</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">6</td>
-      <td style="text-align: right">0.611810074317</td>
-      <td style="text-align: right">0.92709223937</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">7</td>
-      <td style="text-align: right">0.621715017707</td>
-      <td style="text-align: right">0.966544220838</td>
-    </tr>
-    <tr>
-      <td style="text-align: center">8</td>
-      <td style="text-align: right">0.626241528067</td>
-      <td style="text-align: right">0.942899850003</td>
-    </tr>
-  </tbody>
-</table>
-<p><br /></p>
-
-<p>Loopy Propagation doesn’t promise you to converge, and if it does converge it doesn’t mean it has to end up somewhere near the exact marginal. There are three things that make this behavior the more probable: 1) having tight loops, 2) having spiked potentials (or big differences), and 3) having conflicting directions (two nodes tend to agree on a cycle, and disagree in another). Tomorrow I am going to research alternative ways to pass messages and other potential tricks to aid the LBP.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/11/">&larr; Older</a>
@@ -1170,6 +922,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/01/11/Hunting-Tips/">Hunting Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/12/12/Promises/">Founder Forecasts: a double-edged sword</a>
       </li>
     
@@ -1185,10 +941,6 @@
         <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -1202,7 +954,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 -  Javier Soto <br/>
+  Copyright &copy; 2017 -  Javier Soto <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>

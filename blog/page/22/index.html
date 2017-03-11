@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Instead of using a Random Forest as suggested I am going to start with Softmax regression. datasets The original kaggle/mnist data is therefore &hellip;">
+  <meta name="description" content="Reading this post I realized that we may be able to use a simple logistic regression on a 1-to-1 basis for those cases the softmax model gets wrong. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,311 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/10/06/OCR-Analaysis/">Kaggle Digit OCR: Softmax Analysis</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-10-06T09:03:00-07:00" pubdate data-updated="true">Oct 6<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Reading this <a href="http://peekaboo-vision.blogspot.com/2012/12/another-look-at-mnist.html">post</a> I realized that we may be able to use a simple logistic regression on a 1-to-1 basis for those cases the softmax model gets wrong. </p>
+
+<p>We extract the 970 images that we misclassified (out of the 12.000 of our validation set). Then for each image we compute the hypothesis function of each image using the optimized parameters (previously stored). </p>
+
+<p>Let’s get as an example the 42<sup>nd</sup> image from the evaluation set:</p>
+
+<p><img class="center" src="/images/kaggle_ocr/xe_42.png" width="400" height="400" title="Seven" /></p>
+
+<p>The hypothesis function of the image outputs the following probabilities for each label (0 to 9) that we have multiplied by 100: <code>[43.79, 7.6e-09, 0.37, 0.0008, 0.12, 0.44, 55.11, 0.02, 0.09, 0.02]</code></p>
+
+<p>Our model mis classifies it as a 6 (highest probability of 55%) but it is really meant to be a 0. Now, realize that the second choice, the second maximum is for label 0 (with 43% probability), the right one!. Furthermore, the second choice is at a big distance from everyone else (less than 1%). So even if softmax failed, it was pretty close.</p>
+
+<p>If we could pick and choose the cases where first and second choice were close by, we could tell the model to disregard the softmax choice and instead, for that particular case, perform a logistic regression between the two choices. Generalized to all possible combinations of first and second choices we would need to compute $(n-1)n/2 = 45$ times the 784 parameters.</p>
+
+<p>We can derive from the data that, of the 970 misclassified images on the evaluation set, 608 (or 62%) happen to have as second choice the true class. For example, the most frequent misclassification in this later group happens differentiating between 7 and 9, (69 times out of 608).</p>
+
+<p>Let’s make a small experiment and see if it is true that logit works better than softmax when figuring 7s and 9s. We,</p>
+
+<ul>
+  <li>extract from the training and evaluation test all images whose true label is 7 or 9. </li>
+  <li>derive the opt thetas for a simple logistic regression from the extracted training set.</li>
+  <li>compare on the extracted evaluation set the accuracy of both, softmax and logistic regression.</li>
+</ul>
+
+<p>Softmax gets it right 90.8% and logit 95.8%. Lets repeat it for the most conflicting pairs previously identified:</p>
+
+<table class="widetable">
+  <thead>
+    <tr>
+      <th style="text-align: center">pairs</th>
+      <th style="text-align: center">count</th>
+      <th style="text-align: center">softmax_acc(%)</th>
+      <th style="text-align: center">logit_acc(%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">7 vs. 9</td>
+      <td style="text-align: center">69</td>
+      <td style="text-align: center">90.8</td>
+      <td style="text-align: center">95.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 9</td>
+      <td style="text-align: center">53</td>
+      <td style="text-align: center">91.3</td>
+      <td style="text-align: center">96.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 8</td>
+      <td style="text-align: center">46</td>
+      <td style="text-align: center">86.6</td>
+      <td style="text-align: center">96.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 5</td>
+      <td style="text-align: center">40</td>
+      <td style="text-align: center">87.6</td>
+      <td style="text-align: center">96.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1 vs. 8</td>
+      <td style="text-align: center">37</td>
+      <td style="text-align: center">93.5</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 8</td>
+      <td style="text-align: center">33</td>
+      <td style="text-align: center">89.4</td>
+      <td style="text-align: center">97.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 3</td>
+      <td style="text-align: center">32</td>
+      <td style="text-align: center">90.2</td>
+      <td style="text-align: center">97.3</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 8</td>
+      <td style="text-align: center">29</td>
+      <td style="text-align: center">89.6</td>
+      <td style="text-align: center">97.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 7</td>
+      <td style="text-align: center">24</td>
+      <td style="text-align: center">91.0</td>
+      <td style="text-align: center">98.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 6</td>
+      <td style="text-align: center">21</td>
+      <td style="text-align: center">90.2</td>
+      <td style="text-align: center">97.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 6</td>
+      <td style="text-align: center">19</td>
+      <td style="text-align: center">95.8</td>
+      <td style="text-align: center">98.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 9</td>
+      <td style="text-align: center">19</td>
+      <td style="text-align: center">90.0</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2 vs. 6</td>
+      <td style="text-align: center">18</td>
+      <td style="text-align: center">92.9</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 5</td>
+      <td style="text-align: center">15</td>
+      <td style="text-align: center">90.4</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">0 vs. 2</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">93.0</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">3 vs. 7</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">91.2</td>
+      <td style="text-align: center">98.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">5 vs. 9</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">87.1</td>
+      <td style="text-align: center">98.5</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 6</td>
+      <td style="text-align: center">12</td>
+      <td style="text-align: center">94.4</td>
+      <td style="text-align: center">99.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">8 vs. 9</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">89.2</td>
+      <td style="text-align: center">98.7</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">4 vs. 5</td>
+      <td style="text-align: center">10</td>
+      <td style="text-align: center">88.8</td>
+      <td style="text-align: center">98.6</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>Here is the module for logistic regression:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>logit module</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">math</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+</span><span class="line"><span class="kn">import</span> <span class="nn">scipy</span> <span class="kn">as</span> <span class="nn">sc</span>
+</span><span class="line"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># MODULE FOR LOGISTIC REGRESSION</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">sigmoid</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1E-11</span><span class="p">))(</span><span class="n">z</span><span class="p">)</span>
+</span><span class="line">    <span class="c">#return np.vectorize(lambda x: 1/(1+np.exp(-x)))(z)</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;hypothesis function. probability of input x with params t&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;cost function J(theta)&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">prediction</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+</span><span class="line">    <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="n">J</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">prediction</span><span class="p">))</span> <span class="o">-</span>        \
+</span><span class="line">            <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prediction</span><span class="p">))</span> <span class="o">+</span>    \
+</span><span class="line">            <span class="p">(</span><span class="n">lam</span><span class="o">/</span><span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">::],</span> <span class="mi">2</span><span class="p">)))</span><span class="o">/</span><span class="n">m</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">J</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">v</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;gradient function, first partial derivation of J(theta)&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">prediction</span> <span class="o">=</span> <span class="n">sigmoid</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+</span><span class="line">    <span class="n">regu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">::,]</span><span class="o">*</span><span class="n">lam</span><span class="p">])</span>
+</span><span class="line">    <span class="n">grad</span> <span class="o">=</span> <span class="p">((</span><span class="n">prediction</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">regu</span><span class="p">)</span><span class="o">/</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">grad</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">,</span> <span class="n">visual</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;derive thetas using l_bfgs algorithm&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lam</span><span class="p">)</span>
+</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">visual</span><span class="p">:</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">thetas</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">f</span>
+</span><span class="line">        <span class="k">print</span> <span class="n">d</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+</span><span class="line">    <span class="n">acc</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class="line">    <span class="n">m</span><span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+</span><span class="line">        <span class="n">p</span> <span class="o">=</span> <span class="n">h</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">,::])</span>
+</span><span class="line">        <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">&gt;</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">p</span><span class="o">&lt;=</span><span class="mf">0.5</span> <span class="ow">and</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+</span><span class="line">                <span class="n">acc</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">acc</span><span class="o">/</span><span class="n">m</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -578,79 +883,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2013/10/04/Softmax-IV/">Softmax Theory: $θ$</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-10-04T09:02:00-07:00" pubdate data-updated="true">Oct 4<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>To train the model and find the parameters we need some sort of gradient descent algorithm. In python <a href="http://en.wikipedia.org/wiki/Broyden%E2%80%93Fletcher%E2%80%93Goldfarb%E2%80%93Shanno_algorithm">fmin_bfgs</a> takes way too long and hogs memory, while it’s sister <a href="http://en.wikipedia.org/wiki/Limited-memory_BFGS">fmin_l_bfgs_b</a> is much faster and lighter.</p>
-
-<p>To call it we need to consider the following issues:</p>
-
-<ul>
-  <li>we need to pass the cost and gradient function separately (unlike in Octave).</li>
-  <li>the first argument of the function and of its derivation has to be the parameter to be optimized.</li>
-  <li>tinit is an initial set of parameters from which to start the search, a good compromise is <code>0.005 * np.random.rand(labels, n)</code>.</li>
-  <li>for the l_bfgs to work the gradient format must be rolled out (not in matrix form).</li>
-  <li>the optimizing algorithm provides additional useful information [f, d] about the search performed.</li>
-  <li>other options, like the maximum number of iterations to perform or the convergence tolerance can be researched online.</li>
-</ul>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>optimizing thetas</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-</span><span class="line"><span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">fmin_l_bfgs_b</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">optimizeThetas</span><span class="p">(</span><span class="n">tinit</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">j</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
-</span><span class="line">    <span class="k">def</span> <span class="nf">fprime</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
-</span><span class="line">        <span class="k">return</span> <span class="n">v</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">GT</span><span class="p">,</span> <span class="n">numLabels</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="p">[</span><span class="n">thetas</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">d</span><span class="p">]</span> <span class="o">=</span> <span class="n">fmin_l_bfgs_b</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">tinit</span><span class="p">,</span> <span class="n">fprime</span><span class="o">=</span><span class="n">fprime</span><span class="p">,</span> <span class="n">maxiter</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">thetas</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/23/">&larr; Older</a>
@@ -668,6 +900,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/01/11/Hunting-Tips/">Hunting Tips</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2016/12/12/Promises/">Founder Forecasts: a double-edged sword</a>
       </li>
     
@@ -683,10 +919,6 @@
         <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/03/04/Seattlerb-GoL/">Seattle Ruby Game Of Life</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -700,7 +932,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2016 -  Javier Soto <br/>
+  Copyright &copy; 2017 -  Javier Soto <br/>
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a> + <a href="https://github.com/ioveracker/mnml">mnml</a>.
 	  
   </span>
