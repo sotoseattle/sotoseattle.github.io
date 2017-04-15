@@ -9,7 +9,20 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="During the usual git work flow we get so used to re-keying commands that sometimes we push up without thinking. Most things are easy to fit locally &hellip;">
+  <meta name="description" content="As a reminder, when testing BDD style a Rails app these are helpful to have close by: 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+# Rakefile
+require File.expand_path &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +124,120 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/17/Rails-BDD/">Rails BDD Cheats</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-17T18:01:00-07:00" pubdate data-updated="true">Sep 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>As a reminder, when testing BDD style a Rails app these are helpful to have close by:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># Rakefile</span>
+</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../config/application&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">load_tasks</span>
+</span><span class="line">
+</span><span class="line"><span class="ss">Rails</span><span class="p">:</span><span class="ss">:TestTask</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;test:features&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;test:prepare&#39;</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+</span><span class="line">  <span class="n">t</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;test/features/**/*_test.rb&#39;</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="ss">Rake</span><span class="p">:</span><span class="ss">:Task</span><span class="o">[</span><span class="s1">&#39;test:run&#39;</span><span class="o">].</span><span class="n">enhance</span> <span class="o">[</span><span class="s1">&#39;test:features&#39;</span><span class="o">]</span>
+</span><span class="line">
+</span><span class="line"><span class="n">task</span> <span class="ss">default</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test_helper.rb</span>
+</span><span class="line"><span class="c1"># ENV[&#39;RAILS_ENV&#39;] ||= &#39;test&#39;</span>
+</span><span class="line"><span class="no">Rails</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;Current environment: </span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../../config/environment&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;rails/test_help&#39;</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;minitest/rails/capybara&#39;</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;capybara/poltergeist&#39;</span>
+</span><span class="line"><span class="c1"># require &#39;pry-rescue/minitest&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">ActiveSupport</span><span class="o">::</span><span class="no">TestCase</span>
+</span><span class="line">  <span class="n">fixtures</span> <span class="ss">:all</span>
+</span><span class="line">  <span class="no">Capybara</span><span class="o">.</span><span class="n">javascript_driver</span> <span class="o">=</span> <span class="ss">:poltergeist</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># test/features/do_some_test.rb</span>
+</span><span class="line"><span class="nb">require</span> <span class="s1">&#39;test_helper&#39;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">feature</span> <span class="s1">&#39;Do something&#39;</span> <span class="k">do</span>
+</span><span class="line">  <span class="n">scenario</span> <span class="s1">&#39;anybody can do something&#39;</span> <span class="k">do</span>
+</span><span class="line">    <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -239,183 +366,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/16/MCC-MH-SW2/">MCMC MH Swendsen Wang v.2.</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-16T08:01:00-08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>In variant II we change the way we compute Q and R.</p>
-
-<h2 id="the-q-continuum">The Q Continuum</h2>
-
-<p>Q, the transition probability, now depends on the probabilities of the factors on each edge. If I understand it all correctly, it is defined as a ratio between the sum of probabilities of both nodes in the edge maintaining its old assignment, to the the sum of probabilities of all possible assignment for both nodes. Remember that in variant I this was uniformly set to 0.5.</p>
-
-<script type="math/tex; mode=display">
-q_{ij} := \frac{\sum_u{\Phi_{i,j}(u,u)}}{\sum_{u,v}{\Phi_{i,j}(u,v)}}
-</script>
-
-<p>The way we compute each <script type="math/tex">q_{ij}</script> is not complicated. Beware that we are assuming there is a single factor in each edge.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Q variant II</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">qij_var_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
-</span><span class="line">    <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
-</span><span class="line">    <span class="n">fuedge</span> <span class="o">=</span> <span class="p">[</span><span class="n">fu</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">factors</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
-</span><span class="line">    <span class="n">num</span><span class="p">,</span> <span class="n">den</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">ass_1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">()):</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">ass_2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">totCard</span><span class="p">()):</span>
-</span><span class="line">            <span class="n">value</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fuedge</span><span class="p">,</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span><span class="n">ass_1</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="n">ass_2</span><span class="p">})</span>
-</span><span class="line">            <span class="n">den</span> <span class="o">+=</span> <span class="n">value</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">ass_1</span><span class="o">==</span><span class="n">ass_2</span><span class="p">:</span>
-</span><span class="line">                <span class="n">num</span> <span class="o">+=</span> <span class="n">value</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">num</span><span class="o">/</span><span class="n">den</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="r-not-as-simple-as-it-seems">R, not as simple as it seems</h2>
-
-<p>R will be the logDistAss probability that we computed for Gibbs, but now instead of observing one var at a time, we observe a group. It has taken me my sweet time to figure out how to do it (based on what I already did in PA5 but more out of luck than reasoning).</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>R is Simple</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
-</span><span class="line">	<span class="o">...</span>
-</span><span class="line">    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
-</span><span class="line">        <span class="n">logR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDistAss</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Y_v_id</span><span class="p">],</span> <span class="n">from_ass</span><span class="p">)</span>
-</span><span class="line">    <span class="o">...</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>The key for LogDistAss is that when we are looking at extracting from a factor the probability of a variable given that all the other variables in the factor have an assignment, like in the Bigss sampling code, it is very fast and we already have utility method that does that.</p>
-
-<p>When instead of one, we have a set of variables, we need to reduce the factor by the assigned variables and then marginalize by the rest up to obtaining the distribution. The following code is messy, my understanding of it is not completly firm, and it should be refactored, which I leave for a future time.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>LogProbability of Partial Assignment Not So Easy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">logDistAss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_vars</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
-</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">])</span>
-</span><span class="line">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cardio</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
-</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;All sampling vars must have the same cardinality&quot;</span><span class="p">)</span>
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">cardio</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">all_f</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fu</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sample_vars</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_to_factors</span><span class="p">[</span><span class="n">a</span><span class="p">]))</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">all_f</span><span class="p">:</span>
-</span><span class="line">        <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">]</span>
-</span><span class="line">
-</span><span class="line">        <span class="n">evi</span><span class="p">,</span> <span class="n">mar</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[]</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
-</span><span class="line">                <span class="n">evi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-</span><span class="line">            <span class="k">else</span><span class="p">:</span>
-</span><span class="line">                <span class="n">mar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
-</span><span class="line">            <span class="n">dist</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_dist</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">)</span>
-</span><span class="line">        <span class="k">else</span><span class="p">:</span>
-</span><span class="line">            <span class="n">gg</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-</span><span class="line">            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mar</span><span class="p">:</span>
-</span><span class="line">                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
-</span><span class="line">                    <span class="n">gg</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">gg</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-</span><span class="line">            <span class="n">dist</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">values</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">logbp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="n">logbp</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">logbp</span><span class="p">)</span> <span class="c"># to avoid underflow when back in normal space</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">logbp</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<h2 id="analysis">Analysis</h2>
-
-<p>Following the same procedures and initial inputs as we did for Gibbs, MH Uniform and SW-I we produce the following chart for comparison purposes.</p>
-
-<p>Mixing time:</p>
-
-<p><img class="center" src="/images/feb14/MHSW_2_mix.png" width="500" title="Mixing Windows Run 1" /></p>
-
-<p>Sample Size:</p>
-
-<p><img class="center" src="/images/feb14/MHSW_2_size.png" width="500" title="Sample Size Run 1" /></p>
-
-<p>Marginals Convergence for the extreme case [0.95, 0.05]:</p>
-
-<p><img class="center" src="/images/feb14/MHSW_2_cross.png" width="500" /></p>
-
-<p>Histogram of dist to true marginal based on 100 runs on 16 node Ising:</p>
-
-<p><img class="center" src="/images/feb14/MHSW_2_hist.png" width="500" /></p>
-
-<p>Amazing. An Average error of 0.04 0with standard deviation of 0.01.</p>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/9/">&larr; Older</a>
@@ -437,6 +387,10 @@ q_{ij} := \frac{\sum_u{\Phi_{i,j}(u,u)}}{\sum_{u,v}{\Phi_{i,j}(u,v)}}
       </li>
     
       <li class="post">
+        <a href="/blog/2017/04/15/Team-Balancing/">Founding Team Balancing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2017/03/11/Hunting-Tips/">Hunting Tips</a>
       </li>
     
@@ -446,10 +400,6 @@ q_{ij} := \frac{\sum_u{\Phi_{i,j}(u,u)}}{\sum_{u,v}{\Phi_{i,j}(u,v)}}
     
       <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
   </ul>

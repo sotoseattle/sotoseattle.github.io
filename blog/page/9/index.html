@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="We continue with Assignment 5 from Prof. Koller’s Coursera course: “Probabilistic Graphical Models”. I am including the explanation from the &hellip;">
+  <meta name="description" content="In variant II we change the way we compute Q and R. The Q Continuum Q, the transition probability, now depends on the probabilities of the factors on &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,183 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/16/MCC-MH-SW2/">MCMC MH Swendsen Wang v.2.</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-16T08:01:00-08:00" pubdate data-updated="true">Feb 16<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In variant II we change the way we compute Q and R.</p>
+
+<h2 id="the-q-continuum">The Q Continuum</h2>
+
+<p>Q, the transition probability, now depends on the probabilities of the factors on each edge. If I understand it all correctly, it is defined as a ratio between the sum of probabilities of both nodes in the edge maintaining its old assignment, to the the sum of probabilities of all possible assignment for both nodes. Remember that in variant I this was uniformly set to 0.5.</p>
+
+<script type="math/tex; mode=display">
+q_{ij} := \frac{\sum_u{\Phi_{i,j}(u,u)}}{\sum_{u,v}{\Phi_{i,j}(u,v)}}
+</script>
+
+<p>The way we compute each <script type="math/tex">q_{ij}</script> is not complicated. Beware that we are assuming there is a single factor in each edge.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Q variant II</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">qij_var_2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+</span><span class="line">    <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+</span><span class="line">    <span class="n">fuedge</span> <span class="o">=</span> <span class="p">[</span><span class="n">fu</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">factors</span> <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">y</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">)][</span><span class="mi">0</span><span class="p">]</span>
+</span><span class="line">    <span class="n">num</span><span class="p">,</span> <span class="n">den</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">ass_1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">totCard</span><span class="p">()):</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">ass_2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">totCard</span><span class="p">()):</span>
+</span><span class="line">            <span class="n">value</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_value</span><span class="p">(</span><span class="n">fuedge</span><span class="p">,</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span><span class="n">ass_1</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span><span class="n">ass_2</span><span class="p">})</span>
+</span><span class="line">            <span class="n">den</span> <span class="o">+=</span> <span class="n">value</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">ass_1</span><span class="o">==</span><span class="n">ass_2</span><span class="p">:</span>
+</span><span class="line">                <span class="n">num</span> <span class="o">+=</span> <span class="n">value</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">num</span><span class="o">/</span><span class="n">den</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="r-not-as-simple-as-it-seems">R, not as simple as it seems</h2>
+
+<p>R will be the logDistAss probability that we computed for Gibbs, but now instead of observing one var at a time, we observe a group. It has taken me my sweet time to figure out how to do it (based on what I already did in PA5 but more out of luck than reasoning).</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>R is Simple</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">MH_Swendsen_Wang</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_ass</span><span class="p">):</span>
+</span><span class="line">	<span class="o">...</span>
+</span><span class="line">    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">variant</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
+</span><span class="line">        <span class="n">logR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logDistAss</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">G</span><span class="o">.</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Y_v_id</span><span class="p">],</span> <span class="n">from_ass</span><span class="p">)</span>
+</span><span class="line">    <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The key for LogDistAss is that when we are looking at extracting from a factor the probability of a variable given that all the other variables in the factor have an assignment, like in the Bigss sampling code, it is very fast and we already have utility method that does that.</p>
+
+<p>When instead of one, we have a set of variables, we need to reduce the factor by the assigned variables and then marginalize by the rest up to obtaining the distribution. The following code is messy, my understanding of it is not completly firm, and it should be refactored, which I leave for a future time.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>LogProbability of Partial Assignment Not So Easy</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">logDistAss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_vars</span><span class="p">,</span> <span class="n">evidence</span><span class="p">):</span>
+</span><span class="line">    <span class="n">cardio</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">totCard</span><span class="p">()</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">])</span>
+</span><span class="line">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cardio</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;All sampling vars must have the same cardinality&quot;</span><span class="p">)</span>
+</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">]</span><span class="o">*</span><span class="n">cardio</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">all_f</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fu</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">sample_vars</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_to_factors</span><span class="p">[</span><span class="n">a</span><span class="p">]))</span>
+</span><span class="line">    <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">all_f</span><span class="p">:</span>
+</span><span class="line">        <span class="n">vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sample_vars</span><span class="p">]</span>
+</span><span class="line">
+</span><span class="line">        <span class="n">evi</span><span class="p">,</span> <span class="n">mar</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">[]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
+</span><span class="line">                <span class="n">evi</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">evidence</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">mar</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+</span><span class="line">            <span class="n">dist</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">reduce_to_dist</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">)</span>
+</span><span class="line">        <span class="k">else</span><span class="p">:</span>
+</span><span class="line">            <span class="n">gg</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">fu</span><span class="p">,</span> <span class="n">evi</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">mar</span><span class="p">:</span>
+</span><span class="line">                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gg</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">gg</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">gg</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+</span><span class="line">            <span class="n">dist</span> <span class="o">=</span> <span class="n">gg</span><span class="o">.</span><span class="n">values</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">logbp</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">    <span class="n">logbp</span> <span class="o">=</span> <span class="n">logbp</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">logbp</span><span class="p">)</span> <span class="c"># to avoid underflow when back in normal space</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">logbp</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="analysis">Analysis</h2>
+
+<p>Following the same procedures and initial inputs as we did for Gibbs, MH Uniform and SW-I we produce the following chart for comparison purposes.</p>
+
+<p>Mixing time:</p>
+
+<p><img class="center" src="/images/feb14/MHSW_2_mix.png" width="500" title="Mixing Windows Run 1" /></p>
+
+<p>Sample Size:</p>
+
+<p><img class="center" src="/images/feb14/MHSW_2_size.png" width="500" title="Sample Size Run 1" /></p>
+
+<p>Marginals Convergence for the extreme case [0.95, 0.05]:</p>
+
+<p><img class="center" src="/images/feb14/MHSW_2_cross.png" width="500" /></p>
+
+<p>Histogram of dist to true marginal based on 100 runs on 16 node Ising:</p>
+
+<p><img class="center" src="/images/feb14/MHSW_2_hist.png" width="500" /></p>
+
+<p>Amazing. An Average error of 0.04 0with standard deviation of 0.01.</p>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -559,87 +736,6 @@ Q(x \rightarrow x') = C(Y|x) R(Y = l'|x_Y )
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/02/12/MCMC-MH-Theory/">MCMC ~ Metropolis Hastings</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-02-12T08:01:00-08:00" pubdate data-updated="true">Feb 12<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>With Gibbs sampling, we changed the assigment of our variables one at a time, and after cycling though all the variables we got to new state, a complete new assignment to all variables. </p>
-
-<p>For regular chains, Gibbs sampling is a legal MCMC transition, meaning that it results in a Markov Chain with the right stationary distribution. But with high autocorrelations between variables, trying to change the value of one variable at a time tends to leave us in the same state or the same cluster of similar states, because the one variable we change at a time remains strongly constrained by its neighbors. So mixing is slow. </p>
-
-<p>We’d like to use a transition that lets us make bigger moves around the state space, but we still have to make sure our transition is a legal MCMC. The Metropolis-Hastings algorithm tries to do this. We choose the transition we actually want – one that takes large steps around the state space. Then we modify that transition, using an acceptance probability, that forces it into a legal MCMC transition. </p>
-
-<h2 id="q-and-a">Q and A</h2>
-
-<p>Our MCMC transition then has two steps. First we choose a proposed new state (x’), using our transition probabilities Q(x → x’). Then we accept that new state, with probability A(x → x’). If the transition is accepted, our new assignment is the proposed new state, but if the transition is rejected, our new assignment is the same as the old one.</p>
-
-<p>For a given proposal transition Q(x → x’), the acceptance probability is given by: </p>
-
-<script type="math/tex; mode=display">
-\begin{align}
-
-A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(x \rightarrow x')} \right]
-
-\end{align}
-</script>
-
-<p>The key is that A is determined once we know Q, so the art is in finding the right Q. One that:</p>
-
-<ul>
-  <li>
-    <p>is reversible, so if there is a positive probability of getting from x to x’, then the probability of getting from x’ to x is also positive.</p>
-  </li>
-  <li>
-    <p>allows us to go far away places, but without getting so far away that the probability of acceptances becomes too low, because then we won’t move at all.</p>
-  </li>
-</ul>
-
-<p>Finding Q is hard, and an art that depends of the PGM at hand. Also, a legal Q is such that for every two states/assignments (x, x’), the probability of transitioning (x → x’) is exactly the same as the probability of transitioning in reverse (x’ → x), [such property is called ‘detailed balance’]. </p>
-
-<h2 id="q-as-gibbs-or-gibbs-as-mh">Q as Gibbs, or Gibbs as MH</h2>
-
-<p>We can insert Gibbs into our MH framework with a trick. We consider that the Gibbs sampling method is our Q(x → x’), our way of finding new assignment (even if in litle steps which violates the MH goal, but it is a trick). Since Gibbs is already legal, all we need is to define an approval distribution A(x → x’) that always accepts whatever Q (Gibbs) brings, for example A(x → x’) = 1.</p>
-
-<h2 id="q-as-the-uniform-distribution">Q as the Uniform distribution</h2>
-
-<p>A very simple Q is based on the Uniform distribution. For all the variables in the assignment we randomly choose (independently) new assignments. Brutishly. All at once. Then we compute the transitions by multiplying the specific probabilities of getting that evidence (to and from the initial assignment from/to the new assignment). Now we can compute the acceptance probability A.</p>
-
-<p>The problem is that because we are pulling out assignments out of a hat randomly, most of them will be very unique/unrelated and therefore with low-probability transition. A low probability transition will surely get rejected by the acceptance step, and so we end up lingering in one state rather than exploring the state space. So we may end up with tons of failed trials, tons of staying put, and we only move out of the assignment when we don’t go too far.</p>
-
-<p>Ising models and image segmentation applications tend to rely on pairwise Markov networks. In these networks, adjacent variables tend to take on the same values. This makes it hard to explore the space for proposal distributions which change the value of one variable at a time, such as Gibbs or the uniform proposal distribution.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/10/">&larr; Older</a>
@@ -661,6 +757,10 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
       </li>
     
       <li class="post">
+        <a href="/blog/2017/04/15/Team-Balancing/">Founding Team Balancing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2017/03/11/Hunting-Tips/">Hunting Tips</a>
       </li>
     
@@ -670,10 +770,6 @@ A(x \rightarrow x') = min \left[ 1, \frac{\pi(x') Q(x' \rightarrow x)}{\pi(x) Q(
     
       <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
   </ul>

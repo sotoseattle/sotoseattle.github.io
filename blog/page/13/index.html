@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="And now we revisit our revised Decoupled Genetic Network for cystic fibrosis and instead of infering marginals by computing the overal factor product &hellip;">
+  <meta name="description" content="We can use the same inference engine based on clique trees to not only find the exact marginals but also the most probable assignments (MAP: Maximum &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,200 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/01/23/Max-Sum/">Factors Sum and Max_Marginalization</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-01-23T08:01:00-08:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>We can use the same inference engine based on clique trees to not only find the exact marginals but also the most probable assignments (MAP: Maximum A Posteriori).</p>
+
+<p>We’ll first change from probabilities to log-proabilities for all factor values to avoid underflows since all product operations becomes sums. Then, factor sum is, like its factor product counterpart, a new factor with all possible assignments born from combining all variables and whose values correspond to the element-wise sum of values. We also look for a way to max marginalize a factor over a variable v, meaning that we obtain the highest probability of the remaining variables once v is set.</p>
+
+<p>The changes to our Factor Operations in vectorized form are trivial.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Max Sum Factor Operations</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">fB</span><span class="p">,</span> <span class="n">norma</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+</span><span class="line">    <span class="sd">&#39;&#39;&#39;expanding factors to the whole set of variables, then we can sum element-wise&#39;&#39;&#39;</span>
+</span><span class="line">    <span class="n">allVars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">fB</span><span class="o">.</span><span class="n">variables</span><span class="p">)))</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">allVars</span><span class="p">)</span>
+</span><span class="line">    <span class="n">FA</span> <span class="o">=</span> <span class="n">expand_rvars</span><span class="p">(</span><span class="n">allVars</span><span class="p">,</span> <span class="n">fA</span><span class="p">)</span>
+</span><span class="line">    <span class="n">FB</span> <span class="o">=</span> <span class="n">expand_rvars</span><span class="p">(</span><span class="n">allVars</span><span class="p">,</span> <span class="n">fB</span><span class="p">)</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">FA</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="n">FB</span><span class="o">.</span><span class="n">values</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">norma</span><span class="p">:</span>
+</span><span class="line">        <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span><span class="line">
+</span><span class="line"><span class="k">def</span> <span class="nf">max_marginalize</span><span class="p">(</span><span class="n">fA</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+</span><span class="line">    <span class="n">new_vs</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span> <span class="k">if</span> <span class="n">e</span> <span class="o">!=</span> <span class="n">v</span> <span class="p">]</span>
+</span><span class="line">    <span class="k">if</span> <span class="n">new_vs</span><span class="o">==</span><span class="p">[]:</span>
+</span><span class="line">        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;Error: Resultant factor has empty scope&quot;</span><span class="p">)</span>
+</span><span class="line">    <span class="n">f</span> <span class="o">=</span> <span class="n">Factor</span><span class="o">.</span><span class="n">Factor</span><span class="p">(</span><span class="n">new_vs</span><span class="p">)</span>
+</span><span class="line">    <span class="n">pos_m</span> <span class="o">=</span> <span class="n">fA</span><span class="o">.</span><span class="n">variables</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class="line">    <span class="n">f</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">fA</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">pos_m</span><span class="p">)</span>
+</span><span class="line">    <span class="k">return</span> <span class="n">f</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Finally, we need to change the clique calibration code to infer a MAP from it. We will assume that the potentials are as is and only at calibration, if we look for the MAP we signal the Tree and for calibration purposes it converts to log space and uses factor sum and max marginalization instead of factor product and standard marginalization.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibration for MAP</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+<span class="line-number">40</span>
+<span class="line-number">41</span>
+<span class="line-number">42</span>
+<span class="line-number">43</span>
+<span class="line-number">44</span>
+<span class="line-number">45</span>
+<span class="line-number">46</span>
+<span class="line-number">47</span>
+<span class="line-number">48</span>
+<span class="line-number">49</span>
+<span class="line-number">50</span>
+<span class="line-number">51</span>
+<span class="line-number">52</span>
+<span class="line-number">53</span>
+<span class="line-number">54</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
+</span><span class="line">    <span class="o">...</span>
+</span><span class="line">    <span class="k">def</span> <span class="nf">mssg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">,</span> <span class="n">isMax</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># collect all mssg arriving at v</span>
+</span><span class="line">        <span class="n">mess</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class="line">        <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">to_w</span><span class="p">:</span>
+</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">from_v</span><span class="p">)</span>
+</span><span class="line">                <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
+</span><span class="line">                <span class="n">mess</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># take the the initial Psi (and log if needed)</span>
+</span><span class="line">        <span class="n">d</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">from_v</span><span class="p">])</span>
+</span><span class="line">        <span class="k">if</span> <span class="n">isMax</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+</span><span class="line">            <span class="n">d</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># multiply/sum by incoming messages</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">mess</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">isMax</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+</span><span class="line">                <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">            <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># marginalized to setsep vars</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">to_w</span><span class="p">]):</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">isMax</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">max_marginalize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span class="line">                <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</span><span class="line">        <span class="k">return</span> <span class="n">d</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isMax</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
+</span><span class="line">        <span class="c"># compute messages</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">():</span>
+</span><span class="line">            <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
+</span><span class="line">            <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">,</span> <span class="n">isMax</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">        <span class="c"># compute the beliefs</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
+</span><span class="line">            <span class="n">belief</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
+</span><span class="line">            <span class="k">if</span> <span class="n">isMax</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+</span><span class="line">                <span class="n">belief</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">belief</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
+</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class="line">                <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">isMax</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">belief</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">belief</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">                <span class="k">else</span><span class="p">:</span>
+</span><span class="line">                    <span class="n">belief</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">belief</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">belief</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -349,137 +543,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/20/Calibration/">Calibration of Clique Tree</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-20T08:01:00-08:00" pubdate data-updated="true">Jan 20<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Beforehand we built the clique tree (with all its nodes, edges and initialized potentials) and a sensible propagation schedule. Now, we follow the schedule and compute for each edge the message ($\delta_{ij}$) passed between nodes $C_i$ and $C_j$. After just two passes, once forward and once backwards, we are guaranteed to have achieved calibration over the junction tree. At this moment all the necessary $\delta$ are now computed and we can compute the beliefs ($\beta$) in each node as the product of the initial potential and all its incomming messages. Having achieved calibration the exact marginals of all variables coincide independently on which belief/node we marginalize.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Calibration</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-<span class="line-number">19</span>
-<span class="line-number">20</span>
-<span class="line-number">21</span>
-<span class="line-number">22</span>
-<span class="line-number">23</span>
-<span class="line-number">24</span>
-<span class="line-number">25</span>
-<span class="line-number">26</span>
-<span class="line-number">27</span>
-<span class="line-number">28</span>
-<span class="line-number">29</span>
-<span class="line-number">30</span>
-<span class="line-number">31</span>
-<span class="line-number">32</span>
-<span class="line-number">33</span>
-<span class="line-number">34</span>
-<span class="line-number">35</span>
-<span class="line-number">36</span>
-<span class="line-number">37</span>
-<span class="line-number">38</span>
-<span class="line-number">39</span>
-<span class="line-number">40</span>
-<span class="line-number">41</span>
-<span class="line-number">42</span>
-<span class="line-number">43</span>
-<span class="line-number">44</span>
-<span class="line-number">45</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">	<span class="o">...</span>
-</span><span class="line">	<span class="c"># clone an initialized adj structure for message propagation</span>
-</span><span class="line">	<span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="p">[[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">)]</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">mssg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">):</span>
-</span><span class="line">    <span class="c"># collect all mssg arriving at v</span>
-</span><span class="line">    <span class="n">mess</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span class="line">    <span class="n">neighbors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">n</span><span class="o">!=</span><span class="n">to_w</span><span class="p">:</span>
-</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">from_v</span><span class="p">)</span>
-</span><span class="line">            <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
-</span><span class="line">            <span class="n">mess</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># take the the initial Psi (and log if needed)</span>
-</span><span class="line">    <span class="n">d</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">from_v</span><span class="p">])</span>
-</span><span class="line">    <span class="n">d</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># multiply/sum by incoming messages</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">ms</span> <span class="ow">in</span> <span class="n">mess</span><span class="p">:</span>
-</span><span class="line">        <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># marginalized to setsep vars</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
-</span><span class="line">        <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span> <span class="o">&amp;</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">to_w</span><span class="p">]):</span>
-</span><span class="line">            <span class="n">d</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">marginalize</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
-</span><span class="line">    <span class="k">return</span> <span class="n">d</span>
-</span><span class="line">
-</span><span class="line"><span class="k">def</span> <span class="nf">calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span>
-</span><span class="line">    <span class="c"># compute messages</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">computePath</span><span class="p">():</span>
-</span><span class="line">        <span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span> <span class="o">=</span> <span class="n">e</span>
-</span><span class="line">        <span class="n">pos_to</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">from_v</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">from_v</span><span class="p">][</span><span class="n">pos_to</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mssg</span><span class="p">(</span><span class="n">from_v</span><span class="p">,</span> <span class="n">to_w</span><span class="p">)</span>
-</span><span class="line">
-</span><span class="line">    <span class="c"># compute the beliefs</span>
-</span><span class="line">    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">V</span><span class="p">):</span>
-</span><span class="line">        <span class="n">belief</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">v</span><span class="p">]:</span>
-</span><span class="line">            <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">[</span><span class="n">w</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-</span><span class="line">            <span class="n">delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">[</span><span class="n">w</span><span class="p">][</span><span class="n">pos</span><span class="p">]</span>
-</span><span class="line">            <span class="n">belief</span> <span class="o">=</span> <span class="n">FactorOperations</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">belief</span><span class="p">,</span> <span class="n">delta</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">belief</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/14/">&larr; Older</a>
@@ -501,6 +564,10 @@
       </li>
     
       <li class="post">
+        <a href="/blog/2017/04/15/Team-Balancing/">Founding Team Balancing</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2017/03/11/Hunting-Tips/">Hunting Tips</a>
       </li>
     
@@ -510,10 +577,6 @@
     
       <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
   </ul>
