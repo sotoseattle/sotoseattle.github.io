@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="As the first step to build the clique tree we need to create an induced Markov graph from the factors given. We moralize by connecting all the &hellip;">
+  <meta name="description" content="After a long vacation I have decided to step back and redo the code to include graph algorithims. These ideas come from the Algorithms course I took &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,84 +111,6 @@
     <div id="content">
       <div class="blog-index">
   
-  
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/17/Induced-Markov-Net/">Induced Markov Network</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-17T08:01:00-08:00" pubdate data-updated="true">Jan 17<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>As the first step to build the clique tree we need to create an induced Markov graph from the factors given. We moralize by connecting all the variables in each factor (and therefore losing conditional independences in the process).</p>
-
-<p>We also include a small method to return an optimal node from the graph for variable elimination. In this case we look for the first node in the graph that has the lowest number of neighboring nodes. Similar methods can be coded for different criteria depending on the way we want to build a clique tree through variable elimination.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Induced Markov Network</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-<span class="line-number">9</span>
-<span class="line-number">10</span>
-<span class="line-number">11</span>
-<span class="line-number">12</span>
-<span class="line-number">13</span>
-<span class="line-number">14</span>
-<span class="line-number">15</span>
-<span class="line-number">16</span>
-<span class="line-number">17</span>
-<span class="line-number">18</span>
-</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">IndMarkovNet</span><span class="p">(</span><span class="n">UndGraph</span><span class="p">,</span> <span class="nb">object</span><span class="p">):</span>
-</span><span class="line">    <span class="sd">&#39;&#39;&#39;Induced Markov Network as an undirected graph of linked random variables</span>
-</span><span class="line"><span class="sd">       derived from a list of factors&#39;&#39;&#39;</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
-</span><span class="line">        <span class="n">set_vars</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">v</span> <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="n">listOfFactors</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
-</span><span class="line">        <span class="nb">super</span><span class="p">(</span><span class="n">IndMarkovNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">([[</span><span class="n">e</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">set_vars</span><span class="p">])</span>
-</span><span class="line">        <span class="bp">self</span><span class="o">.</span><span class="n">factors</span> <span class="o">=</span> <span class="n">listOfFactors</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">fu</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factors</span><span class="p">:</span>
-</span><span class="line">            <span class="bp">self</span><span class="o">.</span><span class="n">connectAll</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">index_var</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fu</span><span class="o">.</span><span class="n">variables</span><span class="p">])</span>
-</span><span class="line">
-</span><span class="line">    <span class="k">def</span> <span class="nf">firstMinNeighborVar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span class="line">        <span class="n">minino</span><span class="p">,</span> <span class="n">pos</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s">&#39;inf&#39;</span><span class="p">),</span> <span class="bp">None</span>
-</span><span class="line">        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">a</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj</span><span class="p">):</span>
-</span><span class="line">            <span class="k">if</span> <span class="mi">0</span><span class="o">&lt;</span><span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">&lt;</span><span class="n">minino</span><span class="p">:</span>
-</span><span class="line">                <span class="n">minino</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-</span><span class="line">                <span class="n">pos</span> <span class="o">=</span> <span class="n">i</span>
-</span><span class="line">        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="p">[</span><span class="n">pos</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-</div>
-  
-  
-
-
-    </article>
   
   
     <article>
@@ -501,6 +423,98 @@
 
     </article>
   
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/15/Pruning-Clique-Trees/">PGN: Pruning Clique Trees</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-15T08:01:00-08:00" pubdate data-updated="true">Dec 15<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>In the previous post we created a Clique Tree from a list of factors. The problem is that many times, the clique tree will be too unnecessary big. Many cliques will be subsets of others. It makes sense to collect them together than keep them alive and repeat unnecessary motions. For example, if we have all the info in a clique with variables A,B,C we don’t need another clique (node) that holds variables A and B, since the first one already has it all. We can create a more compact and efficient tree if we prune these unnecessary nodes.</p>
+
+<p>The process is not complicated: Go over all the nodes of the tree one at a time. For each one get its connected nodes (neighbors) and go through them. If the variable set of the node under study is a strict subset of the variable set of one of its connected neighbors we can prune the subset node. The key step is to reconnect the superset node to all the other neighbors of the subset node. Then we just delete the subset node and its associated row and column from the edges matrix.</p>
+
+<p>For example, imagine the following clique tree:</p>
+
+<p>ABC — AB — AE</p>
+
+<p>Let’s say we start with AB. We scan through its neighbors (ABC, AE) and find that AB is a subset of ABC. So we cut off the edges connected to AB and add an edge between ABC and all of AB’s other neighbors (in this case just AE). This maintains the running intersection property and compacts the clique tree which now looks like: ABC – AE.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span>Pruning (unrefactored)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+</pre></td><td class="code"><pre><code class="python"><span class="line"><span class="k">class</span> <span class="nc">CliqueTree</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listOfFactors</span><span class="p">):</span>
+</span><span class="line">        <span class="c"># ... add to the end of code</span>
+</span><span class="line">        <span class="n">keepPruning</span> <span class="o">=</span> <span class="bp">True</span>
+</span><span class="line">        <span class="k">while</span> <span class="n">keepPruning</span><span class="p">:</span>
+</span><span class="line">            <span class="n">keepPruning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pruneNode</span><span class="p">()</span>
+</span><span class="line">
+</span><span class="line">    <span class="k">def</span> <span class="nf">pruneNode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="line">        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span><span class="n">nodeA</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+</span><span class="line">            <span class="n">neighbors</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">idx</span><span class="p">,:])</span> <span class="k">if</span> <span class="n">e</span><span class="o">==</span><span class="mi">1</span><span class="p">]</span>
+</span><span class="line">            <span class="k">for</span> <span class="n">neighbor_idx</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+</span><span class="line">                <span class="k">if</span> <span class="n">nodeA</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor_idx</span><span class="p">]:</span>  <span class="c"># striself variable subset</span>
+</span><span class="line">                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+</span><span class="line">                        <span class="k">if</span> <span class="n">k</span><span class="o">!=</span><span class="n">neighbor_idx</span><span class="p">:</span>
+</span><span class="line">                            <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">neighbor_idx</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">                            <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">neighbor_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c"># delete row,col of edges for nodeA</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span><span class="line">                    <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>      <span class="c"># delete nodeA</span>
+</span><span class="line">                    <span class="k">return</span> <span class="bp">True</span>
+</span><span class="line">        <span class="k">return</span> <span class="bp">False</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/16/">&larr; Older</a>
@@ -518,10 +532,6 @@
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2017/04/15/Team-Dynamics/">Founding Team Dynamics</a>
-      </li>
-    
-      <li class="post">
         <a href="/blog/2017/04/15/Team-Balancing/">Founding Team Balancing</a>
       </li>
     
@@ -535,6 +545,10 @@
     
       <li class="post">
         <a href="/blog/2016/11/18/Unicorns/">Gazelles and Unicorns</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
       </li>
     
   </ul>

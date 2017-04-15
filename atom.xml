@@ -4,7 +4,7 @@
   <title><![CDATA[SotoSeattle]]></title>
   <link href="http://sotoseattle.github.io/atom.xml" rel="self"/>
   <link href="http://sotoseattle.github.io/"/>
-  <updated>2017-04-15T12:43:39-07:00</updated>
+  <updated>2017-04-15T13:04:22-07:00</updated>
   <id>http://sotoseattle.github.io/</id>
   <author>
     <name><![CDATA[Javier Soto]]></name>
@@ -12,58 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    
-    <title type="html"><![CDATA[Founding Team Dynamics]]></title>
-    <link href="http://sotoseattle.github.io/blog/2017/04/15/Team-Dynamics/"/>
-    
-    <updated>2017-04-15T13:00:40-07:00</updated>
-    <id>http://sotoseattle.github.io/blog/2017/04/15/Team-Dynamics</id>
-    
-    <content type="html"><![CDATA[<p>When analyzing a startup team (specially in what it relates to the founders) we need to assess the individual experience and capabilities, personality, motivations and aspirations. We also need to look at how the individual pieces fit together. Things like: Experience of working together, roles each individual plays in the team, do the strengths of some players cover and support the weaknesses of others? Are they aware?</p>
-
-<p>These are some other things to consider when analyzing teams and its dynamics:</p>
-
-<!--more-->
-
-<h3 id="get-things-done-vs-get-it-right">Get-Things-Done vs Get-It-Right</h3>
-
-<p>Society places a premium on doers, many times irrespective of what is done. We all want Founder CEOs that execute fast and furiously, that get things done, that check items off a task list with frantic pleasure. This is a necessary condition , but it is not sufficient.</p>
-
-<p>In the day to day life of a startup there are more things to do than minutes in the day and therefore it is logical to place a premium on doers. But doing a lot of the wrong thing is a waste of time and resources. So &#8216;doing&#8217; has to be balanced with &#8216;thinking&#8217;, &#8216;getting things&#8217; done has to match &#8216;getting it right&#8217;. And while doing is measurable, fast paced and focused, finding the right thing to do, is usually a painfully slow process that involves obsessing and reflecting for days at a time, gathering information and talking with sources, plus a healthy dose of lateral thinking (walking, doodling, etc.), until an a-ha! moment arrives and we clearly see the path ahead.</p>
-
-<p>How many founders with a technical background fall in the comfortable position of writing code instead of thinking why? How many startups start developing the product based on shallow assumptions instead of spending time making sure that the vision clicks?</p>
-
-<p>The best teams mix disciplined doers with creative strategic thinkers. Both roles have to have a certain degree of obsessiveness, one for making sure the sails are set not only correctly but optimized, the other being two steps ahead while setting the course, anticipating obstacles and changes of wind. This is just an example of how this dynamic can work. For another example, Disney saw a renaissance during the 80s thanks to the successful duo formed by Michael Eisner (CEO) and Frank Wells (President). Michael Eisner was the very creative doer that used to rapid fire ideas, and a Frank Wells acted as balance, filtering the best ones and grounding Eisner’s genius.</p>
-
-<h3 id="pioneers-vs-settlers">Pioneers vs Settlers</h3>
-
-<p>Pioneers are best at opening new paths and discover new lands creating new products, setting up new teams, coming up with new ways and facing new challenges with ingenuity and resilience. Pioneers tend not to be in the same place for long, always looking for greener pastures.</p>
-
-<p>Settlers are process oriented. The pioneers open new routes, the settlers create Pony Express. The pioneers discover new outposts, the settlers build the town and operate the Bar and the Bank. They are at their best when given a way that they can systemize, optimize, adapt and, most importantly, scale.</p>
-
-<p>The startup will need more of a pioneer at its early stage and more of a settler when scaling. But, independently of who has more weight at each point of time, we need both at every step. At the end of the day, the business will always be a collection of processes and to avoid re-inventing the wheel at every time, it has to make sure that every successful attempt in each of its engines (customer acquisition, product design, etc) is assimilated into a way of doing things that makes it repeatable and efficient.</p>
-
-<p>If the startup is a collection of Pioneers, it will be a flash in the pan. Beware of hacker collectives, PhD teams of scientists or coders savants. On the other hand, if formed exclusively by Settlers, it may just be a boring copy-paste of someone else’s idea. Beware of teams of C-Suite execs looking to jump on the startup path to riches, nothing-new-here marketplaces that cater to long tail segments, or plain differentiation strategies in mature markets.</p>
-
-<h3 id="hardness-vs-flexibility">Hardness vs. Flexibility</h3>
-
-<p>Over time, the startup will find innumerable challenges, obstacles and threats. How the founding team responds will contribute to its evolving culture and chances of success.</p>
-
-<p>Strength is the ability to withstand without failure, without breakage. But strength has many faces, two of which are Hardness and Flexibility.</p>
-
-<p>Tempered steel is very hard but also very brittle. It is difficult to damage, withstands heavy blows, but once it reaches its limit it crumbles. Some founders respond to threats by grounding their feet, squaring their jaw and not moving an inch. This makes the most sense when the startup cannot renounce to the ground gained, but it is also probable when things like reputation are in play, or when looking back this proved to have been the best line of defense in the past. The founder is vertical and grounded like a tree, immobile as an elephant, stays in place and resists.</p>
-
-<p>On the other hand you have the strategy of the mouse for whom the field is an open space full of possibilities to scurry around. Flexibility as flow, adapting to the threat by not only evading the blow but looking for an opening to gain an advantage. Often times Flexibility means that we don’t engage with the enemy and therefore we give up part of the value conquered. Sometimes it can act as a constraint that forces us to be more creative and strategic.</p>
-
-<p>If in Hardness we stay the course, with Flexibility we pivot. If Hardness is the best option not to lose the covered ground, in Flexibility we start anew, full of possibilities and sometime with less left to lose. Hardness relies on execution and stamina, Flexibility relies on lateral thinking. Hardness may lead to stress and crumbling, Flexibility to demoralization or lack of progress.</p>
-
-<p>Each situation will need a different type of response. It is nevertheless good to have people versed on both types of strength.</p>
-
-]]></content>
-    
-  </entry>
   
   <entry>
     
@@ -2440,6 +2388,236 @@
 <p>You can also user <a href="https://github.com/ddollar/foreman">Foreman</a> and save yourself opening tabs and running things separately.</p>
 
 <p>We haven’t included tests in this template, which is a necessary best practice to follow. I leave it up to you to BDD this template with the necessary tests.</p>
+]]></content>
+    
+  </entry>
+  
+  <entry>
+    
+    <title type="html"><![CDATA[Ruby Metaprogramming in Action]]></title>
+    <link href="http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming/"/>
+    
+    <updated>2014-10-05T08:01:00-07:00</updated>
+    <id>http://sotoseattle.github.io/blog/2014/10/05/Metaprogramming</id>
+    
+    <content type="html"><![CDATA[<p>The <a href="https://github.com/dkubb/equalizer">Equalizer gem</a> provides a nifty example of Ruby metaprogramming.</p>
+
+<p>It is a module that when added to your class helps define equality, equivalence and inspection methods.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@latitude</span><span class="p">,</span> <span class="vi">@longitude</span> <span class="o">=</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line"><span class="n">point_b</span> <span class="o">=</span> <span class="no">GeoLocation</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">inspect</span>    <span class="c1"># =&gt; &quot;#&lt;GeoLocation latitude=1 longitude=2&gt;&quot;</span>
+</span><span class="line">
+</span><span class="line"><span class="n">point_a</span> <span class="o">==</span> <span class="n">point_b</span>           <span class="c1"># =&gt; true</span>
+</span><span class="line"><span class="n">point_a</span><span class="o">.</span><span class="n">hash</span> <span class="o">==</span> <span class="n">point_b</span><span class="o">.</span><span class="n">hash</span> <span class="c1"># =&gt; true</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<!--more-->
+
+<h2 id="include-instance-of-a-module">Include instance of a Module?</h2>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># example</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line"><span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>The first thing that calls the attention when reading the code is the instantiation of the module. What? Weren’t modules used to be abstract, nice little packages of functionality, angelical and stateless, devoid of the tribulations of commoner fleshed-out Objects?</p>
+
+<p>In Ruby everything is an Object, and the following two ways of coding a module are equivalent:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">module</span> <span class="nn">Insane</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">hello</span>
+</span><span class="line">    <span class="s1">&#39;hola&#39;</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="no">Insane</span> <span class="o">=</span> <span class="no">Module</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">hello</span>
+</span><span class="line">    <span class="s1">&#39;hola&#39;</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Let’s inspect the Equalizer’s code:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># equalizer.rb</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">Equalizer</span> <span class="o">&lt;</span> <span class="no">Module</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">keys</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@keys</span> <span class="o">=</span> <span class="n">keys</span>
+</span><span class="line">    <span class="n">define_methods</span>
+</span><span class="line">    <span class="nb">freeze</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="c1"># example</span>
+</span><span class="line"><span class="k">class</span> <span class="nc">GeoLocation</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Equalizer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:latitude</span><span class="p">,</span> <span class="ss">:longitude</span><span class="p">)</span>
+</span><span class="line">  <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>In the last line lies the rub, the double nature of Equalizer.</p>
+
+<ol>
+  <li>Equalizer is a Module and by ‘including’ it, GeoLocation makes all methods from Equalizer available to his objects.</li>
+  <li>Yet Equalizer is defined as a class that can be instantiated.</li>
+</ol>
+
+<p>But we have seen that everything is an object and there is no need to make it a class object, so the instantiation must serve a different purpose.</p>
+
+<p>Yes, by defining Equalizer as a class that can be instantiated, at that moment of instantiation we can pass the specific instance variables in an instant (sorry!) to customize those methods based on the keys passed (latitude and longitude). So Equalizer defines methods based on something undefined (keys), and only at inclusion (when we know which are the instance variables to make comparable) it customizes its module’s methods on the fly.</p>
+
+<p>Although stateless, Equalizer is able to be adapt to the circumstances of each class that will include it. In our example, at instantiation it uses GeoLocation’s latitude and longitude to redefine its methods at the last minute, to the effect of adding to them the ability to be comparable.</p>
+
+<p>Let’s check it works:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">Insane</span> <span class="o">&lt;</span> <span class="no">Module</span>
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class="line">    <span class="n">define_method</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2">?&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="s1">&#39;God!&#39;</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="k">class</span> <span class="nc">Person</span>
+</span><span class="line">  <span class="kp">attr_reader</span> <span class="ss">:who_am_i</span>
+</span><span class="line">  <span class="kp">include</span> <span class="no">Insane</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:who_am_i</span><span class="p">)</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+</span><span class="line">    <span class="vi">@who_am_i</span> <span class="o">=</span> <span class="nb">name</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="n">a</span> <span class="o">=</span> <span class="no">Person</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;javier&#39;</span><span class="p">)</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.who_am_i = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">who_am_i</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">who_am_i</span> <span class="o">=</span> <span class="n">javier</span>
+</span><span class="line"><span class="nb">puts</span> <span class="s2">&quot;a.who_am_i? = </span><span class="si">#{</span><span class="n">a</span><span class="o">.</span><span class="n">who_am_i?</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class="line"><span class="o">=&gt;</span> <span class="n">a</span><span class="o">.</span><span class="n">who_am_i?</span> <span class="o">=</span> <span class="no">God</span><span class="o">!</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Convoluted, pirouettical, and yet it works.</p>
+
+<h2 id="define-method">Define Method</h2>
+
+<p>Among other metaprogramming tricks it uses the define_method extensively. Although this is usually done to create a new named method at runtime, in this case, the method’s names are set from the start, what is created dynamically is the way the method operates.</p>
+
+<p>For example, the cmp? (comparable?) method has a set name (cmp?) and the blocks passed is also well defined (we check that all keys of both objects return the same values), but the fact that we won’t know which keys are available to compare until runtime makes this use an example of metaprogramming.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="c1"># where we make attributes comparable</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">define_cmp_method</span>
+</span><span class="line">  <span class="n">keys</span> <span class="o">=</span> <span class="vi">@keys</span>
+</span><span class="line">  <span class="n">define_method</span><span class="p">(</span><span class="ss">:cmp?</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">comparator</span><span class="p">,</span> <span class="n">other</span><span class="o">|</span>
+</span><span class="line">    <span class="n">keys</span><span class="o">.</span><span class="n">all?</span> <span class="p">{</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span> <span class="nb">send</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">comparator</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">key</span><span class="p">))</span> <span class="p">}</span>
+</span><span class="line">  <span class="k">end</span>
+</span><span class="line">  <span class="kp">private</span> <span class="ss">:cmp?</span>
+</span><span class="line"><span class="k">end</span>
+</span><span class="line">
+</span><span class="line"><span class="c1"># The comparisson method</span>
+</span><span class="line"><span class="k">def</span> <span class="nf">==</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+</span><span class="line">  <span class="n">other</span> <span class="o">=</span> <span class="n">coerce</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="k">if</span> <span class="nb">respond_to?</span><span class="p">(</span><span class="ss">:coerce</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class="line">  <span class="n">other</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">cmp?</span><span class="p">(</span><span class="n">__method__</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Two notes:</p>
+
+<ol>
+  <li>
+    <p>The cmp? method is just a DRY method used to define the real comparison methods (eql? and ==). This way it is easy to extend.</p>
+  </li>
+  <li>
+    <p>Consider also that we include this Equalizer class as an instantiated object when defining the class, so when we instantiate a new object all Equalizer methods are available as instance methods already defined for the existing instance variables.</p>
+  </li>
+</ol>
 ]]></content>
     
   </entry>
