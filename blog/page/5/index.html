@@ -9,7 +9,7 @@
   <meta name="author" content="Javier Soto">
 
   
-  <meta name="description" content="Rails provide a powerful framework to build your own API. But as you evolve your API will evolve too, your code will change and even your schema &hellip;">
+  <meta name="description" content="Walk-through to use Devise with Angular in Rails 4.2. This is more of a jump-through than a walk-through since I am going to be more jumping around &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -111,6 +111,73 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+  
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/30/Devise-Angular-Rails/">Wiring Devise Into Angular + Rails</a></h1>
+      
+      
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-30T16:17:00-07:00" pubdate data-updated="true">Oct 30<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3 id="walk-through-to-use-devise-with-angular-in-rails-42">Walk-through to use Devise with Angular in Rails 4.2.</h3>
+
+<p>This is more of a jump-through than a walk-through since I am going to be more jumping around the code than really walking it slowly. The reason for this is that I think it will be more valuable to have a general idea of how the wiring works than an excessively detailed view that may not apply to most cases (my example was very basic).</p>
+
+<p>Include in your Gemfile devise and bundle. We request at least version 4.3.1 because of some troubles with previous versions and Rails 4.2.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">gem</span> <span class="s1">&#39;devise&#39;</span><span class="p">,</span> <span class="s1">&#39;~&gt; 3.4.1&#39;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Run the generator and follow the config steps suggested by the gem.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">$ </span>rails g devise:install
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Make devise respond to json by adding the following to your application.rb:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="n">config</span><span class="o">.</span><span class="n">to_prepare</span> <span class="k">do</span>
+</span><span class="line">  <span class="no">DeviseController</span><span class="o">.</span><span class="n">respond_to</span> <span class="ss">:html</span><span class="p">,</span> <span class="ss">:json</span>
+</span><span class="line"><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/10/30/Devise-Angular-Rails/">Read on &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -241,73 +308,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-  
-    
-      <h1 class="entry-title"><a href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Ruby Meta-Frolicking</a></h1>
-      
-      
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-10-24T08:01:00-07:00" pubdate data-updated="true">Oct 24<span>th</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>This is a follow up to my path of learning Ruby Metaprogramming. It follows my previous post about the <a href="/blog/2014/10/05/Metaprogramming/">Equalizer gem</a>.</p>
-
-<p>We start with a basic BinaryTree that consists of nodes that just hold a key (val), and two links to the left and right children. This is not a BST, just a raw binary tree where each node is considered a tree in itself.</p>
-
-<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
-<span class="line-number">2</span>
-<span class="line-number">3</span>
-<span class="line-number">4</span>
-<span class="line-number">5</span>
-<span class="line-number">6</span>
-<span class="line-number">7</span>
-<span class="line-number">8</span>
-</pre></td><td class="code"><pre><code class="ruby"><span class="line"><span class="k">class</span> <span class="nc">BinaryTree</span>
-</span><span class="line">  <span class="kp">attr_accessor</span> <span class="ss">:val</span><span class="p">,</span> <span class="ss">:left</span><span class="p">,</span> <span class="ss">:right</span>
-</span><span class="line">
-</span><span class="line">  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-</span><span class="line">    <span class="vi">@val</span> <span class="o">=</span> <span class="n">val</span>
-</span><span class="line">    <span class="vi">@left</span> <span class="o">=</span> <span class="vi">@right</span> <span class="o">=</span> <span class="kp">nil</span>
-</span><span class="line">  <span class="k">end</span>
-</span><span class="line"><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure></notextile></div>
-
-<p>We create an ad-hoc tree that we wire in the following manner.</p>
-
-<p><img class="center" src="/images/Oct14/binary_tree.png" width="300" /></p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2014/10/24/Ruby-Meta-Frolicking/">Read on &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/6/">&larr; Older</a>
@@ -325,6 +325,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2017/04/15/Team-Dynamics/">Founding Team Dynamics</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2017/03/11/Hunting-Tips/">Hunting Tips</a>
       </li>
     
@@ -338,10 +342,6 @@
     
       <li class="post">
         <a href="/blog/2016/06/18/Founders/">Psyc Founders Out</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/12/05/ruby-continuations/">Ruby Continuations</a>
       </li>
     
   </ul>
